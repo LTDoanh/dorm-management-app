@@ -3,24 +3,42 @@ import react from "@vitejs/plugin-react";
 import macrosPlugin from "vite-plugin-babel-macros";
 
 import path from "path";
+
+// Custom plugin để bỏ type="module" khỏi script tags trong HTML output
+const removeModulePlugin = () => {
+    return {
+        name: 'remove-module-type',
+        transformIndexHtml(html) {
+            // Bỏ type="module" và crossorigin attributes
+            return html
+                .replace(/type="module"\s*/g, '')
+                .replace(/crossorigin\s*/g, '');
+        }
+    };
+};
+
 // https://vitejs.dev/config/
-// Fix cho lỗi import.meta trên Zalo Mini App theo hướng dẫn từ Zalo Community
+// Fix cho lỗi import.meta trên Zalo Mini App
 export default () => {
     return defineConfig({
         root: "./src",
         base: "./",
-        plugins: [react(), macrosPlugin()],
+        plugins: [
+            react(),
+            macrosPlugin(),
+            removeModulePlugin() // Plugin để bỏ type="module"
+        ],
         build: {
             target: "es2015",
             outDir: "../dist",
-            // Fix lỗi import.meta - sử dụng format CommonJS
+            modulePreload: false, // Tắt module preload
             rollupOptions: {
                 output: {
-                    format: "cjs", // Đổi sang CommonJS để tránh import.meta
+                    format: "iife", // IIFE format thay vì ESM hoặc CJS
                     inlineDynamicImports: true,
+                    entryFileNames: 'assets/[name]-[hash].js',
                 },
             },
-            // Inline assets để tránh import.meta.url
             assetsInlineLimit: 100000,
         },
         resolve: {
