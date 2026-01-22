@@ -4,6 +4,7 @@ import macrosPlugin from "vite-plugin-babel-macros";
 
 import path from "path";
 // https://vitejs.dev/config/
+// Fix cho lỗi import.meta trên Zalo Mini App theo hướng dẫn từ Zalo Community
 export default () => {
     return defineConfig({
         root: "./src",
@@ -11,19 +12,15 @@ export default () => {
         plugins: [react(), macrosPlugin()],
         build: {
             target: "es2015",
-            // Fix lỗi import.meta trên iOS cho Zalo Mini App
-            modulePreload: {
-                polyfill: false,
-            },
+            outDir: "../dist",
+            // Fix lỗi import.meta - sử dụng format CommonJS
             rollupOptions: {
                 output: {
-                    // Format để tương thích với môi trường Zalo Mini App
-                    format: "iife",
-                    // Inline tất cả vào 1 file để tránh dynamic imports
+                    format: "cjs", // Đổi sang CommonJS để tránh import.meta
                     inlineDynamicImports: true,
                 },
             },
-            // Chuyển đổi assets sang base64 để tránh import.meta.url
+            // Inline assets để tránh import.meta.url
             assetsInlineLimit: 100000,
         },
         resolve: {
