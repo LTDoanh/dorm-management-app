@@ -11,15 +11,20 @@ export default () => {
         plugins: [react(), macrosPlugin()],
         build: {
             target: "es2015",
-            // Cấu hình để tránh import.meta trong build output
+            // Fix lỗi import.meta trên iOS cho Zalo Mini App
+            modulePreload: {
+                polyfill: false,
+            },
             rollupOptions: {
                 output: {
-                    // Inline assets thay vì dùng import.meta.url
+                    // Format để tương thích với môi trường Zalo Mini App
+                    format: "iife",
+                    // Inline tất cả vào 1 file để tránh dynamic imports
                     inlineDynamicImports: true,
                 },
             },
             // Chuyển đổi assets sang base64 để tránh import.meta.url
-            assetsInlineLimit: 100000, // 100KB - inline tất cả assets nhỏ hơn
+            assetsInlineLimit: 100000,
         },
         resolve: {
             alias: {
