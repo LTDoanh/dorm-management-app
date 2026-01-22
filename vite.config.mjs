@@ -10,7 +10,16 @@ export default () => {
         base: "./",
         plugins: [react(), macrosPlugin()],
         build: {
-            target: "es2020",
+            target: "es2015",
+            // Cấu hình để tránh import.meta trong build output
+            rollupOptions: {
+                output: {
+                    // Inline assets thay vì dùng import.meta.url
+                    inlineDynamicImports: true,
+                },
+            },
+            // Chuyển đổi assets sang base64 để tránh import.meta.url
+            assetsInlineLimit: 100000, // 100KB - inline tất cả assets nhỏ hơn
         },
         resolve: {
             alias: {
