@@ -1,6 +1,19 @@
-export const BASE_URL = import.meta.env.VITE_BASE_URL;
-export const MINI_APP_ID =
-    window.APP_ID || (import.meta.env.VITE_MINI_APP_ID as string);
+// @ts-nocheck
+// Sử dụng try-catch để tránh lỗi import.meta trong một số môi trường
+let BASE_URL_VALUE = "";
+let MINI_APP_ID_VALUE = "";
+
+try {
+    BASE_URL_VALUE = import.meta.env?.VITE_BASE_URL || "";
+    MINI_APP_ID_VALUE = (window as any).APP_ID || import.meta.env?.VITE_MINI_APP_ID || "";
+} catch (e) {
+    BASE_URL_VALUE = "";
+    MINI_APP_ID_VALUE = (window as any).APP_ID || "";
+}
+
+export const BASE_URL = BASE_URL_VALUE;
+export const MINI_APP_ID = MINI_APP_ID_VALUE;
+
 export const API = {
     GET_ORGANIZATION: "/get_organization_api",
     SEARCH_PROFILES: "/search_profiles_api",
