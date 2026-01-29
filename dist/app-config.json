@@ -9,7 +9,7 @@
     "hideIOSSafeAreaBottom": true,
     "statusBar": "transparent"
   },
-  "debug": true,
+  "debug": false,
   "listCSS": [],
   "listSyncJS": [],
   "listAsyncJS": [],
