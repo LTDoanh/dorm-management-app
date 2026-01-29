@@ -5,6 +5,7 @@ import { Button, Box, Text, Input, Spinner } from "zmp-ui";
 import { useNavigate, useParams } from "react-router-dom";
 import { useStore } from "@store";
 import { Building, Room } from "@dts";
+import { API_BASE_URL } from "@constants/common";
 
 const BuildingDetailPage: React.FC = () => {
   const { buildingId } = useParams<{ buildingId: string }>();
@@ -25,7 +26,7 @@ const BuildingDetailPage: React.FC = () => {
 
   const loadBuilding = async () => {
     try {
-      const res = await fetch(`http://localhost:4000/api/buildings/${buildingId}`);
+      const res = await fetch(`${API_BASE_URL}/api/buildings/${buildingId}`);
       if (res.ok) {
         const data = await res.json();
         setBuilding(data);
@@ -39,7 +40,7 @@ const BuildingDetailPage: React.FC = () => {
     try {
       setLoading(true);
       const res = await fetch(
-        `http://localhost:4000/api/rooms/building/${buildingId}`
+        `${API_BASE_URL}/api/rooms/building/${buildingId}`
       );
       if (res.ok) {
         const data = await res.json();
@@ -59,7 +60,7 @@ const BuildingDetailPage: React.FC = () => {
       const userId = user?.idByOA || user?.id;
       if (!userId || !buildingId) return;
 
-      const res = await fetch("http://localhost:4000/api/rooms", {
+      const res = await fetch(`${API_BASE_URL}/api/rooms`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -85,7 +86,7 @@ const BuildingDetailPage: React.FC = () => {
   const deleteRoom = async (roomId: string) => {
     if (!confirm("Bạn có chắc muốn xóa phòng này?")) return;
     try {
-      const res = await fetch(`http://localhost:4000/api/rooms/${roomId}`, {
+      const res = await fetch(`${API_BASE_URL}/api/rooms/${roomId}`, {
         method: "DELETE",
       });
       if (res.ok) {

@@ -1,4 +1,5 @@
 import { StateCreator } from "zustand";
+import { API_BASE_URL } from "@constants/common";
 
 export type Bill = {
   id?: number;
@@ -17,7 +18,7 @@ export interface BillSlice {
   getBills: (userId: string) => Promise<void>;
 }
 
-const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:4000";
+const API_BASE = API_BASE_URL;
 
 const createBillSlice: StateCreator<BillSlice> = (set) => ({
   bills: null,

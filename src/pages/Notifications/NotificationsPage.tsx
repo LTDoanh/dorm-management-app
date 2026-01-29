@@ -4,6 +4,7 @@ import { HomeHeader } from "@components";
 import { Box, Text, Button, Input, Spinner } from "zmp-ui";
 import { useNavigate } from "react-router-dom";
 import { useStore } from "@store";
+import { API_BASE_URL } from "@constants/common";
 
 interface Notification {
   id: number;
@@ -143,7 +144,7 @@ const NotificationsPage: React.FC = () => {
       if (!userId) return;
 
       const res = await fetch(
-        `http://localhost:4000/api/notifications/owner/${userId}`
+        `${API_BASE_URL}/api/notifications/owner/${userId}`
       );
       if (res.ok) {
         const data = await res.json();
@@ -162,7 +163,7 @@ const NotificationsPage: React.FC = () => {
     receivedAmount: number
   ) => {
     try {
-      const res = await fetch("http://localhost:4000/api/payments/owner-confirm", {
+      const res = await fetch(`${API_BASE_URL}/api/payments/owner-confirm`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -173,7 +174,7 @@ const NotificationsPage: React.FC = () => {
 
       if (res.ok) {
         // Đánh dấu thông báo đã đọc
-        await fetch(`http://localhost:4000/api/notifications/${notificationId}/read`, {
+        await fetch(`${API_BASE_URL}/api/notifications/${notificationId}/read`, {
           method: "PUT",
         });
 

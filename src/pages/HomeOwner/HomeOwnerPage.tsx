@@ -5,6 +5,7 @@ import { Button, Box, Text, Input, Spinner } from "zmp-ui";
 import { useNavigate } from "react-router-dom";
 import { useStore } from "@store";
 import { Building } from "@dts";
+import { API_BASE_URL } from "@constants/common";
 
 const HomeOwnerPage: React.FC = () => {
   const [buildings, setBuildings] = useState<Building[]>([]);
@@ -25,7 +26,7 @@ const HomeOwnerPage: React.FC = () => {
     loadBuildings();
     loadBankInfo();
     loadNotificationCount();
-    
+
     // Polling để cập nhật số thông báo
     const interval = setInterval(() => {
       loadNotificationCount();
@@ -39,7 +40,7 @@ const HomeOwnerPage: React.FC = () => {
       const userId = user?.idByOA || user?.id;
       if (!userId) return;
 
-      const res = await fetch(`http://localhost:4000/api/users/${userId}`);
+      const res = await fetch(`${API_BASE_URL}/api/users/${userId}`);
       if (res.ok) {
         const data = await res.json();
         if (data) {
@@ -59,7 +60,7 @@ const HomeOwnerPage: React.FC = () => {
       const userId = user?.idByOA || user?.id;
       if (!userId) return;
 
-      const res = await fetch(`http://localhost:4000/api/users/${userId}/bank-account`, {
+      const res = await fetch(`${API_BASE_URL}/api/users/${userId}/bank-account`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -88,7 +89,7 @@ const HomeOwnerPage: React.FC = () => {
       const userId = user?.idByOA || user?.id;
       if (!userId) return;
 
-      const res = await fetch(`http://localhost:4000/api/notifications/owner/${userId}/count`);
+      const res = await fetch(`${API_BASE_URL}/api/notifications/owner/${userId}/count`);
       if (res.ok) {
         const data = await res.json();
         setNotificationCount(data.count || 0);
@@ -105,7 +106,7 @@ const HomeOwnerPage: React.FC = () => {
       if (!userId) return;
 
       const res = await fetch(
-        `http://localhost:4000/api/buildings/owner/${userId}`
+        `${API_BASE_URL}/api/buildings/owner/${userId}`
       );
       const data = await res.json();
       setBuildings(data);
@@ -118,12 +119,12 @@ const HomeOwnerPage: React.FC = () => {
 
   const addBuilding = async () => {
     if (!newBuildingName.trim()) return;
-    
+
     try {
       const userId = user?.idByOA || user?.id;
       if (!userId) return;
 
-      const res = await fetch("http://localhost:4000/api/buildings", {
+      const res = await fetch(`${API_BASE_URL}/api/buildings`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -132,7 +133,7 @@ const HomeOwnerPage: React.FC = () => {
           ownerId: userId,
         }),
       });
-      
+
       if (res.ok) {
         const building = await res.json();
         setBuildings([...buildings, building]);
@@ -406,7 +407,7 @@ const HomeOwnerPage: React.FC = () => {
                     e.stopPropagation();
                     if (!confirm("Bạn có chắc muốn xóa tòa nhà này?")) return;
                     try {
-                      const res = await fetch(`http://localhost:4000/api/buildings/${building.id}`, {
+                      const res = await fetch(`${API_BASE_URL}/api/buildings/${building.id}`, {
                         method: "DELETE",
                       });
                       if (res.ok) {

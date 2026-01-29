@@ -4,6 +4,7 @@ import { HomeHeader } from "@components";
 import { Box, Text, Button, Spinner } from "zmp-ui";
 import { useStore } from "@store";
 import zmp from "zmp-sdk";
+import { API_BASE_URL } from "@constants/common";
 
 interface PaymentData {
   tenant: {
@@ -60,7 +61,7 @@ const PaymentPage: React.FC = () => {
       const userId = user?.idByOA || user?.id;
       if (!userId) return;
 
-      const res = await fetch(`http://localhost:4000/api/payments/tenant/${userId}`);
+      const res = await fetch(`${API_BASE_URL}/api/payments/tenant/${userId}`);
       if (res.ok) {
         const data = await res.json();
         setPaymentData(data);
@@ -78,11 +79,11 @@ const PaymentPage: React.FC = () => {
       const userId = user?.idByOA || user?.id;
       if (!userId) return;
 
-      const res = await fetch(`http://localhost:4000/api/payments/tenant/${userId}/status`);
+      const res = await fetch(`${API_BASE_URL}/api/payments/tenant/${userId}/status`);
       if (res.ok) {
         const data = await res.json();
         setPaymentStatus(data.paymentStatus);
-        
+
         // Cập nhật lại paymentData nếu có thay đổi
         if (data.paymentStatus !== paymentStatus) {
           await loadPaymentData();
@@ -99,7 +100,7 @@ const PaymentPage: React.FC = () => {
     try {
       const total = paymentData.details.totalAmount;
       const bankAccount = paymentData.ownerBankInfo.bankAccount;
-      
+
       if (!bankAccount) {
         alert("Chủ trọ chưa cập nhật số tài khoản ngân hàng");
         return;
@@ -129,7 +130,7 @@ const PaymentPage: React.FC = () => {
 
     try {
       setConfirming(true);
-      const res = await fetch("http://localhost:4000/api/payments/confirm", {
+      const res = await fetch(`${API_BASE_URL}/api/payments/confirm`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

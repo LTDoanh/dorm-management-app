@@ -4,6 +4,7 @@ import { HomeHeader } from "@components";
 import { Box, Text, Spinner, Button, Input } from "zmp-ui";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { Room } from "@dts";
+import { API_BASE_URL } from "@constants/common";
 
 // Component để xác nhận thanh toán cho từng tenant
 const TenantPaymentConfirmation: React.FC<{
@@ -101,7 +102,7 @@ const RoomDetailPage: React.FC = () => {
 
   const loadRoom = async () => {
     try {
-      const res = await fetch(`http://localhost:4000/api/rooms/${roomId}`);
+      const res = await fetch(`${API_BASE_URL}/api/rooms/${roomId}`);
       if (res.ok) {
         const data = await res.json();
         // Map snake_case từ backend sang camelCase
@@ -130,7 +131,7 @@ const RoomDetailPage: React.FC = () => {
     try {
       setLoading(true);
       const res = await fetch(
-        `http://localhost:4000/api/tenants/room/${roomId}`
+        `${API_BASE_URL}/api/tenants/room/${roomId}`
       );
       if (res.ok) {
         const data = await res.json();
@@ -146,7 +147,7 @@ const RoomDetailPage: React.FC = () => {
   const handleSave = async () => {
     try {
       setSaving(true);
-      const res = await fetch(`http://localhost:4000/api/rooms/${roomId}`, {
+      const res = await fetch(`${API_BASE_URL}/api/rooms/${roomId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -184,7 +185,7 @@ const RoomDetailPage: React.FC = () => {
     if (!confirm("Bạn có chắc muốn xóa người thuê trọ này?")) return;
 
     try {
-      const res = await fetch(`http://localhost:4000/api/tenants/${tenantId}`, {
+      const res = await fetch(`${API_BASE_URL}/api/tenants/${tenantId}`, {
         method: "DELETE",
       });
 
@@ -201,7 +202,7 @@ const RoomDetailPage: React.FC = () => {
 
     try {
       const res = await fetch(
-        `http://localhost:4000/api/tenants/room/${roomId}/all`,
+        `${API_BASE_URL}/api/tenants/room/${roomId}/all`,
         {
           method: "DELETE",
         }
@@ -224,7 +225,7 @@ const RoomDetailPage: React.FC = () => {
     try {
       setAddingTenant(true);
       // Tìm user bằng số điện thoại
-      const findRes = await fetch("http://localhost:4000/api/tenants/find-by-phone", {
+      const findRes = await fetch(`${API_BASE_URL}/api/tenants/find-by-phone`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ phone: newTenantPhone.trim() }),
@@ -238,7 +239,7 @@ const RoomDetailPage: React.FC = () => {
       const user = await findRes.json();
 
       // Thêm tenant vào phòng
-      const addRes = await fetch("http://localhost:4000/api/tenants", {
+      const addRes = await fetch(`${API_BASE_URL}/api/tenants`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -264,7 +265,7 @@ const RoomDetailPage: React.FC = () => {
 
   const handleConfirmPayment = async (tenantId: string, receivedAmount: number) => {
     try {
-      const res = await fetch("http://localhost:4000/api/payments/owner-confirm", {
+      const res = await fetch(`${API_BASE_URL}/api/payments/owner-confirm`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -307,7 +308,7 @@ const RoomDetailPage: React.FC = () => {
   const handleCreateBill = async () => {
     if (!canSubmitBill) return;
     try {
-      const res = await fetch(`http://localhost:4000/api/tenants/room/${roomId}/billing`, {
+      const res = await fetch(`${API_BASE_URL}/api/tenants/room/${roomId}/billing`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

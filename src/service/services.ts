@@ -21,6 +21,9 @@ import { generatePath } from "@utils/string";
 import { formatDate } from "@utils/date-time";
 import { request } from "./request";
 
+// API Base URL - sử dụng Render.com cho production
+const API_BASE_URL = "https://dorm-management-app.onrender.com";
+
 export interface GetOrganizationParams {
     miniAppId: string;
 }
@@ -404,7 +407,7 @@ export interface SaveUserParams {
 
 export const getUserById = async (userId: string): Promise<UserWithRole | null> => {
     try {
-        const response = await fetch(`http://localhost:4000/api/users/${userId}`);
+        const response = await fetch(`${API_BASE_URL}/api/users/${userId}`);
         if (!response.ok) {
             return null;
         }
@@ -418,7 +421,7 @@ export const getUserById = async (userId: string): Promise<UserWithRole | null> 
 
 export const saveUser = async (params: SaveUserParams): Promise<UserWithRole> => {
     try {
-        const response = await fetch("http://localhost:4000/api/users", {
+        const response = await fetch(`${API_BASE_URL}/api/users`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(params),
@@ -459,7 +462,7 @@ export interface TenantNotification {
 
 export const getTenantNotifications = async (userId: string): Promise<TenantNotification[]> => {
     try {
-        const response = await fetch(`http://localhost:4000/api/notifications/tenant/${userId}`);
+        const response = await fetch(`${API_BASE_URL}/api/notifications/tenant/${userId}`);
         if (!response.ok) {
             throw new Error("Không lấy được thông báo");
         }
@@ -472,7 +475,7 @@ export const getTenantNotifications = async (userId: string): Promise<TenantNoti
 
 export const getTenantUnreadNotificationCount = async (userId: string): Promise<number> => {
     try {
-        const response = await fetch(`http://localhost:4000/api/notifications/tenant/${userId}/count`);
+        const response = await fetch(`${API_BASE_URL}/api/notifications/tenant/${userId}/count`);
         if (!response.ok) {
             return 0;
         }
@@ -486,7 +489,7 @@ export const getTenantUnreadNotificationCount = async (userId: string): Promise<
 
 export const markTenantNotificationAsRead = async (notificationId: number): Promise<void> => {
     try {
-        const response = await fetch(`http://localhost:4000/api/notifications/${notificationId}/read`, {
+        const response = await fetch(`${API_BASE_URL}/api/notifications/${notificationId}/read`, {
             method: "PUT",
         });
         if (!response.ok) {
@@ -500,7 +503,7 @@ export const markTenantNotificationAsRead = async (notificationId: number): Prom
 
 export const markAllTenantNotificationsAsRead = async (userId: string): Promise<void> => {
     try {
-        const response = await fetch(`http://localhost:4000/api/notifications/tenant/${userId}/read-all`, {
+        const response = await fetch(`${API_BASE_URL}/api/notifications/tenant/${userId}/read-all`, {
             method: "PUT",
         });
         if (!response.ok) {
@@ -514,7 +517,7 @@ export const markAllTenantNotificationsAsRead = async (userId: string): Promise<
 
 export const confirmTenantPayment = async (tenantId: number): Promise<void> => {
     try {
-        const response = await fetch("http://localhost:4000/api/payments/confirm", {
+        const response = await fetch(`${API_BASE_URL}/api/payments/confirm`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ tenantId }),
