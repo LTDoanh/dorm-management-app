@@ -1,20 +1,18 @@
 import { defineConfig } from "vite";
+import zmpVitePlugin from "zmp-vite-plugin";
 import react from "@vitejs/plugin-react";
 import macrosPlugin from "vite-plugin-babel-macros";
-
 import path from "path";
 
 // https://vitejs.dev/config/
-// Cấu hình đơn giản giống zaui-egovernment-master
-// ZMP CLI sẽ xử lý việc build và deploy
 export default () => {
     return defineConfig({
-        root: "./src",
-        base: "./",
-        plugins: [react(), macrosPlugin()],
-        build: {
-            target: "es2020",
-        },
+        root: ".",
+        plugins: [
+            react(),
+            macrosPlugin(),
+            zmpVitePlugin(),
+        ],
         resolve: {
             alias: {
                 "@assets": path.resolve(__dirname, "src/assets"),
