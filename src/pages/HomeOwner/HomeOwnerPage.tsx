@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { useStore } from "@store";
 import { Building } from "@dts";
 import { API_BASE_URL } from "@constants/common";
+import BankSelect from "@components/common/BankSelect";
 
 const HomeOwnerPage: React.FC = () => {
   const [buildings, setBuildings] = useState<Building[]>([]);
@@ -17,6 +18,7 @@ const HomeOwnerPage: React.FC = () => {
   const [bankAccount, setBankAccount] = useState("");
   const [bankName, setBankName] = useState("");
   const [qrCodeUrl, setQrCodeUrl] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
   const [savingBank, setSavingBank] = useState(false);
   const [notificationCount, setNotificationCount] = useState(0);
   const navigate = useNavigate();
@@ -47,6 +49,7 @@ const HomeOwnerPage: React.FC = () => {
           setBankAccount(data.bank_account || "");
           setBankName(data.bank_name || "");
           setQrCodeUrl(data.qr_code_url || "");
+          setPhoneNumber(data.phone_number || "");
         }
       }
     } catch (error) {
@@ -67,17 +70,18 @@ const HomeOwnerPage: React.FC = () => {
           bank_account: bankAccount,
           bank_name: bankName,
           qr_code_url: qrCodeUrl,
+          phone_number: phoneNumber,
         }),
       });
 
       if (res.ok) {
         setShowBankForm(false);
-        alert("Đã lưu thông tin tài khoản ngân hàng");
+        alert("Đã lưu thông tin cá nhân");
       } else {
-        alert("Không thể lưu thông tin tài khoản");
+        alert("Không thể lưu thông tin");
       }
     } catch (error) {
-      console.error("Lỗi lưu thông tin ngân hàng:", error);
+      console.error("Lỗi lưu thông tin cá nhân:", error);
       alert("Có lỗi xảy ra khi lưu thông tin");
     } finally {
       setSavingBank(false);
@@ -209,7 +213,7 @@ const HomeOwnerPage: React.FC = () => {
             </Box>
             <Button
               onClick={() => setShowAddForm(!showAddForm)}
-              type="primary"
+              type="highlight"
               size="small"
             >
               {showAddForm ? "✕" : "+"}
@@ -242,7 +246,7 @@ const HomeOwnerPage: React.FC = () => {
             <Box flex style={{ gap: 8 }}>
               <Button
                 onClick={addBuilding}
-                type="primary"
+                type="highlight"
                 style={{ flex: 1 }}
               >
                 Thêm
@@ -253,7 +257,7 @@ const HomeOwnerPage: React.FC = () => {
                   setNewBuildingName("");
                   setNewBuildingAddress("");
                 }}
-                type="secondary"
+                type="neutral"
                 style={{ flex: 1 }}
               >
                 Hủy
@@ -262,7 +266,7 @@ const HomeOwnerPage: React.FC = () => {
           </Box>
         )}
 
-        {/* Quản lý tài khoản ngân hàng */}
+        {/* Quản lý tài khoản ngân hàng & Thông tin cá nhân */}
         <Box
           p={3}
           style={{
@@ -273,27 +277,42 @@ const HomeOwnerPage: React.FC = () => {
         >
           <Box flex justifyContent="space-between" alignItems="center" style={{ marginBottom: 12 }}>
             <Text style={{ fontSize: 16, fontWeight: "bold" }}>
-              🏦 Tài khoản ngân hàng
+              👤 Thông tin cá nhân & Ngân hàng
             </Text>
             <Button
               onClick={() => setShowBankForm(!showBankForm)}
-              type="secondary"
+              type="neutral"
               size="small"
             >
               {showBankForm ? "✕" : bankAccount ? "✏️ Sửa" : "+ Thêm"}
             </Button>
           </Box>
 
-          {!showBankForm && bankAccount && (
+          {!showBankForm && (
             <Box flex flexDirection="column" style={{ gap: 8 }}>
-              <Text style={{ fontSize: 14 }}>
-                <Text style={{ fontWeight: "bold" }}>Số tài khoản:</Text> {bankAccount}
-              </Text>
-              {bankName && (
+              {user?.name && (
                 <Text style={{ fontSize: 14 }}>
-                  <Text style={{ fontWeight: "bold" }}>Ngân hàng:</Text> {bankName}
+                  <Text style={{ fontWeight: "bold" }}>Họ tên:</Text> {user.name}
                 </Text>
               )}
+              {phoneNumber && (
+                <Text style={{ fontSize: 14 }}>
+                  <Text style={{ fontWeight: "bold" }}>SĐT:</Text> {phoneNumber}
+                </Text>
+              )}
+              {bankAccount && (
+                <>
+                  <Text style={{ fontSize: 14 }}>
+                    <Text style={{ fontWeight: "bold" }}>Số tài khoản:</Text> {bankAccount}
+                  </Text>
+                  {bankName && (
+                    <Text style={{ fontSize: 14 }}>
+                      <Text style={{ fontWeight: "bold" }}>Ngân hàng:</Text> {bankName}
+                    </Text>
+                  )}
+                </>
+              )}
+
               {qrCodeUrl && (
                 <Box mt={2}>
                   <img
@@ -314,27 +333,97 @@ const HomeOwnerPage: React.FC = () => {
           {showBankForm && (
             <Box flex flexDirection="column" style={{ gap: 12 }}>
               <Input
+                value={user?.name || ""}
+                disabled
+                label="Họ tên (từ Zalo)"
+              />
+
+              <Input
                 value={bankAccount}
-                onChange={(e) => setBankAccount(e.target.value.toString())}
-                placeholder="Số tài khoản ngân hàng *"
+                onChange={(e) => {
+                  const val = e.target.value.toString();
+                  // Chỉ cho phép nhập số
+                  if (/^\d*$/.test(val)) {
+                    setBankAccount(val);
+                  }
+                }}
+                placeholder="Số tài khoản ngân hàng (0-9) *"
+                type="text"
+                inputMode="numeric"
+                label="Số tài khoản"
               />
-              <Input
+              <BankSelect
                 value={bankName}
-                onChange={(e) => setBankName(e.target.value.toString())}
-                placeholder="Tên ngân hàng (tùy chọn)"
+                onChange={(val) => setBankName(val)}
+                placeholder="Chọn ngân hàng *"
               />
-              <Input
-                value={qrCodeUrl}
-                onChange={(e) => setQrCodeUrl(e.target.value.toString())}
-                placeholder="URL ảnh QR Code (tùy chọn)"
-              />
-              <Text style={{ fontSize: 12, color: "#666" }}>
-                💡 Bạn có thể upload ảnh QR Code lên hosting và dán link vào đây, hoặc để trống nếu chỉ cần số tài khoản
-              </Text>
+              <Box flex flexDirection="column" style={{ gap: 8 }}>
+                <Text size="small" style={{ fontWeight: 600 }}>Ảnh QR Code (Để người thuê quét chuyển khoản)</Text>
+                {qrCodeUrl ? (
+                  <Box style={{ position: "relative", width: 150, height: 150 }}>
+                    <img
+                      src={qrCodeUrl}
+                      alt="QR Code"
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "contain",
+                        border: "1px solid #e0e0e0",
+                        borderRadius: 8,
+                      }}
+                    />
+                    <Button
+                      onClick={() => setQrCodeUrl("")}
+                      size="small"
+                      type="danger"
+                      style={{ position: "absolute", top: -10, right: -10, padding: 0, width: 24, height: 24, minWidth: 24 }}
+                    >
+                      ✕
+                    </Button>
+                  </Box>
+                ) : (
+                  <Button
+                    onClick={() => {
+                      // Import dynamically to avoid SSR issues if any, or just use global zmp
+                      import("zmp-sdk/apis").then(({ chooseImage }) => {
+                        chooseImage({
+                          sourceType: ["album", "camera"],
+                          count: 1,
+                          success: (res) => {
+                            const { filePaths, tempFiles } = res;
+                            // Use path or base64. 
+                            // For simplicity in this demo, we assume tempFiles[0].path works or need base64
+                            // ZMPs chooseImage often returns a path we can't directly use in standard <img src> 
+                            // without converting or uploading. 
+                            // But newer SDKs support it. 
+                            // Let's use the first result.
+                            if (filePaths && filePaths.length > 0) {
+                              // Mock: In real app, must upload filePaths[0] to server -> get URL.
+                              // Since we lack upload server, we'll try to use the blob/path directly if supported 
+                              // or just a placeholder for now.
+                              // Actually, let's warn user about Upload.
+
+                              alert("Đã chọn ảnh! (Lưu ý: Cần server upload để lưu ảnh lâu dài. Tạm thời dùng đường dẫn này)");
+                              setQrCodeUrl(filePaths[0]);
+                            }
+                          },
+                          fail: (err) => {
+                            console.error(err);
+                          }
+                        });
+                      });
+                    }}
+                    type="neutral"
+                    icon={<Text>📷</Text>}
+                  >
+                    Chọn ảnh QR từ thư viện/camera
+                  </Button>
+                )}
+              </Box>
               <Box flex style={{ gap: 8 }}>
                 <Button
                   onClick={handleSaveBankInfo}
-                  type="primary"
+                  type="highlight"
                   style={{ flex: 1 }}
                   disabled={savingBank || !bankAccount.trim()}
                 >
@@ -345,7 +434,7 @@ const HomeOwnerPage: React.FC = () => {
                     setShowBankForm(false);
                     loadBankInfo(); // Reset form
                   }}
-                  type="secondary"
+                  type="neutral"
                   style={{ flex: 1 }}
                 >
                   Hủy

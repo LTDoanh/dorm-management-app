@@ -4,6 +4,7 @@ CREATE TABLE IF NOT EXISTS users (
     name VARCHAR(255) NOT NULL,
     avatar TEXT,
     role VARCHAR(50),
+    phone_number VARCHAR(20),
     bank_account VARCHAR(50),
     bank_name VARCHAR(100),
     qr_code_url TEXT,

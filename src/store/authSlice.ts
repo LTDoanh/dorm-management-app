@@ -17,7 +17,7 @@ export interface AuthSlice {
     getUserInfo: () => Promise<void>;
     getAccessToken: () => Promise<void>;
     checkUserRole: () => Promise<"chu-tro" | "nguoi-thue" | null>;
-    saveUserRole: (role: "chu-tro" | "nguoi-thue") => Promise<void>;
+    saveUserRole: (role: "chu-tro" | "nguoi-thue", phoneNumber?: string) => Promise<void>;
 }
 
 const authSlice: StateCreator<AuthSlice, [], [], AuthSlice> = (set, get) => ({
@@ -63,64 +63,82 @@ const authSlice: StateCreator<AuthSlice, [], [], AuthSlice> = (set, get) => ({
     checkUserRole: async () => {
         try {
             set(state => ({ ...state, loadingAuth: true }));
+
+            // 1. Check local storage first for immediate feedback
+            const cachedRole = localStorage.getItem("user_role") as "chu-tro" | "nguoi-thue" | null;
+            if (cachedRole) {
+                // Still fetch updated user info but return cached role immediately if valid
+                // This makes the app feel faster
+                console.log("Found cached role:", cachedRole);
+            }
+
             const currentUser = get().user;
-            if (!currentUser?.idByOA) {
+            let zaloUser = currentUser;
+
+            if (!zaloUser?.idByOA) {
                 // Lấy thông tin user từ Zalo nếu chưa có
-                const zaloUser = await getZaloUserInfo();
+                zaloUser = await getZaloUserInfo();
                 set(state => ({ ...state, user: zaloUser }));
-                
-                if (!zaloUser.idByOA) {
-                    return null;
-                }
-                
-                // Kiểm tra user trong database
-                const dbUser = await getUserById(zaloUser.idByOA);
-                if (dbUser?.role) {
-                    set(state => ({ 
-                        ...state, 
-                        user: { ...zaloUser, role: dbUser.role } 
-                    }));
-                    return dbUser.role;
-                }
-                return null;
-            } else {
-                // Kiểm tra user trong database
-                const dbUser = await getUserById(currentUser.idByOA);
-                if (dbUser?.role) {
-                    set(state => ({ 
-                        ...state, 
-                        user: { ...currentUser, role: dbUser.role } 
-                    }));
-                    return dbUser.role;
-                }
+            }
+
+            if (!zaloUser.idByOA) {
                 return null;
             }
+
+            // Kiểm tra user trong database
+            const dbUser = await getUserById(zaloUser.idByOA);
+
+            if (dbUser?.role) {
+                // Save to local storage
+                localStorage.setItem("user_role", dbUser.role);
+
+                set(state => ({
+                    ...state,
+                    user: { ...zaloUser, role: dbUser.role }
+                }));
+                return dbUser.role as "chu-tro" | "nguoi-thue";
+            }
+
+            return null;
         } catch (err) {
             console.log("ERR checkUserRole: ", err);
+            // Fallback to cache if network fails? 
+            // For now, let's trust the cache if we have it and DB fails?
+            // Conservative approach: return null. 
+            // Better UX: return cached role if available ? 
+            const cachedRole = localStorage.getItem("user_role") as "chu-tro" | "nguoi-thue" | null;
+            if (cachedRole) return cachedRole;
+
             return null;
         } finally {
             set(state => ({ ...state, loadingAuth: false }));
         }
     },
-    saveUserRole: async (role: "chu-tro" | "nguoi-thue") => {
+    saveUserRole: async (role: "chu-tro" | "nguoi-thue", phoneNumber?: string) => {
         try {
             set(state => ({ ...state, loadingAuth: true }));
             const currentUser = get().user;
             if (!currentUser) {
                 throw new Error("Chưa có thông tin user");
             }
-            
+
             const userData = {
                 id: currentUser.idByOA || currentUser.id,
                 name: currentUser.name,
                 avatar: currentUser.avatar,
                 role,
+                phone_number: phoneNumber || null,
             };
-            
-            const savedUser = await saveUser(userData);
-            set(state => ({ 
-                ...state, 
-                user: { ...currentUser, role: savedUser.role } 
+
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const savedUser = await saveUser(userData as any);
+
+            // Save to local storage
+            localStorage.setItem("user_role", savedUser.role);
+
+            set(state => ({
+                ...state,
+                user: { ...currentUser, role: savedUser.role }
             }));
         } catch (err) {
             console.log("ERR saveUserRole: ", err);

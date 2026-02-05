@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from "react";
 import PageLayout from "@components/layout/PageLayout";
 import { HomeHeader } from "@components";
-import { Button, Box, Text, Spinner } from "zmp-ui";
+import { Button, Box, Text, Spinner, Input } from "zmp-ui";
 import { useNavigate } from "react-router-dom";
 import { useStore } from "@store";
 
 const HomePage: React.FC = () => {
   const [loading, setLoading] = useState(true); // Bắt đầu với loading = true
   const [checkingRole, setCheckingRole] = useState(true);
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [confirmedPhone, setConfirmedPhone] = useState(false);
   const navigate = useNavigate();
   const [saveUserRole, user, checkUserRole] = useStore(state => [
     state.saveUserRole,
@@ -55,7 +57,7 @@ const HomePage: React.FC = () => {
   const chooseRole = async (role: "chu-tro" | "nguoi-thue") => {
     try {
       setLoading(true);
-      await saveUserRole(role);
+      await saveUserRole(role, phoneNumber);
       // Chuyển đến trang home tương ứng
       if (role === "chu-tro") {
         navigate("/home-owner", { replace: true });
@@ -118,50 +120,103 @@ const HomePage: React.FC = () => {
             textAlign: "center"
           }}
         >
+          {/* Welcome Message at ~1/5 screen height */}
+          <Box style={{ marginTop: "10vh", marginBottom: 20 }}>
+            <Text
+              style={{
+                fontSize: 24,
+                fontWeight: "bold",
+                color: "#006AF5"
+              }}
+            >
+              Xin chào, {user?.name || "Bạn"}! 👋
+            </Text>
+          </Box>
+
           <Text
             style={{
-              fontSize: 20,
+              fontSize: 16,
               fontWeight: "bold",
               marginBottom: 8
             }}
           >
-            Chào mừng bạn đến với ứng dụng quản lý trọ!
-          </Text>
-          <Text
-            style={{
-              fontSize: 14,
-              color: "#666",
-              marginBottom: 24
-            }}
-          >
-            Vui lòng chọn vai trò của bạn để tiếp tục
+            Vui lòng nhập số điện thoại để tiếp tục
           </Text>
 
-          <Button
-            onClick={() => chooseRole("chu-tro")}
-            type="primary"
-            style={{
-              width: "100%",
-              height: 56,
-              fontSize: 16,
-              fontWeight: "bold",
-            }}
-          >
-            🏠 Tôi là Chủ trọ
-          </Button>
+          <Box flex style={{ gap: 8 }}>
+            <Input
+              placeholder="Số điện thoại của bạn *"
+              value={phoneNumber}
+              onChange={(e) => {
+                const val = e.target.value.toString();
+                if (/^\d*$/.test(val)) setPhoneNumber(val);
+              }}
+              type="text"
+              inputMode="numeric"
+              clearable
+              style={{ flex: 1 }}
+            />
+            {phoneNumber.length >= 9 && !confirmedPhone && (
+              <Button
+                onClick={() => setConfirmedPhone(true)}
+                size="small"
+                type="primary"
+                style={{ minWidth: 80 }}
+              >
+                OK
+              </Button>
+            )}
+          </Box>
 
-          <Button
-            onClick={() => chooseRole("nguoi-thue")}
-            type="secondary"
-            style={{
-              width: "100%",
-              height: 56,
-              fontSize: 16,
-              fontWeight: "bold",
-            }}
-          >
-            🏡 Tôi là Người thuê trọ
-          </Button>
+          {confirmedPhone && (
+            <Box flex flexDirection="column" style={{ gap: 16, marginTop: 16, animation: "fadeIn 0.5s ease-in" }}>
+              <Text
+                style={{
+                  fontSize: 14,
+                  color: "#666",
+                  marginBottom: 8
+                }}
+              >
+                Chọn vai trò của bạn:
+              </Text>
+
+              <Button
+                onClick={() => chooseRole("chu-tro")}
+                type="highlight"
+                style={{
+                  width: "100%",
+                  height: 56,
+                  fontSize: 16,
+                  fontWeight: "bold",
+                }}
+              >
+                🏠 Tôi là Chủ trọ
+              </Button>
+
+              <Button
+                onClick={() => chooseRole("nguoi-thue")}
+                type="neutral"
+                style={{
+                  width: "100%",
+                  height: 56,
+                  fontSize: 16,
+                  fontWeight: "bold",
+                }}
+              >
+                🏡 Tôi là Người thuê trọ
+              </Button>
+
+              <Button
+                onClick={() => setConfirmedPhone(false)}
+                size="small"
+                type="neutral"
+                variant="tertiary"
+                style={{ marginTop: 8 }}
+              >
+                Nhập lại SĐT
+              </Button>
+            </Box>
+          )}
         </Box>
       </Box>
     </PageLayout>

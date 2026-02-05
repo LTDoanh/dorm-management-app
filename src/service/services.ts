@@ -403,6 +403,7 @@ export interface SaveUserParams {
     name: string;
     avatar: string;
     role: "chu-tro" | "nguoi-thue";
+    phone_number?: string | null;
 }
 
 export const getUserById = async (userId: string): Promise<UserWithRole | null> => {
