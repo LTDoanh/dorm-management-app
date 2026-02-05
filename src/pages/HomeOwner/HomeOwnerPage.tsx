@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { useStore } from "@store";
 import { Building } from "@dts";
 import { API_BASE_URL } from "@constants/common";
-import BankSelect from "@components/common/BankSelect";
+import BankSelect, { BANKS } from "@components/common/BankSelect";
 
 const HomeOwnerPage: React.FC = () => {
   const [buildings, setBuildings] = useState<Building[]>([]);
@@ -63,19 +63,24 @@ const HomeOwnerPage: React.FC = () => {
       const userId = user?.idByOA || user?.id;
       if (!userId) return;
 
+      // Recalculate QR URL to ensure it matches current inputs
+      const bin = BANKS.find(b => b.name === bankName)?.bin || "970436";
+      const finalQrUrl = `https://img.vietqr.io/image/${bin}-${bankAccount}-compact.jpg?accountName=${encodeURIComponent(user?.name || "")}`;
+
       const res = await fetch(`${API_BASE_URL}/api/users/${userId}/bank-account`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           bank_account: bankAccount,
           bank_name: bankName,
-          qr_code_url: qrCodeUrl,
+          qr_code_url: finalQrUrl,
           phone_number: phoneNumber,
         }),
       });
 
       if (res.ok) {
         setShowBankForm(false);
+        setQrCodeUrl(finalQrUrl);
         alert("Đã lưu thông tin cá nhân");
       } else {
         alert("Không thể lưu thông tin");
@@ -314,7 +319,8 @@ const HomeOwnerPage: React.FC = () => {
               )}
 
               {qrCodeUrl && (
-                <Box mt={2}>
+                <Box mt={2} flex flexDirection="column" alignItems="center">
+                  <Text size="xSmall" className="text-gray-500" style={{ marginBottom: 4 }}>Mã QR của bạn:</Text>
                   <img
                     src={qrCodeUrl}
                     alt="QR Code"
@@ -338,6 +344,14 @@ const HomeOwnerPage: React.FC = () => {
                 label="Họ tên (từ Zalo)"
               />
 
+              <BankSelect
+                value={bankName}
+                onChange={(val, bin) => {
+                  setBankName(val);
+                }}
+                placeholder="Chọn ngân hàng *"
+              />
+
               <Input
                 value={bankAccount}
                 onChange={(e) => {
@@ -351,81 +365,46 @@ const HomeOwnerPage: React.FC = () => {
                 type="text"
                 inputMode="numeric"
                 label="Số tài khoản"
+                disabled={!bankName}
               />
-              <BankSelect
-                value={bankName}
-                onChange={(val) => setBankName(val)}
-                placeholder="Chọn ngân hàng *"
-              />
+              {!bankName && <Text size="xSmall" className="text-red-500" style={{ color: 'red', fontSize: 12 }}>Vui lòng chọn ngân hàng trước</Text>}
+
               <Box flex flexDirection="column" style={{ gap: 8 }}>
-                <Text size="small" style={{ fontWeight: 600 }}>Ảnh QR Code (Để người thuê quét chuyển khoản)</Text>
-                {qrCodeUrl ? (
-                  <Box style={{ position: "relative", width: 150, height: 150 }}>
+                <Text size="small" style={{ fontWeight: 600 }}>Mã QR Chuyển khoản (Tự động tạo)</Text>
+
+                {(bankName && bankAccount) ? (
+                  <Box flex flexDirection="column" alignItems="center" style={{ gap: 8 }}>
                     <img
-                      src={qrCodeUrl}
+                      src={`https://img.vietqr.io/image/${BANKS.find(b => b.name === bankName)?.bin || "970436"}-${bankAccount}-compact.jpg?accountName=${encodeURIComponent(user?.name || "")}`}
                       alt="QR Code"
                       style={{
-                        width: "100%",
-                        height: "100%",
+                        width: 200,
+                        height: 200,
                         objectFit: "contain",
                         border: "1px solid #e0e0e0",
                         borderRadius: 8,
                       }}
+                      onError={(e) => {
+                        e.currentTarget.style.display = 'none';
+                      }}
                     />
-                    <Button
-                      onClick={() => setQrCodeUrl("")}
-                      size="small"
-                      type="danger"
-                      style={{ position: "absolute", top: -10, right: -10, padding: 0, width: 24, height: 24, minWidth: 24 }}
-                    >
-                      ✕
-                    </Button>
+                    <Text size="xSmall" className="text-gray-500" style={{ fontSize: 10 }}>
+                      * QR được tạo tự động từ thông tin trên.
+                    </Text>
                   </Box>
                 ) : (
-                  <Button
-                    onClick={() => {
-                      // Import dynamically to avoid SSR issues if any, or just use global zmp
-                      import("zmp-sdk/apis").then(({ chooseImage }) => {
-                        chooseImage({
-                          sourceType: ["album", "camera"],
-                          count: 1,
-                          success: (res) => {
-                            const { filePaths, tempFiles } = res;
-                            // Use path or base64. 
-                            // For simplicity in this demo, we assume tempFiles[0].path works or need base64
-                            // ZMPs chooseImage often returns a path we can't directly use in standard <img src> 
-                            // without converting or uploading. 
-                            // But newer SDKs support it. 
-                            // Let's use the first result.
-                            if (filePaths && filePaths.length > 0) {
-                              // Mock: In real app, must upload filePaths[0] to server -> get URL.
-                              // Since we lack upload server, we'll try to use the blob/path directly if supported 
-                              // or just a placeholder for now.
-                              // Actually, let's warn user about Upload.
-
-                              alert("Đã chọn ảnh! (Lưu ý: Cần server upload để lưu ảnh lâu dài. Tạm thời dùng đường dẫn này)");
-                              setQrCodeUrl(filePaths[0]);
-                            }
-                          },
-                          fail: (err) => {
-                            console.error(err);
-                          }
-                        });
-                      });
-                    }}
-                    type="neutral"
-                    icon={<Text>📷</Text>}
-                  >
-                    Chọn ảnh QR từ thư viện/camera
-                  </Button>
+                  <Box p={4} style={{ backgroundColor: "#f5f5f5", borderRadius: 8, textAlign: "center" }}>
+                    <Text size="small" className="text-gray-400">Nhập Ngân hàng & STK để hiện QR</Text>
+                  </Box>
                 )}
               </Box>
+
               <Box flex style={{ gap: 8 }}>
                 <Button
                   onClick={handleSaveBankInfo}
                   type="highlight"
                   style={{ flex: 1 }}
-                  disabled={savingBank || !bankAccount.trim()}
+                  disabled={savingBank || !bankAccount.trim() || !bankName}
                 >
                   {savingBank ? "Đang lưu..." : "💾 Lưu"}
                 </Button>

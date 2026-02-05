@@ -3,47 +3,47 @@ import { Input, Box, Text, Modal, List, Icon } from "zmp-ui";
 import styled from "styled-components";
 import clsx from "clsx";
 
-// Danh sách ngân hàng phổ biến (VietQR)
-const BANKS = [
-    { code: "VCB", name: "Vietcombank", shortName: "Vietcombank" },
-    { code: "TCB", name: "Techcombank", shortName: "Techcombank" },
-    { code: "CTG", name: "VietinBank", shortName: "VietinBank" },
-    { code: "BIDV", name: "BIDV", shortName: "BIDV" },
-    { code: "MB", name: "MBBank", shortName: "MBBank" },
-    { code: "ACB", name: "ACB", shortName: "ACB" },
-    { code: "VPB", name: "VPBank", shortName: "VPBank" },
-    { code: "TPB", name: "TPBank", shortName: "TPBank" },
-    { code: "STB", name: "Sacombank", shortName: "Sacombank" },
-    { code: "HDB", name: "HDBank", shortName: "HDBank" },
-    { code: "VIB", name: "VIB", shortName: "VIB" },
-    { code: "EIB", name: "Eximbank", shortName: "Eximbank" },
-    { code: "SHB", name: "SHB", shortName: "SHB" },
-    { code: "OCB", name: "OCB", shortName: "OCB" },
-    { code: "MSB", name: "MSB", shortName: "MSB" },
-    { code: "LPB", name: "LienVietPostBank", shortName: "LienVietPostBank" },
-    { code: "SEAB", name: "SeABank", shortName: "SeABank" },
-    { code: "BAB", name: "Bac A Bank", shortName: "Bac A Bank" },
-    { code: "VCCB", name: "VietCapitalBank", shortName: "VietCapitalBank" },
-    { code: "NCB", name: "NCB", shortName: "NCB" },
-    { code: "KLB", name: "KienLongBank", shortName: "KienLongBank" },
-    { code: "VAB", name: "VietABank", shortName: "VietABank" },
-    { code: "NAB", name: "Nam A Bank", shortName: "Nam A Bank" },
-    { code: "PGB", name: "PGBank", shortName: "PGBank" },
-    { code: "GPB", name: "GPBank", shortName: "GPBank" },
-    { code: "OJB", name: "OceanBank", shortName: "OceanBank" },
-    { code: "BVB", name: "BaoVietBank", shortName: "BaoVietBank" },
-    { code: "AGR", name: "Agribank", shortName: "Agribank" },
-    { code: "VRB", name: "VRB", shortName: "VRB" },
-    { code: "VID", name: "PublicBank", shortName: "PublicBank" },
-    { code: "IVB", name: "IndovinaBank", shortName: "IndovinaBank" },
-    { code: "DAB", name: "DongA Bank", shortName: "DongA Bank" },
-    { code: "SGB", name: "SaigonBank", shortName: "SaigonBank" },
-    { code: "CBB", name: "CBBank", shortName: "CBBank" },
+// Danh sách ngân hàng phổ biến (VietQR) - Kèm BIN code
+export const BANKS = [
+    { code: "VCB", name: "Vietcombank", shortName: "Vietcombank", bin: "970436" },
+    { code: "TCB", name: "Techcombank", shortName: "Techcombank", bin: "970407" },
+    { code: "CTG", name: "VietinBank", shortName: "VietinBank", bin: "970415" },
+    { code: "BIDV", name: "BIDV", shortName: "BIDV", bin: "970418" },
+    { code: "MB", name: "MBBank", shortName: "MBBank", bin: "970422" },
+    { code: "ACB", name: "ACB", shortName: "ACB", bin: "970416" },
+    { code: "VPB", name: "VPBank", shortName: "VPBank", bin: "970432" },
+    { code: "TPB", name: "TPBank", shortName: "TPBank", bin: "970423" },
+    { code: "STB", name: "Sacombank", shortName: "Sacombank", bin: "970403" },
+    { code: "HDB", name: "HDBank", shortName: "HDBank", bin: "970437" },
+    { code: "VIB", name: "VIB", shortName: "VIB", bin: "970441" },
+    { code: "EIB", name: "Eximbank", shortName: "Eximbank", bin: "970431" },
+    { code: "SHB", name: "SHB", shortName: "SHB", bin: "970443" },
+    { code: "OCB", name: "OCB", shortName: "OCB", bin: "970448" },
+    { code: "MSB", name: "MSB", shortName: "MSB", bin: "970426" },
+    { code: "LPB", name: "LienVietPostBank", shortName: "LPBank", bin: "970449" },
+    { code: "SEAB", name: "SeABank", shortName: "SeABank", bin: "970440" },
+    { code: "BAB", name: "Bac A Bank", shortName: "Bac A Bank", bin: "970409" },
+    { code: "VCCB", name: "VietCapitalBank", shortName: "BVBank", bin: "970454" },
+    { code: "NCB", name: "NCB", shortName: "NCB", bin: "970419" },
+    { code: "KLB", name: "KienLongBank", shortName: "KienLongBank", bin: "970452" },
+    { code: "VAB", name: "VietABank", shortName: "VietABank", bin: "970427" },
+    { code: "NAB", name: "Nam A Bank", shortName: "Nam A Bank", bin: "970428" },
+    { code: "PGB", name: "PGBank", shortName: "PGBank", bin: "970430" },
+    { code: "GPB", name: "GPBank", shortName: "GPBank", bin: "970408" },
+    { code: "OJB", name: "OceanBank", shortName: "OceanBank", bin: "970414" },
+    { code: "BVB", name: "BaoVietBank", shortName: "BaoVietBank", bin: "970438" },
+    { code: "AGR", name: "Agribank", shortName: "Agribank", bin: "970405" },
+    { code: "VRB", name: "VRB", shortName: "VRB", bin: "970421" },
+    { code: "VID", name: "PublicBank", shortName: "PublicBank", bin: "970439" },
+    { code: "IVB", name: "IndovinaBank", shortName: "IndovinaBank", bin: "970434" },
+    { code: "DAB", name: "DongA Bank", shortName: "DongA Bank", bin: "970406" },
+    { code: "SGB", name: "SaigonBank", shortName: "SaigonBank", bin: "970400" },
+    { code: "CBB", name: "CBBank", shortName: "CBBank", bin: "970444" },
 ];
 
 interface BankSelectProps {
     value: string;
-    onChange: (value: string) => void;
+    onChange: (bankName: string, bin?: string) => void;
     placeholder?: string;
 }
 
@@ -63,8 +63,8 @@ const BankSelect: React.FC<BankSelectProps> = ({ value, onChange, placeholder = 
         );
     }, [searchTerm]);
 
-    const handleSelect = (bankName: string) => {
-        onChange(bankName);
+    const handleSelect = (bank: typeof BANKS[0]) => {
+        onChange(bank.name, bank.bin);
         setIsOpen(false);
         setSearchTerm("");
     };
@@ -111,7 +111,7 @@ const BankSelect: React.FC<BankSelectProps> = ({ value, onChange, placeholder = 
                             {filteredBanks.map((bank) => (
                                 <div
                                     key={bank.code}
-                                    onClick={() => handleSelect(bank.name)}
+                                    onClick={() => handleSelect(bank)}
                                     className={clsx("zaui-list-item", value === bank.name && "bg-blue-50")}
                                     style={{ padding: "12px 0", borderBottom: "1px solid #f0f0f0", cursor: "pointer" }}
                                 >

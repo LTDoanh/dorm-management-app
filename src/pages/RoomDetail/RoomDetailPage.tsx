@@ -522,7 +522,24 @@ const RoomDetailPage: React.FC = () => {
               ) : (
                 <Box flex flexDirection="column" style={{ gap: 8 }}>
                   {tenants.map((tenant) => {
-                    const needsConfirmation = tenant.payment_status === "waiting_confirmation";
+                    const totalOwed = (tenant.current_bill || 0) + (tenant.debt || 0);
+                    const needsConfirmation = tenant.payment_status === "waiting_confirmation" || totalOwed > 0;
+
+                    let statusText = "";
+                    let statusColor = "#666";
+
+                    if (totalOwed > 0) {
+                      statusText = "Chưa thanh toán";
+                      statusColor = "#d10000";
+                    } else {
+                      statusText = "Đã thanh toán";
+                      statusColor = "green";
+                    }
+                    if (tenant.payment_status === "waiting_confirmation") {
+                      statusText = "Chờ xác nhận";
+                      statusColor = "#ff9800";
+                    }
+
                     return (
                       <Box
                         key={tenant.id}
@@ -574,16 +591,16 @@ const RoomDetailPage: React.FC = () => {
                                 {tenant.nickname || "Người dùng Zalo"}
                               </Text>
                               <Text style={{ fontSize: 12, color: "#666" }}>
-                                {tenant.user_id}
+                                ID: {tenant.user_id}
                               </Text>
-                              {tenant.current_bill !== undefined && tenant.debt !== undefined && (
-                                <Text style={{ fontSize: 12, color: "#d10000", marginTop: 4 }}>
-                                  Cần thanh toán: {formatPrice((tenant.current_bill || 0) + (tenant.debt || 0))} VNĐ
-                                </Text>
-                              )}
-                              {tenant.payment_status === "waiting_confirmation" && (
-                                <Text style={{ fontSize: 12, color: "#ff9800", marginTop: 4, fontWeight: "bold" }}>
-                                  ⏳ Đang chờ xác nhận
+
+                              <Text style={{ fontSize: 12, fontWeight: "bold", color: statusColor, marginTop: 4 }}>
+                                Trạng thái: {statusText}
+                              </Text>
+
+                              {totalOwed > 0 && (
+                                <Text style={{ fontSize: 12, color: "#d10000", marginTop: 2 }}>
+                                  Cần thu: {formatPrice(totalOwed)} VNĐ
                                 </Text>
                               )}
                             </Box>

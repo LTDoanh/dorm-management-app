@@ -30,7 +30,7 @@ router.post("/", async (req, res) => {
       "SELECT * FROM tenants WHERE room_id = $1 AND user_id = $2",
       [roomId, userId]
     );
-    
+
     if (checkResult.rows.length > 0) {
       return res.status(400).json({ error: "Người dùng đã có trong phòng này" });
     }
@@ -70,9 +70,9 @@ router.delete("/room/:roomId/all", async (req, res) => {
       "DELETE FROM tenants WHERE room_id = $1 RETURNING *",
       [req.params.roomId]
     );
-    res.json({ 
+    res.json({
       message: "Xóa tất cả người thuê trọ thành công",
-      deletedCount: result.rows.length 
+      deletedCount: result.rows.length
     });
   } catch (err) {
     console.error("Lỗi xóa tất cả người thuê trọ:", err);
@@ -88,14 +88,14 @@ router.post("/find-by-phone", async (req, res) => {
     // Tìm user bằng số điện thoại (giả sử có cột phone trong users)
     // Hoặc có thể tìm qua idByOA nếu số điện thoại là idByOA
     const result = await pool.query(
-      "SELECT * FROM users WHERE id = $1 OR id_by_oa = $1 LIMIT 1",
+      "SELECT * FROM users WHERE phone_number = $1 OR id_by_oa = $1 LIMIT 1",
       [phone]
     );
-    
+
     if (result.rows.length === 0) {
       return res.status(404).json({ error: "Không tìm thấy người dùng với số điện thoại này" });
     }
-    
+
     res.json(result.rows[0]);
   } catch (err) {
     console.error("Lỗi tìm user:", err);
