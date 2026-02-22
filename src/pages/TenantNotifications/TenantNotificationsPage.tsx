@@ -11,6 +11,7 @@ import {
   confirmTenantPayment,
   TenantNotification,
 } from "@service/services";
+import { BANKS } from "@components/common/BankSelect";
 import zmp from "zmp-sdk";
 
 // Component cho mỗi notification item
@@ -53,13 +54,16 @@ const TenantNotificationItem: React.FC<{
       return;
     }
 
-    const bankCode = "13"; // ZaloPay
-    const accountName = notification.owner_name || "CHU TRO";
+    // Tìm BIN ngân hàng từ danh sách BANKS
+    const bankInfo = BANKS.find(b => b.name === notification.bank_name);
+    const bin = bankInfo?.bin || "970436"; // Fallback Vietcombank
+    const accountName = encodeURIComponent(notification.owner_name || "CHU TRO");
     const description = encodeURIComponent(
       `Thanh toan tien tro - ${notification.room_name}`
     );
 
-    const transferUrl = `https://social.zalopay.vn/transfer?accountno=${notification.bank_account}&bankcode=${bankCode}&amount=${totalAmount}&accountname=${accountName}&desc=${description}`;
+    // Sử dụng VietQR deep link để mở app ngân hàng
+    const transferUrl = `https://img.vietqr.io/image/${bin}-${notification.bank_account}-compact2.jpg?amount=${totalAmount}&addInfo=${description}&accountName=${accountName}`;
 
     await zmp.openWebview({
       url: transferUrl,
@@ -199,6 +203,11 @@ const TenantNotificationItem: React.FC<{
               <Text style={{ fontSize: 12, color: "#666" }}>
                 STK: {notification.bank_account}
               </Text>
+              {notification.owner_name && (
+                <Text style={{ fontSize: 12, color: "#666" }}>
+                  Chủ TK: {notification.owner_name}
+                </Text>
+              )}
               {notification.bank_name && (
                 <Text style={{ fontSize: 12, color: "#666" }}>
                   Ngân hàng: {notification.bank_name}
@@ -256,21 +265,21 @@ const TenantNotificationItem: React.FC<{
             {(notification.payment_status === "paid" ||
               notification.payment_status === "partial" ||
               notification.payment_status === "overpaid") && (
-              <Box
-                p={2}
-                style={{
-                  backgroundColor: "#d4edda",
-                  borderRadius: 8,
-                  border: "1px solid #28a745",
-                }}
-              >
-                <Text style={{ fontSize: 12, fontWeight: "bold", textAlign: "center" }}>
-                  {notification.payment_status === "paid" && "✅ Chuyển khoản thành công"}
-                  {notification.payment_status === "partial" && "⚠️ Thiếu tiền"}
-                  {notification.payment_status === "overpaid" && "💰 Thừa tiền"}
-                </Text>
-              </Box>
-            )}
+                <Box
+                  p={2}
+                  style={{
+                    backgroundColor: "#d4edda",
+                    borderRadius: 8,
+                    border: "1px solid #28a745",
+                  }}
+                >
+                  <Text style={{ fontSize: 12, fontWeight: "bold", textAlign: "center" }}>
+                    {notification.payment_status === "paid" && "✅ Chuyển khoản thành công"}
+                    {notification.payment_status === "partial" && "⚠️ Thiếu tiền"}
+                    {notification.payment_status === "overpaid" && "💰 Thừa tiền"}
+                  </Text>
+                </Box>
+              )}
 
             <Button
               onClick={handleViewBill}

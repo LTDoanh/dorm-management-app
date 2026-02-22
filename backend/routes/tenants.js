@@ -88,7 +88,7 @@ router.post("/find-by-phone", async (req, res) => {
     // Tìm user bằng số điện thoại (giả sử có cột phone trong users)
     // Hoặc có thể tìm qua idByOA nếu số điện thoại là idByOA
     const result = await pool.query(
-      "SELECT * FROM users WHERE phone_number = $1 OR id_by_oa = $1 LIMIT 1",
+      "SELECT * FROM users WHERE phone_number = $1 OR id = $1 LIMIT 1",
       [phone]
     );
 

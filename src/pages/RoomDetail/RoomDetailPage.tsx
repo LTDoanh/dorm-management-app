@@ -75,8 +75,9 @@ const RoomDetailPage: React.FC = () => {
   const [room, setRoom] = useState<Room | null>(null);
   const [tenants, setTenants] = useState<Tenant[]>([]);
   const [loading, setLoading] = useState(true);
-  const [isEditMode, setIsEditMode] = useState(false);
+  const [editSection, setEditSection] = useState<"price" | "tenant" | null>(null);
   const [saving, setSaving] = useState(false);
+  const [billingStatus, setBillingStatus] = useState<string>("");
 
   // Form values
   const [roomPrice, setRoomPrice] = useState<string>("");
@@ -88,6 +89,8 @@ const RoomDetailPage: React.FC = () => {
   const [waterUsage, setWaterUsage] = useState<string>("");
   const [electricUsage, setElectricUsage] = useState<string>("");
   const [penalty, setPenalty] = useState<string>("");
+  const [waterImage, setWaterImage] = useState<string>("");
+  const [electricImage, setElectricImage] = useState<string>("");
 
   useEffect(() => {
     if (roomId) {
@@ -95,7 +98,7 @@ const RoomDetailPage: React.FC = () => {
       loadTenants();
       // Nếu có edit=1 trên URL, bật edit mode
       if (searchParams.get("edit") === "1") {
-        setIsEditMode(true);
+        setEditSection("price");
       }
     }
   }, [roomId, searchParams]);
@@ -160,7 +163,7 @@ const RoomDetailPage: React.FC = () => {
 
       if (res.ok) {
         await loadRoom();
-        setIsEditMode(false);
+        setEditSection(null);
       }
     } catch (error) {
       console.error("Lỗi lưu thông tin phòng:", error);
@@ -177,7 +180,7 @@ const RoomDetailPage: React.FC = () => {
       setElectricityPrice(room.electricityPrice?.toString() || "");
       setWaterPrice(room.waterPrice?.toString() || "");
     }
-    setIsEditMode(false);
+    setEditSection(null);
     setNewTenantPhone("");
   };
 
@@ -320,6 +323,7 @@ const RoomDetailPage: React.FC = () => {
       if (res.ok) {
         const data = await res.json();
         alert(`Đã tính tiền: ${new Intl.NumberFormat("vi-VN").format(data.total)} VNĐ`);
+        setBillingStatus("unpaid");
         // Làm mới danh sách tenants để hiển thị current_bill / debt
         await loadTenants();
       } else {
@@ -376,20 +380,29 @@ const RoomDetailPage: React.FC = () => {
               <Text style={{ fontSize: 16, fontWeight: "bold" }}>
                 🚪 {room.name}
               </Text>
-              {!isEditMode && (
-                <Button
-                  onClick={() => setIsEditMode(true)}
-                  type="primary"
-                  size="small"
-                >
-                  ✏️ Chỉnh sửa
-                </Button>
+              {!editSection && (
+                <Box flex style={{ gap: 6 }}>
+                  <Button
+                    onClick={() => setEditSection("price")}
+                    type="highlight"
+                    size="small"
+                  >
+                    💰 Sửa giá
+                  </Button>
+                  <Button
+                    onClick={() => setEditSection("tenant")}
+                    type="neutral"
+                    size="small"
+                  >
+                    👥 Quản lý
+                  </Button>
+                </Box>
               )}
             </Box>
           </Box>
         )}
 
-        {isEditMode ? (
+        {editSection === "price" ? (
           <>
             {/* Form chỉnh sửa giá */}
             <Box
@@ -472,7 +485,9 @@ const RoomDetailPage: React.FC = () => {
                 </Button>
               </Box>
             </Box>
-
+          </>
+        ) : editSection === "tenant" ? (
+          <>
             {/* Quản lý người thuê trọ */}
             <Box
               p={3}
@@ -486,15 +501,24 @@ const RoomDetailPage: React.FC = () => {
                 <Text style={{ fontSize: 18, fontWeight: "bold" }}>
                   👥 Quản lý người thuê trọ
                 </Text>
-                {tenants.length > 0 && (
+                <Box flex style={{ gap: 6 }}>
+                  {tenants.length > 0 && (
+                    <Button
+                      onClick={handleDeleteAllTenants}
+                      type="danger"
+                      size="small"
+                    >
+                      🗑️ Xóa tất cả
+                    </Button>
+                  )}
                   <Button
-                    onClick={handleDeleteAllTenants}
-                    type="danger"
+                    onClick={() => setEditSection(null)}
+                    type="neutral"
                     size="small"
                   >
-                    🗑️ Xóa tất cả
+                    ✕ Đóng
                   </Button>
-                )}
+                </Box>
               </Box>
 
               {/* Form thêm tenant mới */}
@@ -507,7 +531,7 @@ const RoomDetailPage: React.FC = () => {
                 />
                 <Button
                   onClick={handleAddTenant}
-                  type="primary"
+                  type="highlight"
                   disabled={addingTenant}
                 >
                   {addingTenant ? "..." : "+"}
@@ -672,18 +696,97 @@ const RoomDetailPage: React.FC = () => {
               {/* Nhập số điện/nước và phạt để tính tiền tháng */}
               <Box flex flexDirection="column" style={{ gap: 12, marginTop: 16 }}>
                 <Text style={{ fontSize: 16, fontWeight: "bold" }}>🧾 Tính tiền tháng</Text>
-                <Input
-                  type="number"
-                  value={waterUsage}
-                  onChange={(e) => setWaterUsage(e.target.value.toString())}
-                  placeholder="Số nước (khối) *"
-                />
-                <Input
-                  type="number"
-                  value={electricUsage}
-                  onChange={(e) => setElectricUsage(e.target.value.toString())}
-                  placeholder="Số điện (số) *"
-                />
+
+                {/* Nước */}
+                <Box>
+                  <Box flex style={{ gap: 8, alignItems: "center" }}>
+                    <Input
+                      type="number"
+                      value={waterUsage}
+                      onChange={(e) => setWaterUsage(e.target.value.toString())}
+                      placeholder="Số nước (khối) *"
+                      style={{ flex: 1 }}
+                    />
+                    <Button
+                      onClick={() => {
+                        import("zmp-sdk/apis").then(({ chooseImage }) => {
+                          chooseImage({
+                            sourceType: ["camera", "album"],
+                            count: 1,
+                            success: (res) => {
+                              if (res.filePaths && res.filePaths.length > 0) {
+                                setWaterImage(res.filePaths[0]);
+                              }
+                            },
+                            fail: (err) => console.error(err)
+                          });
+                        });
+                      }}
+                      type={waterImage ? "highlight" : "neutral"}
+                      icon={<Text>📷</Text>}
+                      style={{ minWidth: 48, padding: 0 }}
+                    />
+                  </Box>
+                  {waterImage && (
+                    <Box mt={1} style={{ position: "relative", width: 80, height: 80 }}>
+                      <img src={waterImage} style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: 4 }} />
+                      <Button
+                        size="small"
+                        type="danger"
+                        style={{ position: "absolute", top: -5, right: -5, padding: 0, width: 20, height: 20, minWidth: 20 }}
+                        onClick={() => setWaterImage("")}
+                      >
+                        ✕
+                      </Button>
+                    </Box>
+                  )}
+                </Box>
+
+                {/* Điện */}
+                <Box>
+                  <Box flex style={{ gap: 8, alignItems: "center" }}>
+                    <Input
+                      type="number"
+                      value={electricUsage}
+                      onChange={(e) => setElectricUsage(e.target.value.toString())}
+                      placeholder="Số điện (số) *"
+                      style={{ flex: 1 }}
+                    />
+                    <Button
+                      onClick={() => {
+                        import("zmp-sdk/apis").then(({ chooseImage }) => {
+                          chooseImage({
+                            sourceType: ["camera", "album"],
+                            count: 1,
+                            success: (res) => {
+                              if (res.filePaths && res.filePaths.length > 0) {
+                                setElectricImage(res.filePaths[0]);
+                              }
+                            },
+                            fail: (err) => console.error(err)
+                          });
+                        });
+                      }}
+                      type={electricImage ? "highlight" : "neutral"}
+                      icon={<Text>📷</Text>}
+                      style={{ minWidth: 48, padding: 0 }}
+                    />
+                  </Box>
+                  {electricImage && (
+                    <Box mt={1} style={{ position: "relative", width: 80, height: 80 }}>
+                      <img src={electricImage} style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: 4 }} />
+                      <Button
+                        size="small"
+                        type="danger"
+                        style={{ position: "absolute", top: -5, right: -5, padding: 0, width: 20, height: 20, minWidth: 20 }}
+                        onClick={() => setElectricImage("")}
+                      >
+                        ✕
+                      </Button>
+                    </Box>
+                  )}
+                </Box>
+
                 <Input
                   type="number"
                   value={penalty}
@@ -708,13 +811,52 @@ const RoomDetailPage: React.FC = () => {
                   </Text>
                 </Box>
 
+                {/* Trạng thái thanh toán */}
+                {billingStatus && (
+                  <Box
+                    flex
+                    justifyContent="center"
+                    alignItems="center"
+                    style={{
+                      padding: 10,
+                      borderRadius: 8,
+                      backgroundColor: billingStatus === "confirmed" ? "#e8f5e9" : "#fff3e0",
+                      border: `1px solid ${billingStatus === "confirmed" ? "#4caf50" : "#ff9800"}`,
+                    }}
+                  >
+                    <Text style={{
+                      fontSize: 14,
+                      fontWeight: "bold",
+                      color: billingStatus === "confirmed" ? "#2e7d32" : "#e65100",
+                    }}>
+                      {billingStatus === "unpaid" ? "🔴 Chưa thanh toán" : "✅ Đã xác nhận thanh toán"}
+                    </Text>
+                  </Box>
+                )}
+
                 <Button
                   onClick={handleCreateBill}
-                  type="primary"
+                  type="highlight"
                   disabled={!canSubmitBill}
                 >
                   ✔️ Chấp nhận & tính tiền
                 </Button>
+
+                {billingStatus === "unpaid" && (
+                  <Button
+                    onClick={() => {
+                      setBillingStatus("confirmed");
+                      alert("Đã xác nhận thanh toán!");
+                    }}
+                    type="neutral"
+                    style={{
+                      border: "1px solid #4caf50",
+                      color: "#2e7d32",
+                    }}
+                  >
+                    💵 Xác nhận thanh toán
+                  </Button>
+                )}
               </Box>
             </Box>
 

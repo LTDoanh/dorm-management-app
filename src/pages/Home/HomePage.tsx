@@ -8,14 +8,23 @@ import { useStore } from "@store";
 const HomePage: React.FC = () => {
   const [loading, setLoading] = useState(true); // Bắt đầu với loading = true
   const [checkingRole, setCheckingRole] = useState(true);
+  const [userName, setUserName] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
-  const [confirmedPhone, setConfirmedPhone] = useState(false);
+  const [confirmedInfo, setConfirmedInfo] = useState(false);
   const navigate = useNavigate();
-  const [saveUserRole, user, checkUserRole] = useStore(state => [
+  const [saveUserRole, user, checkUserRole, setUser] = useStore(state => [
     state.saveUserRole,
     state.user,
     state.checkUserRole,
+    state.setUser,
   ]);
+
+  // Pre-fill tên từ Zalo nếu có
+  useEffect(() => {
+    if (user?.name && !userName) {
+      setUserName(user.name);
+    }
+  }, [user?.name]);
 
   // Kiểm tra role khi vào trang
   useEffect(() => {
@@ -57,6 +66,10 @@ const HomePage: React.FC = () => {
   const chooseRole = async (role: "chu-tro" | "nguoi-thue") => {
     try {
       setLoading(true);
+      // Cập nhật tên nếu user đã sửa
+      if (user && userName && userName !== user.name) {
+        setUser({ ...user, name: userName });
+      }
       await saveUserRole(role, phoneNumber);
       // Chuyển đến trang home tương ứng
       if (role === "chu-tro") {
@@ -129,7 +142,7 @@ const HomePage: React.FC = () => {
                 color: "#006AF5"
               }}
             >
-              Xin chào, {user?.name || "Bạn"}! 👋
+              Xin chào{userName ? `, ${userName}` : ""}! 👋
             </Text>
           </Box>
 
@@ -140,10 +153,19 @@ const HomePage: React.FC = () => {
               marginBottom: 8
             }}
           >
-            Vui lòng nhập số điện thoại để tiếp tục
+            Vui lòng nhập thông tin để tiếp tục
           </Text>
 
-          <Box flex style={{ gap: 8 }}>
+          <Box flex flexDirection="column" style={{ gap: 10 }}>
+            <Input
+              placeholder="Tên người dùng *"
+              value={userName}
+              onChange={(e) => setUserName(e.target.value.toString())}
+              type="text"
+              clearable
+              style={{ width: "100%" }}
+            />
+
             <Input
               placeholder="Số điện thoại của bạn *"
               value={phoneNumber}
@@ -154,21 +176,21 @@ const HomePage: React.FC = () => {
               type="text"
               inputMode="numeric"
               clearable
-              style={{ flex: 1 }}
+              style={{ width: "100%" }}
             />
-            {phoneNumber.length >= 9 && !confirmedPhone && (
+
+            {userName.trim().length >= 2 && phoneNumber.length >= 9 && !confirmedInfo && (
               <Button
-                onClick={() => setConfirmedPhone(true)}
-                size="small"
-                type="primary"
-                style={{ minWidth: 80 }}
+                onClick={() => setConfirmedInfo(true)}
+                type="highlight"
+                style={{ width: "100%", marginTop: 4 }}
               >
-                OK
+                OK ✓
               </Button>
             )}
           </Box>
 
-          {confirmedPhone && (
+          {confirmedInfo && (
             <Box flex flexDirection="column" style={{ gap: 16, marginTop: 16, animation: "fadeIn 0.5s ease-in" }}>
               <Text
                 style={{
@@ -207,13 +229,13 @@ const HomePage: React.FC = () => {
               </Button>
 
               <Button
-                onClick={() => setConfirmedPhone(false)}
+                onClick={() => setConfirmedInfo(false)}
                 size="small"
                 type="neutral"
                 variant="tertiary"
                 style={{ marginTop: 8 }}
               >
-                Nhập lại SĐT
+                ← Nhập lại thông tin
               </Button>
             </Box>
           )}
