@@ -7,7 +7,7 @@ const router = express.Router();
 router.get("/tenant/:userId", async (req, res) => {
   try {
     const { userId } = req.params;
-    
+
     // Lấy thông tin tenant và room
     const tenantResult = await pool.query(
       `SELECT t.*, r.name as room_name, r.room_price, r.service_fee, 
@@ -28,7 +28,7 @@ router.get("/tenant/:userId", async (req, res) => {
     }
 
     const tenant = tenantResult.rows[0];
-    
+
     // Đảm bảo tất cả tenant trong cùng phòng có cùng current_bill và debt
     // Lấy giá trị từ tenant đầu tiên trong phòng (tất cả đều giống nhau)
     const roomTenantsResult = await pool.query(
@@ -39,7 +39,7 @@ router.get("/tenant/:userId", async (req, res) => {
        LIMIT 1`,
       [tenant.room_id]
     );
-    
+
     // Nếu có tenant khác trong phòng, đồng bộ giá trị
     if (roomTenantsResult.rows.length > 0) {
       const roomTenant = roomTenantsResult.rows[0];
@@ -49,7 +49,7 @@ router.get("/tenant/:userId", async (req, res) => {
       tenant.payment_status = roomTenant.payment_status;
       tenant.owner_confirmed_amount = roomTenant.owner_confirmed_amount;
     }
-    
+
     // Lấy chi tiết hóa đơn từ payment_details (lấy từ bất kỳ tenant nào trong phòng)
     const detailResult = await pool.query(
       `SELECT pd.* FROM payment_details pd
@@ -71,7 +71,7 @@ router.get("/tenant/:userId", async (req, res) => {
         [tenant.room_id]
       );
       const room = roomResult.rows[0] || {};
-      
+
       paymentDetail = {
         room_price: room.room_price || 0,
         service_fee: room.service_fee || 0,
@@ -118,7 +118,7 @@ router.get("/tenant/:userId", async (req, res) => {
 router.post("/confirm", async (req, res) => {
   try {
     const { tenantId } = req.body;
-    
+
     // Lấy thông tin tenant để biết room_id
     const tenantResult = await pool.query(
       `SELECT room_id FROM tenants WHERE id = $1`,
@@ -152,7 +152,7 @@ router.post("/confirm", async (req, res) => {
 
     if (roomResult.rows.length > 0) {
       const room = roomResult.rows[0];
-      
+
       // Lấy thông tin hóa đơn từ một tenant bất kỳ trong phòng (tất cả đều giống nhau)
       const sampleTenant = result.rows[0];
       const totalAmount = parseFloat(sampleTenant.current_bill || 0) + parseFloat(sampleTenant.debt || 0);
@@ -192,7 +192,7 @@ router.post("/confirm", async (req, res) => {
       }
     }
 
-    res.json({ 
+    res.json({
       message: "Đã xác nhận chuyển khoản, đang chờ chủ trọ xác nhận",
       updatedCount: result.rowCount
     });
@@ -206,7 +206,7 @@ router.post("/confirm", async (req, res) => {
 router.post("/owner-confirm", async (req, res) => {
   try {
     const { tenantId, receivedAmount } = req.body;
-    
+
     // Lấy thông tin tenant để biết room_id
     const tenantResult = await pool.query(
       `SELECT room_id, current_bill, debt FROM tenants WHERE id = $1`,
@@ -258,6 +258,28 @@ router.post("/owner-confirm", async (req, res) => {
       [roomId]
     );
 
+    // Roll-over: Chuyển chỉ số mới thành chỉ số cũ
+    const latestPayment = await pool.query(
+      `SELECT pd.current_electricity_index, pd.current_water_index
+       FROM payment_details pd
+       JOIN tenants t ON pd.tenant_id = t.id
+       WHERE t.room_id = $1
+       ORDER BY pd.created_at DESC
+       LIMIT 1`,
+      [roomId]
+    );
+
+    if (latestPayment.rows.length > 0) {
+      const { current_electricity_index, current_water_index } = latestPayment.rows[0];
+      await pool.query(
+        `UPDATE rooms
+         SET prev_electricity_index = COALESCE($1, prev_electricity_index),
+             prev_water_index = COALESCE($2, prev_water_index)
+         WHERE id = $3`,
+        [current_electricity_index, current_water_index, roomId]
+      );
+    }
+
     res.json({
       message: "Đã xác nhận nhận tiền",
       updatedCount: updateResult.rowCount,
@@ -274,7 +296,7 @@ router.post("/owner-confirm", async (req, res) => {
 router.get("/tenant/:userId/status", async (req, res) => {
   try {
     const { userId } = req.params;
-    
+
     const result = await pool.query(
       `SELECT t.*, r.name as room_name
        FROM tenants t

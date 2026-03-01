@@ -86,11 +86,27 @@ const RoomDetailPage: React.FC = () => {
   const [waterPrice, setWaterPrice] = useState<string>("");
   const [newTenantPhone, setNewTenantPhone] = useState<string>("");
   const [addingTenant, setAddingTenant] = useState(false);
-  const [waterUsage, setWaterUsage] = useState<string>("");
-  const [electricUsage, setElectricUsage] = useState<string>("");
+  const [prevWaterIndex, setPrevWaterIndex] = useState<string>("");
+  const [currentWaterIndex, setCurrentWaterIndex] = useState<string>("");
+  const [prevElectricIndex, setPrevElectricIndex] = useState<string>("");
+  const [currentElectricIndex, setCurrentElectricIndex] = useState<string>("");
+  const [parsingWater, setParsingWater] = useState(false);
+  const [parsingElectric, setParsingElectric] = useState(false);
   const [penalty, setPenalty] = useState<string>("");
   const [waterImage, setWaterImage] = useState<string>("");
   const [electricImage, setElectricImage] = useState<string>("");
+
+  const waterUsage = useMemo(() => {
+    const p = Number(prevWaterIndex || 0);
+    const c = Number(currentWaterIndex || 0);
+    return c > p ? c - p : 0;
+  }, [prevWaterIndex, currentWaterIndex]);
+
+  const electricUsage = useMemo(() => {
+    const p = Number(prevElectricIndex || 0);
+    const c = Number(currentElectricIndex || 0);
+    return c > p ? c - p : 0;
+  }, [prevElectricIndex, currentElectricIndex]);
 
   useEffect(() => {
     if (roomId) {
@@ -124,6 +140,8 @@ const RoomDetailPage: React.FC = () => {
         setServiceFee(data.service_fee?.toString() || "");
         setElectricityPrice(data.electricity_price?.toString() || "");
         setWaterPrice(data.water_price?.toString() || "");
+        setPrevWaterIndex(data.prev_water_index?.toString() || "");
+        setPrevElectricIndex(data.prev_electricity_index?.toString() || "");
       }
     } catch (error) {
       console.error("Lỗi tải thông tin phòng:", error);
@@ -305,8 +323,8 @@ const RoomDetailPage: React.FC = () => {
   }, [roomPrice, serviceFee, electricityPrice, waterPrice, waterUsage, electricUsage, penalty, room]);
 
   const canSubmitBill = useMemo(() => {
-    return waterUsage.trim() !== "" && electricUsage.trim() !== "";
-  }, [waterUsage, electricUsage]);
+    return currentWaterIndex.toString().trim() !== "" && currentElectricIndex.toString().trim() !== "";
+  }, [currentWaterIndex, currentElectricIndex]);
 
   const handleCreateBill = async () => {
     if (!canSubmitBill) return;
@@ -315,8 +333,10 @@ const RoomDetailPage: React.FC = () => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          water_usage: Number(waterUsage),
-          electricity_usage: Number(electricUsage),
+          water_usage: waterUsage,
+          electricity_usage: electricUsage,
+          current_water_index: Number(currentWaterIndex),
+          current_electricity_index: Number(currentElectricIndex),
           penalty: penalty ? Number(penalty) : 0,
         }),
       });
@@ -333,6 +353,55 @@ const RoomDetailPage: React.FC = () => {
     } catch (error) {
       console.error("Lỗi tạo hóa đơn:", error);
       alert("Có lỗi xảy ra khi tạo hóa đơn");
+    }
+  };
+
+  const processMeterImage = async (filePath: string, type: 'water' | 'electric') => {
+    try {
+      if (type === 'water') setParsingWater(true);
+      else setParsingElectric(true);
+
+      const response = await fetch(filePath);
+      const blob = await response.blob();
+      const base64data = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      });
+
+      const API_KEY = "9MSjoRWOeYUHu9KJBbIY";
+      const MODEL_ENDPOINT = "https://serverless.roboflow.com/combined_ad_v2/4";
+
+      const rfRes = await fetch(`${MODEL_ENDPOINT}?api_key=${API_KEY}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: base64data
+      });
+
+      if (!rfRes.ok) throw new Error("Lỗi API nhận diện");
+
+      const rfData = await rfRes.json();
+      let predictions = rfData.predictions || [];
+      predictions = predictions.filter((p: any) => !["10", "11"].includes(p.class));
+      predictions.sort((a: any, b: any) => a.x - b.x);
+
+      if (predictions.length > 0) {
+        const finalNumber = predictions.map((p: any) => p.class).join("");
+        if (type === 'water') {
+          setCurrentWaterIndex(finalNumber);
+        } else {
+          setCurrentElectricIndex(finalNumber);
+        }
+      } else {
+        alert("Không nhận diện được số từ ảnh.");
+      }
+    } catch (error) {
+      console.error("Lỗi nhận diện ảnh:", error);
+      alert("Đã xảy ra lỗi khi đọc số từ ảnh.");
+    } finally {
+      if (type === 'water') setParsingWater(false);
+      else setParsingElectric(false);
     }
   };
 
@@ -698,34 +767,54 @@ const RoomDetailPage: React.FC = () => {
                 <Text style={{ fontSize: 16, fontWeight: "bold" }}>🧾 Tính tiền tháng</Text>
 
                 {/* Nước */}
-                <Box>
-                  <Box flex style={{ gap: 8, alignItems: "center" }}>
+                {/* Nước */}
+                <Box flex flexDirection="column" style={{ gap: 8, padding: 12, border: "1px solid #eee", borderRadius: 8 }}>
+                  <Text style={{ fontWeight: "bold", color: "#007AFF" }}>💧 Nước</Text>
+                  <Box flex justifyContent="space-between" style={{ gap: 8 }}>
                     <Input
                       type="number"
-                      value={waterUsage}
-                      onChange={(e) => setWaterUsage(e.target.value.toString())}
-                      placeholder="Số nước (khối) *"
+                      value={prevWaterIndex}
+                      onChange={(e) => setPrevWaterIndex(e.target.value.toString())}
+                      placeholder="Chỉ số cũ"
                       style={{ flex: 1 }}
+                      label="Chỉ số cũ"
                     />
-                    <Button
-                      onClick={() => {
-                        import("zmp-sdk/apis").then(({ chooseImage }) => {
-                          chooseImage({
-                            sourceType: ["camera", "album"],
-                            count: 1,
-                            success: (res) => {
-                              if (res.filePaths && res.filePaths.length > 0) {
-                                setWaterImage(res.filePaths[0]);
-                              }
-                            },
-                            fail: (err) => console.error(err)
+                    <Input
+                      type="number"
+                      value={currentWaterIndex}
+                      onChange={(e) => setCurrentWaterIndex(e.target.value.toString())}
+                      placeholder="Chỉ số mới *"
+                      style={{ flex: 1 }}
+                      label="Chỉ số mới"
+                    />
+                  </Box>
+                  <Box flex alignItems="center" justifyContent="space-between">
+                    <Text style={{ fontSize: 13, color: "#666" }}>
+                      Sử dụng: <Text style={{ fontWeight: "bold", color: "#333" }}>{waterUsage} khối</Text>
+                    </Text>
+                    <Box flex style={{ gap: 8 }}>
+                      <Button
+                        onClick={() => {
+                          import("zmp-sdk/apis").then(({ chooseImage }) => {
+                            chooseImage({
+                              sourceType: ["camera", "album"],
+                              count: 1,
+                              success: (res) => {
+                                if (res.filePaths && res.filePaths.length > 0) {
+                                  setWaterImage(res.filePaths[0]);
+                                  processMeterImage(res.filePaths[0], 'water');
+                                }
+                              },
+                              fail: (err) => console.error(err)
+                            });
                           });
-                        });
-                      }}
-                      type={waterImage ? "highlight" : "neutral"}
-                      icon={<Text>📷</Text>}
-                      style={{ minWidth: 48, padding: 0 }}
-                    />
+                        }}
+                        type={waterImage ? "highlight" : "neutral"}
+                        icon={parsingWater ? <Spinner /> : <Text>🤖 Đọc số</Text>}
+                        size="small"
+                        disabled={parsingWater}
+                      />
+                    </Box>
                   </Box>
                   {waterImage && (
                     <Box mt={1} style={{ position: "relative", width: 80, height: 80 }}>
@@ -743,34 +832,54 @@ const RoomDetailPage: React.FC = () => {
                 </Box>
 
                 {/* Điện */}
-                <Box>
-                  <Box flex style={{ gap: 8, alignItems: "center" }}>
+                {/* Điện */}
+                <Box flex flexDirection="column" style={{ gap: 8, padding: 12, border: "1px solid #eee", borderRadius: 8 }}>
+                  <Text style={{ fontWeight: "bold", color: "#FF9800" }}>⚡ Điện</Text>
+                  <Box flex justifyContent="space-between" style={{ gap: 8 }}>
                     <Input
                       type="number"
-                      value={electricUsage}
-                      onChange={(e) => setElectricUsage(e.target.value.toString())}
-                      placeholder="Số điện (số) *"
+                      value={prevElectricIndex}
+                      onChange={(e) => setPrevElectricIndex(e.target.value.toString())}
+                      placeholder="Chỉ số cũ"
                       style={{ flex: 1 }}
+                      label="Chỉ số cũ"
                     />
-                    <Button
-                      onClick={() => {
-                        import("zmp-sdk/apis").then(({ chooseImage }) => {
-                          chooseImage({
-                            sourceType: ["camera", "album"],
-                            count: 1,
-                            success: (res) => {
-                              if (res.filePaths && res.filePaths.length > 0) {
-                                setElectricImage(res.filePaths[0]);
-                              }
-                            },
-                            fail: (err) => console.error(err)
+                    <Input
+                      type="number"
+                      value={currentElectricIndex}
+                      onChange={(e) => setCurrentElectricIndex(e.target.value.toString())}
+                      placeholder="Chỉ số mới *"
+                      style={{ flex: 1 }}
+                      label="Chỉ số mới"
+                    />
+                  </Box>
+                  <Box flex alignItems="center" justifyContent="space-between">
+                    <Text style={{ fontSize: 13, color: "#666" }}>
+                      Sử dụng: <Text style={{ fontWeight: "bold", color: "#333" }}>{electricUsage} số</Text>
+                    </Text>
+                    <Box flex style={{ gap: 8 }}>
+                      <Button
+                        onClick={() => {
+                          import("zmp-sdk/apis").then(({ chooseImage }) => {
+                            chooseImage({
+                              sourceType: ["camera", "album"],
+                              count: 1,
+                              success: (res) => {
+                                if (res.filePaths && res.filePaths.length > 0) {
+                                  setElectricImage(res.filePaths[0]);
+                                  processMeterImage(res.filePaths[0], 'electric');
+                                }
+                              },
+                              fail: (err) => console.error(err)
+                            });
                           });
-                        });
-                      }}
-                      type={electricImage ? "highlight" : "neutral"}
-                      icon={<Text>📷</Text>}
-                      style={{ minWidth: 48, padding: 0 }}
-                    />
+                        }}
+                        type={electricImage ? "highlight" : "neutral"}
+                        icon={parsingElectric ? <Spinner /> : <Text>🤖 Đọc số</Text>}
+                        size="small"
+                        disabled={parsingElectric}
+                      />
+                    </Box>
                   </Box>
                   {electricImage && (
                     <Box mt={1} style={{ position: "relative", width: 80, height: 80 }}>

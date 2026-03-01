@@ -51,7 +51,7 @@ router.post("/", async (req, res) => {
 
 // Cập nhật phòng
 router.put("/:id", async (req, res) => {
-  const { name, room_price, service_fee, electricity_price, water_price } = req.body;
+  const { name, room_price, service_fee, electricity_price, water_price, prev_electricity_index, prev_water_index } = req.body;
   try {
     const result = await pool.query(
       `UPDATE rooms 
@@ -59,10 +59,12 @@ router.put("/:id", async (req, res) => {
            room_price = COALESCE($2, room_price),
            service_fee = COALESCE($3, service_fee),
            electricity_price = COALESCE($4, electricity_price),
-           water_price = COALESCE($5, water_price)
-       WHERE id = $6 
+           water_price = COALESCE($5, water_price),
+           prev_electricity_index = COALESCE($6, prev_electricity_index),
+           prev_water_index = COALESCE($7, prev_water_index)
+       WHERE id = $8 
        RETURNING *`,
-      [name || null, room_price || null, service_fee || null, electricity_price || null, water_price || null, req.params.id]
+      [name || null, room_price || null, service_fee || null, electricity_price || null, water_price || null, prev_electricity_index !== undefined ? prev_electricity_index : null, prev_water_index !== undefined ? prev_water_index : null, req.params.id]
     );
     if (result.rows.length === 0) {
       return res.status(404).json({ error: "Không tìm thấy phòng" });

@@ -31,6 +31,8 @@ CREATE TABLE IF NOT EXISTS rooms (
     service_fee DECIMAL(12, 2) DEFAULT 0,
     electricity_price DECIMAL(10, 2) DEFAULT 0,
     water_price DECIMAL(10, 2) DEFAULT 0,
+    prev_electricity_index DECIMAL(10, 2) DEFAULT 0,
+    prev_water_index DECIMAL(10, 2) DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (building_id) REFERENCES buildings(id) ON DELETE CASCADE,
     FOREIGN KEY (owner_id) REFERENCES users(id) ON DELETE CASCADE
@@ -65,6 +67,8 @@ CREATE TABLE IF NOT EXISTS payment_details (
     penalty DECIMAL(12, 2) DEFAULT 0,
     debt_amount DECIMAL(12, 2) DEFAULT 0,
     total_amount DECIMAL(12, 2) DEFAULT 0,
+    current_electricity_index DECIMAL(10, 2) DEFAULT 0,
+    current_water_index DECIMAL(10, 2) DEFAULT 0,
     month INTEGER NOT NULL,
     year INTEGER NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

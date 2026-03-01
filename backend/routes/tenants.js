@@ -105,7 +105,7 @@ router.post("/find-by-phone", async (req, res) => {
 
 // Tạo hóa đơn tháng cho toàn bộ người thuê trong phòng
 router.post("/room/:roomId/billing", async (req, res) => {
-  const { water_usage, electricity_usage, penalty = 0 } = req.body;
+  const { water_usage, electricity_usage, penalty = 0, current_water_index = 0, current_electricity_index = 0 } = req.body;
 
   if (water_usage === undefined || electricity_usage === undefined) {
     return res.status(400).json({ error: "Thiếu số nước hoặc số điện" });
@@ -130,6 +130,8 @@ router.post("/room/:roomId/billing", async (req, res) => {
     const waterUsage = Number(water_usage || 0);
     const electricityUsage = Number(electricity_usage || 0);
     const penaltyAmount = Number(penalty || 0);
+    const currentWaterIndex = Number(current_water_index || 0);
+    const currentElectricityIndex = Number(current_electricity_index || 0);
 
     const electricityAmount = electricityPrice * electricityUsage;
     const waterAmount = waterPrice * waterUsage;
@@ -176,12 +178,12 @@ router.post("/room/:roomId/billing", async (req, res) => {
         [total, newDebt, tenant.id]
       );
 
-      // Lưu chi tiết hóa đơn
+      // Lưu chi tiết hóa đơn kèm theo chỉ số mới
       await pool.query(
         `INSERT INTO payment_details 
          (tenant_id, room_price, service_fee, electricity_amount, water_amount, 
-          penalty, debt_amount, total_amount, month, year)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
+          penalty, debt_amount, total_amount, current_electricity_index, current_water_index, month, year)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`,
         [
           tenant.id,
           roomPrice,
@@ -191,6 +193,8 @@ router.post("/room/:roomId/billing", async (req, res) => {
           penaltyAmount,
           currentDebt,
           total,
+          currentElectricityIndex,
+          currentWaterIndex,
           month,
           year,
         ]
