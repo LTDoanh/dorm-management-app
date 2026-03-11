@@ -83,6 +83,46 @@ const HomePage: React.FC = () => {
     }
   };
 
+  const handleOkClick = async () => {
+    try {
+      setLoading(true);
+      // Query the API using find-by-phone
+      // Note: Because the app uses API_BASE_URL we need to import it or declare it
+      // if not already imported. We can just use the absolute path variable used in other files
+      const API_BASE_URL = "https://dorm-management-app.onrender.com";
+
+      const res = await fetch(`${API_BASE_URL}/api/tenants/find-by-phone`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone: phoneNumber })
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        // If the user already has a role, auto-redirect them mapping "chu-tro" and "nguoi-thue"
+        if (data.role && (data.role === "chu-tro" || data.role === "nguoi-thue")) {
+          // Sync name changes to User state
+          if (user && userName && userName !== user.name) {
+            setUser({ ...user, name: userName });
+          }
+          // The saveUserRole acts as an upsert to the database which updates their name if changed
+          await saveUserRole(data.role as "chu-tro" | "nguoi-thue", phoneNumber);
+          navigate(data.role === "chu-tro" ? "/home-owner" : "/home-tenant", { replace: true });
+          return;
+        }
+      }
+      
+      // If NOT OK or user doesn't have a role, show the role selection
+      setLoading(false);
+      setConfirmedInfo(true);
+
+    } catch (err) {
+      console.error(err);
+      setLoading(false);
+      setConfirmedInfo(true);
+    }
+  };
+
   // Hiển thị loading khi đang kiểm tra role
   if (checkingRole || loading) {
     return (
@@ -181,7 +221,7 @@ const HomePage: React.FC = () => {
 
             {userName.trim().length >= 2 && phoneNumber.length >= 9 && !confirmedInfo && (
               <Button
-                onClick={() => setConfirmedInfo(true)}
+                onClick={handleOkClick}
                 type="highlight"
                 style={{ width: "100%", marginTop: 4 }}
               >
