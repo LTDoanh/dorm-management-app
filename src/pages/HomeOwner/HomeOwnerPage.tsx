@@ -8,6 +8,130 @@ import { Building } from "@dts";
 import { API_BASE_URL } from "@constants/common";
 import BankSelect, { BANKS } from "@components/common/BankSelect";
 
+export interface AppNotification {
+  id: number;
+  tenant_id: number;
+  room_id: number;
+  type: string;
+  title: string;
+  message: string;
+  data: any;
+  is_read: boolean;
+  created_at: string;
+  tenant_name: string;
+  tenant_avatar?: string;
+  room_name: string;
+  building_name: string;
+  current_bill: number;
+  debt: number;
+}
+
+const NotificationItem: React.FC<{
+  notification: AppNotification;
+  onConfirm: (notificationId: number, tenantId: number, receivedAmount: number) => Promise<void>;
+  onRemove: (notificationId: number) => void;
+}> = ({ notification, onConfirm, onRemove }) => {
+  const totalAmount = (notification.current_bill || 0) + (notification.debt || 0);
+  const defaultReceived = totalAmount;
+  const [receivedAmount, setReceivedAmount] = useState<string>(defaultReceived.toString());
+  const [confirming, setConfirming] = useState(false);
+
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat("vi-VN").format(price);
+  };
+
+  const handleConfirm = async () => {
+    setConfirming(true);
+    await onConfirm(notification.id, notification.tenant_id, parseFloat(receivedAmount || "0"));
+    setConfirming(false);
+    onRemove(notification.id);
+  };
+
+  return (
+    <Box
+      p={3}
+      style={{
+        border: notification.is_read
+          ? "1px solid #e0e0e0"
+          : "2px solid #007AFF",
+        borderRadius: 8,
+        backgroundColor: notification.is_read ? "#fff" : "#f0f7ff",
+      }}
+    >
+      <Box flex justifyContent="space-between" alignItems="flex-start" style={{ marginBottom: 12 }}>
+        <Box flex flexDirection="column" style={{ flex: 1 }}>
+          <Text style={{ fontSize: 16, fontWeight: "bold", marginBottom: 4 }}>
+            {notification.title}
+          </Text>
+          <Text style={{ fontSize: 14, color: "#666", marginBottom: 8 }}>
+            {notification.message}
+          </Text>
+          <Text style={{ fontSize: 12, color: "#999" }}>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="black" xmlns="http://www.w3.org/2000/svg" style={{ display: "inline-block", verticalAlign: "middle", margin: "0 4px 2px 0" }}><path d="M12 7V3H2v18h20V7H12zM6 19H4v-2h2v2zm0-4H4v-2h2v2zm0-4H4V9h2v2zm0-4H4V5h2v2zm4 12H8v-2h2v2zm0-4H8v-2h2v2zm0-4H8V9h2v2zm0-4H8V5h2v2zm10 12h-8v-2h2v-2h-2v-2h-2v-2h-2V9h8v10zm-2-8h-2v2h2v-2zm0 4h-2v2h2v-2z" /></svg>
+            {notification.building_name} -
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: "inline-block", verticalAlign: "middle", margin: "0 2px" }}><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+            Phòng {notification.room_name}
+          </Text>
+          <Text style={{ fontSize: 12, color: "#999", marginTop: 4 }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: "inline-block", verticalAlign: "middle", margin: "0 4px 2px 0" }}>
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+            {notification.tenant_name}
+          </Text>
+        </Box>
+        {!notification.is_read && (
+          <Box
+            style={{
+              width: 12,
+              height: 12,
+              borderRadius: 6,
+              backgroundColor: "#007AFF",
+            }}
+          />
+        )}
+      </Box>
+
+      {notification.type === "payment_confirmation" && (
+        <Box
+          p={2}
+          style={{
+            backgroundColor: "#fff",
+            borderRadius: 8,
+            border: "1px solid #e0e0e0",
+            marginTop: 12,
+          }}
+        >
+          <Text style={{ fontSize: 14, fontWeight: "bold", marginBottom: 8 }}>
+            💰 Xác nhận thanh toán
+          </Text>
+          <Text style={{ fontSize: 12, color: "#666", marginBottom: 8 }}>
+            Số tiền cần thanh toán: <Text style={{ fontWeight: "bold", color: "#d10000" }}>{formatPrice(totalAmount)} VNĐ</Text>
+          </Text>
+          <Text style={{ fontSize: 12, color: "#666", marginBottom: 8 }}>
+            Số tiền đã nhận (mặc định: {formatPrice(defaultReceived)} VNĐ):
+          </Text>
+          <Input
+            type="number"
+            value={receivedAmount}
+            onChange={(e) => setReceivedAmount(e.target.value.toString())}
+            placeholder="Nhập số tiền đã nhận"
+            style={{ marginBottom: 12 }}
+          />
+          <Button
+            onClick={handleConfirm}
+            type="highlight"
+            style={{ width: "100%" }}
+            disabled={confirming || !receivedAmount}
+          >
+            {confirming ? "Đang xác nhận..." : "✅ Xác nhận đã nhận tiền"}
+          </Button>
+        </Box>
+      )}
+    </Box>
+  );
+};
+
 const HomeOwnerPage: React.FC = () => {
   const [buildings, setBuildings] = useState<Building[]>([]);
   const [newBuildingName, setNewBuildingName] = useState("");
@@ -22,6 +146,7 @@ const HomeOwnerPage: React.FC = () => {
   const [ownerName, setOwnerName] = useState("");
   const [savingBank, setSavingBank] = useState(false);
   const [notificationCount, setNotificationCount] = useState(0);
+  const [notifications, setNotifications] = useState<AppNotification[]>([]);
   const navigate = useNavigate();
   const location = useLocation();
   const [activeTab, setActiveTab] = useState<'home' | 'management' | 'notifications'>(
@@ -33,6 +158,9 @@ const HomeOwnerPage: React.FC = () => {
     loadBuildings();
     loadBankInfo();
     loadNotificationCount();
+    if (activeTab === 'notifications') {
+      loadNotificationsList();
+    }
 
     // Polling để cập nhật số thông báo
     const interval = setInterval(() => {
@@ -41,6 +169,12 @@ const HomeOwnerPage: React.FC = () => {
 
     return () => clearInterval(interval);
   }, []);
+
+  useEffect(() => {
+    if (activeTab === 'notifications' && notifications.length === 0) {
+      loadNotificationsList();
+    }
+  }, [activeTab]);
 
   const loadBankInfo = async () => {
     try {
@@ -114,6 +248,62 @@ const HomeOwnerPage: React.FC = () => {
     }
   };
 
+  const loadNotificationsList = async () => {
+    try {
+      setLoading(true);
+      const userId = user?.idByOA || user?.id;
+      if (!userId) return;
+
+      const res = await fetch(
+        `${API_BASE_URL}/api/notifications/owner/${userId}`
+      );
+      if (res.ok) {
+        const data = await res.json();
+        setNotifications(data);
+      }
+    } catch (error) {
+      console.error("Lỗi tải danh sách thông báo:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleConfirmPayment = async (
+    notificationId: number,
+    tenantId: number,
+    receivedAmount: number
+  ) => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/payments/owner-confirm`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          tenantId: tenantId,
+          receivedAmount: receivedAmount,
+        }),
+      });
+
+      if (res.ok) {
+        // Đánh dấu thông báo đã đọc
+        await fetch(`${API_BASE_URL}/api/notifications/${notificationId}/read`, {
+          method: "PUT",
+        });
+
+        // Xóa thông báo khỏi danh sách
+        setNotifications((prev) =>
+          prev.filter((n) => n.id !== notificationId)
+        );
+        alert("Đã xác nhận nhận tiền thành công");
+      } else {
+        const error = await res.json();
+        alert(error.error || "Không thể xác nhận nhận tiền");
+      }
+    } catch (error) {
+      console.error("Lỗi xác nhận nhận tiền:", error);
+      alert("Có lỗi xảy ra khi xác nhận nhận tiền");
+    }
+  };
+
   const loadBuildings = async () => {
     try {
       setLoading(true);
@@ -182,7 +372,10 @@ const HomeOwnerPage: React.FC = () => {
     <PageLayout
       id="home-owner-page"
       customHeader={
-        <HomeHeader title={activeTab === 'home' ? "TRANG CHỦ" : activeTab === 'management' ? "QUẢN LÝ" : "QUẢN LÝ TRỌ"} />
+        <HomeHeader
+          title={activeTab === 'home' ? "TRANG CHỦ" : activeTab === 'management' ? "QUẢN LÝ" : "THÔNG BÁO"}
+          onBack={activeTab === 'notifications' ? () => setActiveTab('home') : undefined}
+        />
       }
     >
       <Box p={4} flex flexDirection="column" style={{ paddingBottom: 80, gap: 16 }}>
@@ -506,6 +699,34 @@ const HomeOwnerPage: React.FC = () => {
             )}
           </Box>
         )}
+
+        {/* Cụm render cho Tab Thông báo */}
+        {activeTab === 'notifications' && (
+          <Box flex flexDirection="column" style={{ gap: 16 }}>
+            {notifications.length === 0 ? (
+              <Box
+                p={4}
+                flex
+                flexDirection="column"
+                alignItems="center"
+                style={{ gap: 8 }}
+              >
+                <Text style={{ color: "#999", textAlign: "center" }}>
+                  Chưa có thông báo nào.
+                </Text>
+              </Box>
+            ) : (
+              notifications.map((notification) => (
+                <NotificationItem
+                  key={notification.id}
+                  notification={notification}
+                  onConfirm={handleConfirmPayment}
+                  onRemove={(id) => setNotifications((prev) => prev.filter((n) => n.id !== id))}
+                />
+              ))
+            )}
+          </Box>
+        )}
       </Box>
 
       {/* Bottom Navigation */}
@@ -567,9 +788,11 @@ const HomeOwnerPage: React.FC = () => {
           alignItems="center"
           justifyContent="center"
           style={{ width: "33%", cursor: "pointer", position: "relative" }}
-          onClick={() => navigate("/notifications")}
+          onClick={() => setActiveTab('notifications')}
         >
-          {false ? /* Placeholder for active tab logic if we sync states later */ null : (
+          {activeTab === 'notifications' ? (
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="#007AFF" stroke="none"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+          ) : (
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
           )}
           {notificationCount > 0 && (
@@ -594,7 +817,7 @@ const HomeOwnerPage: React.FC = () => {
               {notificationCount > 99 ? "99+" : notificationCount}
             </Box>
           )}
-          <Text style={{ fontSize: 11, color: "black", marginTop: 4 }}>
+          <Text style={{ fontSize: 11, color: activeTab === 'notifications' ? "#007AFF" : "black", marginTop: 4, fontWeight: activeTab === 'notifications' ? "bold" : "normal" }}>
             Thông báo
           </Text>
         </Box>
