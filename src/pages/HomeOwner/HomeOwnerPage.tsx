@@ -372,10 +372,7 @@ const HomeOwnerPage: React.FC = () => {
     <PageLayout
       id="home-owner-page"
       customHeader={
-        <HomeHeader
-          title={activeTab === 'home' ? "TRANG CHỦ" : activeTab === 'management' ? "QUẢN LÝ" : "THÔNG BÁO"}
-          onBack={activeTab === 'notifications' ? () => setActiveTab('home') : undefined}
-        />
+        <HomeHeader title={activeTab === 'home' ? "TRANG CHỦ" : activeTab === 'management' ? "QUẢN LÝ" : "THÔNG BÁO"} />
       }
     >
       <Box p={4} flex flexDirection="column" style={{ paddingBottom: 80, gap: 16 }}>
