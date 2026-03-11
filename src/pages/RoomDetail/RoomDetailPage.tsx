@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import PageLayout from "@components/layout/PageLayout";
 import { HomeHeader } from "@components";
+import { EditIcon } from "../../components/icons";
 import { Box, Text, Spinner, Button, Input } from "zmp-ui";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { Room } from "@dts";
@@ -482,7 +483,7 @@ const RoomDetailPage: React.FC = () => {
               }}
             >
               <Text style={{ fontSize: 18, fontWeight: "bold", marginBottom: 16 }}>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="black" xmlns="http://www.w3.org/2000/svg" style={{ display: "inline-block", verticalAlign: "middle", margin: "0 6px 2px 0" }}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: "inline-block", verticalAlign: "middle", margin: "0 6px 2px 0" }}>
                   <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
                   <circle cx="12" cy="12" r="3"></circle>
                 </svg>
@@ -582,7 +583,7 @@ const RoomDetailPage: React.FC = () => {
                 <Box flex style={{ gap: 6 }}>
                   <Button
                     onClick={() => setEditSection(null)}
-                    style={{ background: "transparent", border: "none", boxShadow: "none", padding: 0, minWidth: "auto", height: "auto" }}
+                    style={{ background: "transparent", border: "none", boxShadow: "none", padding: 0, minWidth: "auto", height: "auto", display: "flex", alignItems: "center" }}
                   >
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: "block" }}>
                       <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -709,7 +710,7 @@ const RoomDetailPage: React.FC = () => {
                           <Box flex flexDirection="column" style={{ gap: 4 }}>
                             <Button
                               onClick={() => handleDeleteTenant(tenant.id)}
-                              style={{ background: "transparent", border: "none", boxShadow: "none", padding: 0, minWidth: "auto", height: "auto" }}
+                              style={{ background: "transparent", border: "none", boxShadow: "none", padding: 0, minWidth: "auto", height: "auto", display: "flex", alignItems: "center" }}
                               size="small"
                             >
                               <svg width="20" height="20" viewBox="0 0 24 24" fill="#d10000" xmlns="http://www.w3.org/2000/svg" style={{ display: "block" }}>
@@ -738,14 +739,14 @@ const RoomDetailPage: React.FC = () => {
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
-                        gap: "8px",
+                        gap: 8,
                         borderRadius: 8
                       }}
                     >
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg" style={{ display: "block", marginBottom: 2 }}>
                         <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
                       </svg>
-                      Xóa tất cả người thuê
+                      Xóa tất cả
                     </Button>
                   )}
                 </Box>
@@ -770,12 +771,9 @@ const RoomDetailPage: React.FC = () => {
                 {!editSection && (
                   <Button
                     onClick={() => setEditSection("price")}
-                    style={{ background: "transparent", border: "none", boxShadow: "none", padding: 0, minWidth: "auto", height: "auto" }}
+                    style={{ background: "transparent", border: "none", boxShadow: "none", padding: 0, minWidth: "auto", height: "auto", display: "flex", alignItems: "center" }}
                   >
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: "block" }}>
-                      <path d="M12 20h9"></path>
-                      <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
-                    </svg>
+                    <EditIcon size={18} color="black" />
                   </Button>
                 )}
               </Box>
@@ -814,7 +812,7 @@ const RoomDetailPage: React.FC = () => {
                 border: "1px solid #e0e0e0",
                 borderRadius: 8,
                 backgroundColor: "#fff",
-                marginTop: 16
+                marginTop: 8
               }}
             >
               <Text style={{ fontSize: 16, fontWeight: "bold", marginBottom: 12 }}>Tính tiền tháng</Text>
@@ -1085,7 +1083,7 @@ const RoomDetailPage: React.FC = () => {
                 border: "1px solid #e0e0e0",
                 borderRadius: 8,
                 backgroundColor: "#fff",
-                marginTop: 16
+                marginTop: 8
               }}
             >
               <Box flex justifyContent="space-between" alignItems="center" style={{ marginBottom: 12 }}>
@@ -1097,10 +1095,7 @@ const RoomDetailPage: React.FC = () => {
                     onClick={() => setEditSection("tenant")}
                     style={{ background: "transparent", border: "none", boxShadow: "none", padding: 0, minWidth: "auto", height: "auto" }}
                   >
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: "block" }}>
-                      <path d="M12 20h9"></path>
-                      <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
-                    </svg>
+                    <EditIcon size={18} color="black" />
                   </Button>
                 )}
               </Box>

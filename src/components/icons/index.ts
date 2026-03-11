@@ -20,3 +20,4 @@ export { default as BuildingIcon } from "./Building";
 export { default as BuildingFillIcon } from "./BuildingFill";
 export { default as NotificationOutlineIcon } from "./NotificationOutline";
 export { default as NotificationFillIcon } from "./NotificationFill";
+export { default as EditIcon } from "./EditIcon";

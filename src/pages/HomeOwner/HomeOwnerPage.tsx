@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import PageLayout from "@components/layout/PageLayout";
 import { HomeHeader } from "@components";
-import { HomeIcon, HomeFillIcon, BuildingIcon, BuildingFillIcon, NotificationOutlineIcon, NotificationFillIcon } from "../../components/icons";
+import { HomeIcon, HomeFillIcon, BuildingIcon, BuildingFillIcon, NotificationOutlineIcon, NotificationFillIcon, PenIcon, EditIcon } from "../../components/icons";
 import { Button, Box, Text, Input, Spinner } from "zmp-ui";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useStore } from "@store";
@@ -68,7 +68,7 @@ const NotificationItem: React.FC<{
             {notification.message}
           </Text>
           <Text style={{ fontSize: 12, color: "#999" }}>
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="black" xmlns="http://www.w3.org/2000/svg" style={{ display: "inline-block", verticalAlign: "middle", margin: "0 4px 2px 0" }}><path d="M12 7V3H2v18h20V7H12zM6 19H4v-2h2v2zm0-4H4v-2h2v2zm0-4H4V9h2v2zm0-4H4V5h2v2zm4 12H8v-2h2v2zm0-4H8v-2h2v2zm0-4H8V9h2v2zm0-4H8V5h2v2zm10 12h-8v-2h2v-2h-2v-2h-2v-2h-2V9h8v10zm-2-8h-2v2h2v-2zm0 4h-2v2h2v-2z" /></svg>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="black" xmlns="http://www.w3.org/2000/svg" style={{ display: "inline-block", verticalAlign: "middle", margin: "0 4px 2px 0" }}><path d="M12 7V3H2v18h20V7H12zM6 19H4v-2h2v2zm0-4H4v-2h2v2zm0-4H4V9h2v2zm0-4H4V5h2v2zm4 12H8v-2h2v2zm0-4H8v-2h2v2zm0-4H8V9h2v2zm0-4H8V5h2v2zm10 12h-8v-2h2v-2h-2v-2h2v-2h-2V9h8v10zm-2-8h-2v2h2v-2zm0 4h-2v2h2v-2z" /></svg>
             {notification.building_name} -
             <HomeFillIcon size={12} color="currentColor" style={{ display: "inline-block", verticalAlign: "middle", margin: "0 2px" }} />
             Phòng {notification.room_name}
@@ -556,9 +556,7 @@ const HomeOwnerPage: React.FC = () => {
                     <line x1="6" y1="6" x2="18" y2="18"></line>
                   </svg>
                 ) : bankAccount ? (
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="black" xmlns="http://www.w3.org/2000/svg" style={{ display: "block" }}>
-                    <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
-                  </svg>
+                  <EditIcon size={18} color="black" style={{ display: "block" }} />
                 ) : (
                   <Box flex alignItems="center" style={{ gap: 4 }}>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: "block" }}>
