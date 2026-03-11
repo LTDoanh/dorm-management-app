@@ -46,7 +46,7 @@ const TenantPaymentConfirmation: React.FC<{
           await onConfirm(tenant.id, parseFloat(receivedAmount || "0"));
           setConfirming(false);
         }}
-        type="primary"
+        type="highlight"
         style={{ width: "100%" }}
         disabled={confirming || !receivedAmount}
       >
@@ -456,7 +456,7 @@ const RoomDetailPage: React.FC = () => {
                     type="highlight"
                     size="small"
                   >
-                    💰 Sửa giá
+                    Sửa giá
                   </Button>
                   <Button
                     onClick={() => setEditSection("tenant")}
@@ -539,7 +539,7 @@ const RoomDetailPage: React.FC = () => {
               <Box flex style={{ gap: 8, marginTop: 16 }}>
                 <Button
                   onClick={handleSave}
-                  type="primary"
+                  type="highlight"
                   style={{ flex: 1 }}
                   disabled={saving}
                 >
@@ -547,7 +547,7 @@ const RoomDetailPage: React.FC = () => {
                 </Button>
                 <Button
                   onClick={handleCancel}
-                  type="secondary"
+                  type="neutral"
                   style={{ flex: 1 }}
                 >
                   Hủy
@@ -733,7 +733,7 @@ const RoomDetailPage: React.FC = () => {
               }}
             >
               <Text style={{ fontSize: 16, fontWeight: "bold", marginBottom: 12 }}>
-                💰 Thông tin giá phòng
+                Thông tin tiền phòng
               </Text>
               <Box flex flexDirection="column" style={{ gap: 8 }}>
                 <Box flex justifyContent="space-between">
@@ -764,12 +764,12 @@ const RoomDetailPage: React.FC = () => {
 
               {/* Nhập số điện/nước và phạt để tính tiền tháng */}
               <Box flex flexDirection="column" style={{ gap: 12, marginTop: 16 }}>
-                <Text style={{ fontSize: 16, fontWeight: "bold" }}>🧾 Tính tiền tháng</Text>
+                <Text style={{ fontSize: 16, fontWeight: "bold" }}>Tính tiền tháng</Text>
 
                 {/* Nước */}
                 {/* Nước */}
                 <Box flex flexDirection="column" style={{ gap: 8, padding: 12, border: "1px solid #eee", borderRadius: 8 }}>
-                  <Text style={{ fontWeight: "bold", color: "#007AFF" }}>💧 Nước</Text>
+                  <Text style={{ fontWeight: "bold", color: "#333" }}>Nước</Text>
                   <Box flex justifyContent="space-between" style={{ gap: 8 }}>
                     <Input
                       type="number"
@@ -810,7 +810,12 @@ const RoomDetailPage: React.FC = () => {
                           });
                         }}
                         type={waterImage ? "highlight" : "neutral"}
-                        icon={parsingWater ? <Spinner /> : <Text>🤖 Đọc số</Text>}
+                        icon={parsingWater ? <Spinner /> : (
+                          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                            <circle cx="12" cy="13" r="4"></circle>
+                          </svg>
+                        )}
                         size="small"
                         disabled={parsingWater}
                       />
@@ -834,7 +839,7 @@ const RoomDetailPage: React.FC = () => {
                 {/* Điện */}
                 {/* Điện */}
                 <Box flex flexDirection="column" style={{ gap: 8, padding: 12, border: "1px solid #eee", borderRadius: 8 }}>
-                  <Text style={{ fontWeight: "bold", color: "#FF9800" }}>⚡ Điện</Text>
+                  <Text style={{ fontWeight: "bold", color: "#333" }}>Điện</Text>
                   <Box flex justifyContent="space-between" style={{ gap: 8 }}>
                     <Input
                       type="number"
@@ -875,7 +880,12 @@ const RoomDetailPage: React.FC = () => {
                           });
                         }}
                         type={electricImage ? "highlight" : "neutral"}
-                        icon={parsingElectric ? <Spinner /> : <Text>🤖 Đọc số</Text>}
+                        icon={parsingElectric ? <Spinner /> : (
+                          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                            <circle cx="12" cy="13" r="4"></circle>
+                          </svg>
+                        )}
                         size="small"
                         disabled={parsingElectric}
                       />
