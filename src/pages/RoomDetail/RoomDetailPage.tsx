@@ -468,41 +468,7 @@ const RoomDetailPage: React.FC = () => {
       }
     >
       <Box p={4} flex flexDirection="column" style={{ gap: 16 }}>
-        {room && (
-          <Box
-            p={3}
-            style={{
-              backgroundColor: "#f0f7ff",
-              borderRadius: 4,
-              border: "1px solid #007AFF",
-            }}
-          >
-            <Box flex justifyContent="space-between" alignItems="center">
-              <Text style={{ fontSize: 16, fontWeight: "bold" }}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: "inline-block", verticalAlign: "middle", margin: "0 4px 2px 0" }}><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
-                {room.name}
-              </Text>
-              {!editSection && (
-                <Box flex style={{ gap: 6 }}>
-                  <Button
-                    onClick={() => setEditSection("price")}
-                    type="highlight"
-                    size="small"
-                  >
-                    Sửa giá
-                  </Button>
-                  <Button
-                    onClick={() => setEditSection("tenant")}
-                    type="neutral"
-                    size="small"
-                  >
-                    Quản lý
-                  </Button>
-                </Box>
-              )}
-            </Box>
-          </Box>
-        )}
+        {/* Bỏ khối header cũ màu xanh lam ở đây vì nó được gộp xuống dưới theo thiết kế mới */}
 
         {editSection === "price" ? (
           <>
@@ -516,7 +482,11 @@ const RoomDetailPage: React.FC = () => {
               }}
             >
               <Text style={{ fontSize: 18, fontWeight: "bold", marginBottom: 16 }}>
-                ⚙️ Cài đặt giá phòng
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="black" xmlns="http://www.w3.org/2000/svg" style={{ display: "inline-block", verticalAlign: "middle", margin: "0 6px 2px 0" }}>
+                  <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+                Cài đặt giá phòng
               </Text>
 
               <Box flex flexDirection="column" style={{ gap: 12 }}>
@@ -576,7 +546,7 @@ const RoomDetailPage: React.FC = () => {
                   style={{ flex: 1 }}
                   disabled={saving}
                 >
-                  {saving ? "Đang lưu..." : "💾 Lưu"}
+                  {saving ? "Đang lưu..." : "Lưu"}
                 </Button>
                 <Button
                   onClick={handleCancel}
@@ -599,7 +569,7 @@ const RoomDetailPage: React.FC = () => {
                 backgroundColor: "#fff",
               }}
             >
-              <Box flex justifyContent="space-between" alignItems="center" style={{ marginBottom: 16 }}>
+              <Box flex justify-content="space-between" alignItems="center" style={{ marginBottom: 16 }}>
                 <Text style={{ fontSize: 18, fontWeight: "bold" }}>
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: "inline-block", verticalAlign: "middle", margin: "0 6px 2px 0" }}>
                     <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
@@ -610,30 +580,14 @@ const RoomDetailPage: React.FC = () => {
                   Quản lý người thuê trọ
                 </Text>
                 <Box flex style={{ gap: 6 }}>
-                  {tenants.length > 0 && (
-                    <Button
-                      onClick={handleDeleteAllTenants}
-                      style={{ background: "transparent", border: "none", boxShadow: "none", padding: 0, minWidth: "auto", height: "auto", display: "flex", alignItems: "center", gap: "4px", color: "#d10000" }}
-                      size="small"
-                    >
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="#d10000" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
-                      </svg>
-                      Xóa tất cả
-                    </Button>
-                  )}
                   <Button
                     onClick={() => setEditSection(null)}
-                    type="neutral"
-                    size="small"
+                    style={{ background: "transparent", border: "none", boxShadow: "none", padding: 0, minWidth: "auto", height: "auto" }}
                   >
-                    <Box flex alignItems="center" style={{ gap: 4 }}>
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: "block" }}>
-                        <line x1="18" y1="6" x2="6" y2="18"></line>
-                        <line x1="6" y1="6" x2="18" y2="18"></line>
-                      </svg>
-                      Đóng
-                    </Box>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: "block" }}>
+                      <line x1="18" y1="6" x2="6" y2="18"></line>
+                      <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
                   </Button>
                 </Box>
               </Box>
@@ -773,13 +727,34 @@ const RoomDetailPage: React.FC = () => {
                       </Box>
                     );
                   })}
+                  {tenants.length > 0 && (
+                    <Button
+                      onClick={handleDeleteAllTenants}
+                      style={{
+                        marginTop: 16,
+                        backgroundColor: "#ff3b30",
+                        border: "none",
+                        color: "white",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: "8px",
+                        borderRadius: 8
+                      }}
+                    >
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
+                      </svg>
+                      Xóa tất cả người thuê
+                    </Button>
+                  )}
                 </Box>
               )}
             </Box>
           </>
         ) : (
           <>
-            {/* Hiển thị thông tin giá phòng + tính tiền nhanh */}
+            {/* Thông tin tiền phòng (Tách riêng) */}
             <Box
               p={3}
               style={{
@@ -788,9 +763,22 @@ const RoomDetailPage: React.FC = () => {
                 backgroundColor: "#fff",
               }}
             >
-              <Text style={{ fontSize: 16, fontWeight: "bold", marginBottom: 12 }}>
-                Thông tin tiền phòng
-              </Text>
+              <Box flex justifyContent="space-between" alignItems="center" style={{ marginBottom: 12 }}>
+                <Text style={{ fontSize: 16, fontWeight: "bold" }}>
+                  Thông tin tiền phòng
+                </Text>
+                {!editSection && (
+                  <Button
+                    onClick={() => setEditSection("price")}
+                    style={{ background: "transparent", border: "none", boxShadow: "none", padding: 0, minWidth: "auto", height: "auto" }}
+                  >
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: "block" }}>
+                      <path d="M12 20h9"></path>
+                      <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                    </svg>
+                  </Button>
+                )}
+              </Box>
               <Box flex flexDirection="column" style={{ gap: 8 }}>
                 <Box flex justifyContent="space-between">
                   <Text style={{ fontSize: 14, color: "#666" }}>Giá phòng:</Text>
@@ -817,10 +805,22 @@ const RoomDetailPage: React.FC = () => {
                   </Text>
                 </Box>
               </Box>
+            </Box>
+
+            {/* Tính tiền tháng (Tách riêng) */}
+            <Box
+              p={3}
+              style={{
+                border: "1px solid #e0e0e0",
+                borderRadius: 8,
+                backgroundColor: "#fff",
+                marginTop: 16
+              }}
+            >
+              <Text style={{ fontSize: 16, fontWeight: "bold", marginBottom: 12 }}>Tính tiền tháng</Text>
 
               {/* Nhập số điện/nước và phạt để tính tiền tháng */}
-              <Box flex flexDirection="column" style={{ gap: 12, marginTop: 16 }}>
-                <Text style={{ fontSize: 16, fontWeight: "bold" }}>Tính tiền tháng</Text>
+              <Box flex flexDirection="column" style={{ gap: 12 }}>
 
                 {/* Nước */}
                 {/* Nước */}
@@ -964,7 +964,8 @@ const RoomDetailPage: React.FC = () => {
                   )}
                 </Box>
 
-                <Box flex flexDirection="column" style={{ gap: 4 }}>
+                {/* Tiền phạt */}
+                <Box flex flexDirection="column" style={{ gap: 8, padding: 12, border: "1px solid #eee", borderRadius: 8 }}>
                   <Box flex justifyContent="space-between" alignItems="center">
                     <Text style={{ fontWeight: "bold", color: "#333" }}>Tiền phạt</Text>
                     <Button
@@ -990,7 +991,7 @@ const RoomDetailPage: React.FC = () => {
                           key={idx}
                           flex
                           onClick={() => handleOpenPenaltyModal(idx)}
-                          style={{ padding: 8, borderBottom: idx < penaltyDetails.length - 1 ? '1px solid #eee' : 'none', cursor: 'pointer' }}
+                          style={{ padding: 8, borderBottom: idx < penaltyDetails.length - 1 ? '1px solid #eee' : 'none', cursor: 'pointer', backgroundColor: '#fff' }}
                         >
                           <Text style={{ flex: 1, fontSize: 13, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
                             {p.reason}
@@ -1000,6 +1001,13 @@ const RoomDetailPage: React.FC = () => {
                           </Text>
                         </Box>
                       ))}
+                      {/* Subtotal row */}
+                      <Box flex style={{ padding: 8, backgroundColor: '#fff0f0', borderTop: '1px solid #eee' }}>
+                        <Text style={{ flex: 1, fontSize: 13, fontWeight: 'bold', color: '#d10000' }}>Tổng cộng:</Text>
+                        <Text style={{ width: 100, fontSize: 13, fontWeight: 'bold', color: '#d10000', textAlign: 'right' }}>
+                          {formatPrice(penaltyDetails.reduce((sum, item) => sum + (Number(item.amount) || 0), 0))}
+                        </Text>
+                      </Box>
                     </Box>
                   )}
                 </Box>
@@ -1070,184 +1078,215 @@ const RoomDetailPage: React.FC = () => {
               </Box>
             </Box>
 
-            <Text style={{ fontSize: 18, fontWeight: "bold" }}>
-              Danh sách người thuê trọ
-            </Text>
-
-            {tenants.length === 0 ? (
-              <Box
-                p={4}
-                flex
-                flexDirection="column"
-                alignItems="center"
-                style={{ gap: 8 }}
-              >
-                <Text style={{ color: "#999", textAlign: "center" }}>
-                  Phòng này chưa có người thuê trọ.
+            {/* Danh sách người thuê trọ */}
+            <Box
+              p={3}
+              style={{
+                border: "1px solid #e0e0e0",
+                borderRadius: 8,
+                backgroundColor: "#fff",
+                marginTop: 16
+              }}
+            >
+              <Box flex justifyContent="space-between" alignItems="center" style={{ marginBottom: 12 }}>
+                <Text style={{ fontSize: 16, fontWeight: "bold" }}>
+                  Danh sách người thuê trọ
                 </Text>
+                {!editSection && (
+                  <Button
+                    onClick={() => setEditSection("tenant")}
+                    style={{ background: "transparent", border: "none", boxShadow: "none", padding: 0, minWidth: "auto", height: "auto" }}
+                  >
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: "block" }}>
+                      <path d="M12 20h9"></path>
+                      <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                    </svg>
+                  </Button>
+                )}
               </Box>
-            ) : (
-              tenants.map((tenant) => (
+
+              {tenants.length === 0 ? (
                 <Box
-                  key={tenant.id}
-                  p={3}
-                  style={{
-                    border: "1px solid #e0e0e0",
-                    borderRadius: 8,
-                    backgroundColor: "#fff",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 12,
-                  }}
+                  p={4}
+                  flex
+                  flexDirection="column"
+                  alignItems="center"
+                  style={{ gap: 8 }}
                 >
-                  {tenant.avatar ? (
+                  <Text style={{ color: "#999", textAlign: "center" }}>
+                    Phòng này chưa có người thuê trọ.
+                  </Text>
+                </Box>
+              ) : (
+                <Box flex flexDirection="column" style={{ gap: 8 }}>
+                  {tenants.map((tenant) => (
                     <Box
+                      key={tenant.id}
+                      p={2}
                       style={{
-                        width: 48,
-                        height: 48,
-                        borderRadius: 24,
-                        backgroundImage: `url(${tenant.avatar})`,
-                        backgroundSize: "cover",
-                        backgroundPosition: "center",
-                      }}
-                    />
-                  ) : (
-                    <Box
-                      style={{
-                        width: 48,
-                        height: 48,
-                        borderRadius: 24,
-                        backgroundColor: "#007AFF",
+                        border: "1px solid #e0e0e0",
+                        borderRadius: 8,
+                        backgroundColor: "#f9f9f9",
                         display: "flex",
                         alignItems: "center",
-                        justifyContent: "center",
+                        gap: 12,
                       }}
                     >
-                      <Text style={{ color: "#fff", fontSize: 20, fontWeight: "bold" }}>
-                        {tenant.nickname?.charAt(0).toUpperCase() || "?"}
-                      </Text>
+                      {tenant.avatar ? (
+                        <Box
+                          style={{
+                            width: 48,
+                            height: 48,
+                            borderRadius: 24,
+                            backgroundImage: `url(${tenant.avatar})`,
+                            backgroundSize: "cover",
+                            backgroundPosition: "center",
+                          }}
+                        />
+                      ) : (
+                        <Box
+                          style={{
+                            width: 48,
+                            height: 48,
+                            borderRadius: 24,
+                            backgroundColor: "#007AFF",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                          }}
+                        >
+                          <Text style={{ color: "#fff", fontSize: 20, fontWeight: "bold" }}>
+                            {tenant.nickname?.charAt(0).toUpperCase() || "?"}
+                          </Text>
+                        </Box>
+                      )}
+                      <Box flex flexDirection="column" style={{ flex: 1 }}>
+                        <Text style={{ fontSize: 16, fontWeight: "bold" }}>
+                          {tenant.nickname || "Người dùng Zalo"}
+                        </Text>
+                        <Text style={{ fontSize: 12, color: "#666" }}>
+                          ID: {tenant.user_id}
+                        </Text>
+                        <Text style={{ fontSize: 12, color: "#d10000", marginTop: 4 }}>
+                          Công nợ: {formatPrice(tenant.debt || 0)} VNĐ
+                        </Text>
+                        <Text style={{ fontSize: 12, color: "#007AFF" }}>
+                          Hóa đơn hiện tại: {formatPrice(tenant.current_bill || 0)} VNĐ
+                        </Text>
+                      </Box>
                     </Box>
-                  )}
-                  <Box flex flexDirection="column" style={{ flex: 1 }}>
-                    <Text style={{ fontSize: 16, fontWeight: "bold" }}>
-                      {tenant.nickname || "Người dùng Zalo"}
-                    </Text>
-                    <Text style={{ fontSize: 12, color: "#666" }}>
-                      ID: {tenant.user_id}
-                    </Text>
-                    <Text style={{ fontSize: 12, color: "#d10000", marginTop: 4 }}>
-                      Công nợ: {formatPrice(tenant.debt || 0)} VNĐ
-                    </Text>
-                    <Text style={{ fontSize: 12, color: "#007AFF" }}>
-                      Hóa đơn hiện tại: {formatPrice(tenant.current_bill || 0)} VNĐ
-                    </Text>
-                  </Box>
+                  ))}
                 </Box>
-              ))
-            )}
+              )}
+            </Box>
           </>
-        )}
-      </Box>
+        )
+        }
+      </Box >
 
       {/* Thêm/Sửa Tiền Phạt Dialog */}
-      {showPenaltyModal && (
-        <Box
-          onClick={(e) => {
-            if (e.target === e.currentTarget) setShowPenaltyModal(false);
-          }}
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            width: "100vw",
-            height: "100vh",
-            backgroundColor: "rgba(0, 0, 0, 0.5)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            zIndex: 9999,
-          }}
-        >
+      {
+        showPenaltyModal && (
           <Box
+            onClick={(e) => {
+              if (e.target === e.currentTarget) setShowPenaltyModal(false);
+            }}
             style={{
-              backgroundColor: "white",
-              padding: 24,
-              borderRadius: 12,
-              width: "90%",
-              maxWidth: 400,
+              position: "fixed",
+              top: 0,
+              left: 0,
+              width: "100vw",
+              height: "100vh",
+              backgroundColor: "rgba(0, 0, 0, 0.5)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              zIndex: 9999,
             }}
           >
-            <Text style={{ fontSize: 18, fontWeight: "bold", marginBottom: 16 }}>
-              {editingPenaltyIdx !== null ? "Sửa khoản phạt" : "Thêm khoản phạt"}
-            </Text>
+            <Box
+              style={{
+                backgroundColor: "white",
+                padding: 24,
+                borderRadius: 12,
+                width: "90%",
+                maxWidth: 400,
+              }}
+            >
+              <Text style={{ fontSize: 18, fontWeight: "bold", marginBottom: 16 }}>
+                {editingPenaltyIdx !== null ? "Sửa khoản phạt" : "Thêm khoản phạt"}
+              </Text>
 
-            <Box flex flexDirection="column" style={{ gap: 16 }}>
-              <Input
-                value={modalPenaltyReason}
-                onChange={(e) => setModalPenaltyReason(e.target.value.toString())}
-                placeholder="Nguyên nhân phạt *"
-                label="Nguyên nhân phạt"
-              />
-              <Input
-                type="number"
-                value={modalPenaltyAmount}
-                onChange={(e) => {
-                  const val = e.target.value.toString();
-                  if (/^\d*$/.test(val)) setModalPenaltyAmount(val);
-                }}
-                placeholder="Số tiền phạt (VNĐ) *"
-                label="Số tiền phạt"
-              />
-            </Box>
+              <Box flex flexDirection="column" style={{ gap: 16 }}>
+                <Input
+                  value={modalPenaltyReason}
+                  onChange={(e) => setModalPenaltyReason(e.target.value.toString())}
+                  placeholder="Nguyên nhân phạt *"
+                  label="Nguyên nhân phạt"
+                />
+                <Input
+                  type="number"
+                  value={modalPenaltyAmount}
+                  onChange={(e) => {
+                    const val = e.target.value.toString();
+                    if (/^\d*$/.test(val)) setModalPenaltyAmount(val);
+                  }}
+                  placeholder="Số tiền phạt (VNĐ) *"
+                  label="Số tiền phạt"
+                />
+              </Box>
 
-            <Box flex justifyContent="space-between" style={{ marginTop: 24, gap: 12 }}>
-              <Button
-                onClick={() => setShowPenaltyModal(false)}
-                style={{ flex: 1, backgroundColor: "#ff3b30", color: "white", border: "none" }}
-              >
-                Hủy
-              </Button>
-              <Button
-                onClick={handleSavePenalty}
-                style={{
-                  flex: 1,
-                  backgroundColor: (!modalPenaltyReason.trim() || !modalPenaltyAmount) ? "#d1d1d6" : "#4caf50",
-                  color: "white",
-                  border: "none"
-                }}
-                disabled={!modalPenaltyReason.trim() || !modalPenaltyAmount}
-              >
-                Lưu
-              </Button>
+              <Box flex justifyContent="space-between" style={{ marginTop: 24, gap: 12 }}>
+                <Button
+                  onClick={() => setShowPenaltyModal(false)}
+                  style={{ flex: 1, backgroundColor: "#ff3b30", color: "white", border: "none" }}
+                >
+                  Hủy
+                </Button>
+                <Button
+                  onClick={handleSavePenalty}
+                  style={{
+                    flex: 1,
+                    backgroundColor: (!modalPenaltyReason.trim() || !modalPenaltyAmount) ? "#d1d1d6" : "#4caf50",
+                    color: "white",
+                    border: "none"
+                  }}
+                  disabled={!modalPenaltyReason.trim() || !modalPenaltyAmount}
+                >
+                  Lưu
+                </Button>
+              </Box>
             </Box>
           </Box>
-        </Box>
-      )}
+        )
+      }
 
       {/* Full-screen Loading Overlay for Meter Image Parsing */}
-      {(parsingWater || parsingElectric) && (
-        <Box
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            width: "100vw",
-            height: "100vh",
-            backgroundColor: "rgba(0, 0, 0, 0.8)",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            zIndex: 9999,
-          }}
-        >
-          <Spinner />
-          <Text style={{ color: "white", marginTop: 16, fontWeight: "bold" }}>
-            Đang trích xuất dữ liệu công tơ...
-          </Text>
-        </Box>
-      )}
-    </PageLayout>
+      {
+        (parsingWater || parsingElectric) && (
+          <Box
+            style={{
+              position: "fixed",
+              top: 0,
+              left: 0,
+              width: "100vw",
+              height: "100vh",
+              backgroundColor: "rgba(0, 0, 0, 0.8)",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              zIndex: 9999,
+            }}
+          >
+            <Spinner />
+            <Text style={{ color: "white", marginTop: 16, fontWeight: "bold" }}>
+              Đang trích xuất dữ liệu công tơ...
+            </Text>
+          </Box>
+        )
+      }
+    </PageLayout >
   );
 };
 
