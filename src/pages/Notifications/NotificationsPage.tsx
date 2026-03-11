@@ -218,7 +218,7 @@ const NotificationsPage: React.FC = () => {
       id="notifications-page"
       customHeader={<HomeHeader title="Thông báo" onBack={() => navigate("/home-owner")} />}
     >
-      <Box p={4} flex flexDirection="column" style={{ gap: 16 }}>
+      <Box p={4} flex flexDirection="column" style={{ paddingBottom: 80, gap: 16 }}>
         {notifications.length === 0 ? (
           <Box
             p={4}
@@ -241,6 +241,65 @@ const NotificationsPage: React.FC = () => {
             />
           ))
         )}
+      </Box>
+
+      {/* Bottom Navigation */}
+      <Box
+        flex
+        style={{
+          position: "fixed",
+          bottom: 0,
+          left: 0,
+          right: 0,
+          height: 65,
+          backgroundColor: "#fff",
+          borderTop: "1px solid #e0e0e0",
+          justifyContent: "space-around",
+          alignItems: "center",
+          paddingBottom: "env(safe-area-inset-bottom)",
+          zIndex: 9999,
+        }}
+      >
+        <Box
+          flex
+          flexDirection="column"
+          alignItems="center"
+          justifyContent="center"
+          style={{ width: "33%", cursor: "pointer" }}
+          onClick={() => navigate("/home-owner")}
+        >
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+          <Text style={{ fontSize: 11, color: "black", marginTop: 4 }}>
+            Trang chủ
+          </Text>
+        </Box>
+
+        <Box
+          flex
+          flexDirection="column"
+          alignItems="center"
+          justifyContent="center"
+          style={{ width: "33%", cursor: "pointer" }}
+          onClick={() => navigate("/home-owner", { state: { tab: 'management' } })}
+        >
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 7V3H2v18h20V7H12zM6 19H4v-2h2v2zm0-4H4v-2h2v2zm0-4H4V9h2v2zm0-4H4V5h2v2zm4 12H8v-2h2v2zm0-4H8v-2h2v2zm0-4H8V9h2v2zm0-4H8V5h2v2zm10 12h-8v-2h2v-2h-2v-2h2v-2h-2V9h8v10zm-2-8h-2v2h2v-2zm0 4h-2v2h2v-2z" /></svg>
+          <Text style={{ fontSize: 11, color: "black", marginTop: 4 }}>
+            Quản lý
+          </Text>
+        </Box>
+
+        <Box
+          flex
+          flexDirection="column"
+          alignItems="center"
+          justifyContent="center"
+          style={{ width: "33%", cursor: "pointer", position: "relative" }}
+        >
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="#007AFF" stroke="none"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+          <Text style={{ fontSize: 11, color: "#007AFF", marginTop: 4, fontWeight: "bold" }}>
+            Thông báo
+          </Text>
+        </Box>
       </Box>
     </PageLayout>
   );

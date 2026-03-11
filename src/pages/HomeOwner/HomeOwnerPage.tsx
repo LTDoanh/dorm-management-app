@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import PageLayout from "@components/layout/PageLayout";
 import { HomeHeader } from "@components";
 import { Button, Box, Text, Input, Spinner } from "zmp-ui";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useStore } from "@store";
 import { Building } from "@dts";
 import { API_BASE_URL } from "@constants/common";
@@ -23,6 +23,10 @@ const HomeOwnerPage: React.FC = () => {
   const [savingBank, setSavingBank] = useState(false);
   const [notificationCount, setNotificationCount] = useState(0);
   const navigate = useNavigate();
+  const location = useLocation();
+  const [activeTab, setActiveTab] = useState<'home' | 'management' | 'notifications'>(
+    (location.state as any)?.tab || 'home'
+  );
   const user = useStore(state => state.user);
 
   useEffect(() => {
@@ -177,362 +181,425 @@ const HomeOwnerPage: React.FC = () => {
   return (
     <PageLayout
       id="home-owner-page"
-      customHeader={<HomeHeader title="QUẢN LÝ TRỌ" />}
+      customHeader={
+        <HomeHeader title={activeTab === 'home' ? "TRANG CHỦ" : activeTab === 'management' ? "QUẢN LÝ" : "QUẢN LÝ TRỌ"} />
+      }
     >
-      <Box p={4} flex flexDirection="column" style={{ gap: 16 }}>
-        <Box flex justifyContent="space-between" alignItems="center">
-          <Text style={{ fontSize: 18, fontWeight: "bold" }}>
-            Danh sách tòa nhà
-          </Text>
-          <Box flex style={{ gap: 8 }}>
-            <Box
-              onClick={() => navigate("/notifications")}
-              style={{
-                position: "relative",
-                cursor: "pointer",
-                padding: "8px",
-                borderRadius: 4,
-              }}
-            >
-              <Box style={{ paddingTop: 2 }}>
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
-                  <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
-                </svg>
+      <Box p={4} flex flexDirection="column" style={{ paddingBottom: 80, gap: 16 }}>
+        {activeTab === 'management' && (
+          <>
+            <Box flex justifyContent="space-between" alignItems="center">
+              <Text style={{ fontSize: 18, fontWeight: "bold" }}>
+                Danh sách tòa nhà
+              </Text>
+              <Box flex style={{ gap: 8 }}>
+                <Button
+                  onClick={() => setShowAddForm(!showAddForm)}
+                  style={{ background: "transparent", border: "none", boxShadow: "none", padding: 0, minWidth: "auto", height: "auto" }}
+                  size="small"
+                >
+                  {showAddForm ? (
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: "block" }}>
+                      <line x1="18" y1="6" x2="6" y2="18"></line>
+                      <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                  ) : (
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: "block" }}>
+                      <rect x="3" y="3" width="18" height="18" rx="4" ry="4"></rect>
+                      <line x1="12" y1="8" x2="12" y2="16"></line>
+                      <line x1="8" y1="12" x2="16" y2="12"></line>
+                    </svg>
+                  )}
+                </Button>
               </Box>
-              {notificationCount > 0 && (
+            </Box>
+
+            {showAddForm && (
+              <Box
+                p={3}
+                flex
+                flexDirection="column"
+                style={{
+                  border: "1px solid #e0e0e0",
+                  borderRadius: 8,
+                  backgroundColor: "#f9f9f9",
+                  gap: 12,
+                }}
+              >
+                <Input
+                  value={newBuildingName}
+                  onChange={(e) => setNewBuildingName(e.target.value.toString())}
+                  placeholder="Tên tòa nhà *"
+                />
+                <Input
+                  value={newBuildingAddress}
+                  onChange={(e) => setNewBuildingAddress(e.target.value.toString())}
+                  placeholder="Địa chỉ (tùy chọn)"
+                />
+                <Box flex style={{ gap: 8 }}>
+                  <Button
+                    onClick={addBuilding}
+                    type="highlight"
+                    style={{ flex: 1 }}
+                  >
+                    Thêm
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      setShowAddForm(false);
+                      setNewBuildingName("");
+                      setNewBuildingAddress("");
+                    }}
+                    type="neutral"
+                    style={{ flex: 1 }}
+                  >
+                    Hủy
+                  </Button>
+                </Box>
+              </Box>
+            )}
+
+            {buildings.length === 0 ? (
+              <Box
+                p={4}
+                flex
+                flexDirection="column"
+                alignItems="center"
+                style={{ gap: 8 }}
+              >
+                <Text style={{ color: "#999", textAlign: "center" }}>
+                  Chưa có tòa nhà nào. Nhấn nút + để thêm tòa nhà mới.
+                </Text>
+              </Box>
+            ) : (
+              buildings.map((building) => (
                 <Box
+                  key={building.id}
+                  p={3}
+                  onClick={() => handleBuildingClick(building.id)}
                   style={{
-                    position: "absolute",
-                    top: 0,
-                    right: 0,
-                    backgroundColor: "#d10000",
-                    color: "#fff",
-                    borderRadius: 10,
-                    minWidth: 20,
-                    height: 20,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    fontSize: 12,
-                    fontWeight: "bold",
-                    padding: "0 6px",
+                    border: "1px solid #e0e0e0",
+                    borderRadius: 8,
+                    backgroundColor: "#fff",
+                    cursor: "pointer",
+                    transition: "all 0.2s",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = "#f5f5f5";
+                    e.currentTarget.style.borderColor = "#007AFF";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = "#fff";
+                    e.currentTarget.style.borderColor = "#e0e0e0";
                   }}
                 >
-                  {notificationCount > 99 ? "99+" : notificationCount}
+                  <Box flex justifyContent="space-between" alignItems="center" style={{ gap: 8 }}>
+                    <Box flex flexDirection="column" style={{ flex: 1 }}>
+                      <Text style={{ fontSize: 16, fontWeight: "bold", marginBottom: 4 }}>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="black" xmlns="http://www.w3.org/2000/svg" style={{ display: "inline-block", verticalAlign: "middle", margin: "0 4px 2px 0" }}><path d="M12 7V3H2v18h20V7H12zM6 19H4v-2h2v2zm0-4H4v-2h2v2zm0-4H4V9h2v2zm0-4H4V5h2v2zm4 12H8v-2h2v2zm0-4H8v-2h2v2zm0-4H8V9h2v2zm0-4H8V5h2v2zm10 12h-8v-2h2v-2h-2v-2h2v-2h-2V9h8v10zm-2-8h-2v2h2v-2zm0 4h-2v2h2v-2z" /></svg>
+                        {building.name}
+                      </Text>
+                      {building.address && (
+                        <Text style={{ fontSize: 14, color: "#666", marginTop: 4 }}>
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="black" xmlns="http://www.w3.org/2000/svg" style={{ display: "inline-block", verticalAlign: "middle", margin: "0 4px 2px 0" }}><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" /></svg>
+                          {building.address}
+                        </Text>
+                      )}
+                    </Box>
+                    <Button
+                      style={{ background: "transparent", border: "none", boxShadow: "none", padding: 0, minWidth: "auto", height: "auto" }}
+                      size="small"
+                      onClick={async (e) => {
+                        e.stopPropagation();
+                        if (!confirm("Bạn có chắc muốn xóa tòa nhà này?")) return;
+                        try {
+                          const res = await fetch(`${API_BASE_URL}/api/buildings/${building.id}`, {
+                            method: "DELETE",
+                          });
+                          if (res.ok) {
+                            setBuildings(prev => prev.filter(b => b.id !== building.id));
+                          }
+                        } catch (error) {
+                          console.error("Lỗi xóa tòa nhà:", error);
+                        }
+                      }}
+                    >
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="#d10000" xmlns="http://www.w3.org/2000/svg" style={{ display: "block" }}>
+                        <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
+                      </svg>
+                    </Button>
+                  </Box>
                 </Box>
-              )}
-            </Box>
-            <Button
-              onClick={() => setShowAddForm(!showAddForm)}
-              style={{ background: "transparent", border: "none", boxShadow: "none", padding: 0, minWidth: "auto", height: "auto" }}
-              size="small"
-            >
-              {showAddForm ? (
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: "block" }}>
-                  <line x1="18" y1="6" x2="6" y2="18"></line>
-                  <line x1="6" y1="6" x2="18" y2="18"></line>
-                </svg>
-              ) : (
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: "block" }}>
-                  <rect x="3" y="3" width="18" height="18" rx="4" ry="4"></rect>
-                  <line x1="12" y1="8" x2="12" y2="16"></line>
-                  <line x1="8" y1="12" x2="16" y2="12"></line>
-                </svg>
-              )}
-            </Button>
-          </Box>
-        </Box>
+              ))
+            )}
+          </>
+        )}
 
-        {showAddForm && (
+        {/* Home Tab: Thông tin cá nhân */}
+        {activeTab === 'home' && (
           <Box
             p={3}
-            flex
-            flexDirection="column"
             style={{
               border: "1px solid #e0e0e0",
               borderRadius: 8,
-              backgroundColor: "#f9f9f9",
-              gap: 12,
+              backgroundColor: "#fff",
             }}
           >
-            <Input
-              value={newBuildingName}
-              onChange={(e) => setNewBuildingName(e.target.value.toString())}
-              placeholder="Tên tòa nhà *"
-            />
-            <Input
-              value={newBuildingAddress}
-              onChange={(e) => setNewBuildingAddress(e.target.value.toString())}
-              placeholder="Địa chỉ (tùy chọn)"
-            />
-            <Box flex style={{ gap: 8 }}>
-              <Button
-                onClick={addBuilding}
-                type="highlight"
-                style={{ flex: 1 }}
-              >
-                Thêm
-              </Button>
-              <Button
-                onClick={() => {
-                  setShowAddForm(false);
-                  setNewBuildingName("");
-                  setNewBuildingAddress("");
-                }}
-                type="neutral"
-                style={{ flex: 1 }}
-              >
-                Hủy
-              </Button>
-            </Box>
-          </Box>
-        )}
-
-        {/* Quản lý tài khoản ngân hàng & Thông tin cá nhân */}
-        <Box
-          p={3}
-          style={{
-            border: "1px solid #e0e0e0",
-            borderRadius: 8,
-            backgroundColor: "#fff",
-          }}
-        >
-          <Box flex justifyContent="space-between" alignItems="center" style={{ marginBottom: 12 }}>
-            <Text style={{ fontSize: 16, fontWeight: "bold" }}>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: "inline-block", verticalAlign: "middle", margin: "0 4px 2px 0" }}>
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                <circle cx="12" cy="7" r="4"></circle>
-              </svg>
-              Thông tin cá nhân
-            </Text>
-            <Button
-              onClick={() => setShowBankForm(!showBankForm)}
-              style={bankAccount && !showBankForm ? { background: "transparent", border: "none", boxShadow: "none", padding: 0, minWidth: "auto", height: "auto" } : {}}
-              type={bankAccount && !showBankForm ? undefined : "neutral"}
-              size="small"
-            >
-              {showBankForm ? (
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: "block" }}>
-                  <line x1="18" y1="6" x2="6" y2="18"></line>
-                  <line x1="6" y1="6" x2="18" y2="18"></line>
+            <Box flex justifyContent="space-between" alignItems="center" style={{ marginBottom: 12 }}>
+              <Text style={{ fontSize: 16, fontWeight: "bold" }}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: "inline-block", verticalAlign: "middle", margin: "0 4px 2px 0" }}>
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="12" cy="7" r="4"></circle>
                 </svg>
-              ) : bankAccount ? (
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="black" xmlns="http://www.w3.org/2000/svg" style={{ display: "block" }}>
-                  <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
-                </svg>
-              ) : (
-                <Box flex alignItems="center" style={{ gap: 4 }}>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: "block" }}>
-                    <rect x="3" y="3" width="18" height="18" rx="4" ry="4"></rect>
-                    <line x1="12" y1="8" x2="12" y2="16"></line>
-                    <line x1="8" y1="12" x2="16" y2="12"></line>
+                Thông tin cá nhân
+              </Text>
+              <Button
+                onClick={() => setShowBankForm(!showBankForm)}
+                style={bankAccount && !showBankForm ? { background: "transparent", border: "none", boxShadow: "none", padding: 0, minWidth: "auto", height: "auto" } : {}}
+                type={bankAccount && !showBankForm ? undefined : "neutral"}
+                size="small"
+              >
+                {showBankForm ? (
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: "block" }}>
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
                   </svg>
-                  Thêm
-                </Box>
-              )}
-            </Button>
-          </Box>
-
-          {!showBankForm && (
-            <Box flex flexDirection="column" style={{ gap: 8 }}>
-              {(ownerName || user?.name) && (
-                <Text style={{ fontSize: 14 }}>
-                  <Text style={{ fontWeight: "bold" }}>Họ và tên:</Text> {ownerName || user?.name}
-                </Text>
-              )}
-              {phoneNumber && (
-                <Text style={{ fontSize: 14 }}>
-                  <Text style={{ fontWeight: "bold" }}>Số điện thoại:</Text> {phoneNumber}
-                </Text>
-              )}
-              {bankAccount && (
-                <>
-                  <Text style={{ fontSize: 14 }}>
-                    <Text style={{ fontWeight: "bold" }}>Số tài khoản:</Text> {bankAccount}
-                  </Text>
-                  {bankName && (
-                    <Text style={{ fontSize: 14 }}>
-                      <Text style={{ fontWeight: "bold" }}>Ngân hàng:</Text> {bankName}
-                    </Text>
-                  )}
-                </>
-              )}
-
-              {qrCodeUrl && (
-                <Box mt={2} flex flexDirection="column" alignItems="center">
-                  <img
-                    src={qrCodeUrl}
-                    alt="QR Code"
-                    style={{
-                      width: 150,
-                      height: 150,
-                      border: "1px solid #e0e0e0",
-                      borderRadius: 8,
-                    }}
-                  />
-                </Box>
-              )}
+                ) : bankAccount ? (
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="black" xmlns="http://www.w3.org/2000/svg" style={{ display: "block" }}>
+                    <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
+                  </svg>
+                ) : (
+                  <Box flex alignItems="center" style={{ gap: 4 }}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: "block" }}>
+                      <rect x="3" y="3" width="18" height="18" rx="4" ry="4"></rect>
+                      <line x1="12" y1="8" x2="12" y2="16"></line>
+                      <line x1="8" y1="12" x2="16" y2="12"></line>
+                    </svg>
+                    Thêm
+                  </Box>
+                )}
+              </Button>
             </Box>
-          )}
 
-          {showBankForm && (
-            <Box flex flexDirection="column" style={{ gap: 12 }}>
-              <Input
-                value={ownerName || user?.name || ""}
-                disabled
-                label="Họ và tên"
-              />
-
-              <BankSelect
-                value={bankName}
-                onChange={(val, bin) => {
-                  setBankName(val);
-                }}
-                placeholder="Chọn ngân hàng *"
-              />
-
-              <Input
-                value={bankAccount}
-                onChange={(e) => {
-                  const val = e.target.value.toString();
-                  // Chỉ cho phép nhập số
-                  if (/^\d*$/.test(val)) {
-                    setBankAccount(val);
-                  }
-                }}
-                placeholder="Số tài khoản (0-9) *"
-                type="text"
-                inputMode="numeric"
-                label="Số tài khoản"
-                disabled={!bankName}
-              />
-              {!bankName && <Text size="xSmall" className="text-red-500" style={{ color: 'red', fontSize: 12 }}>Vui lòng chọn ngân hàng trước</Text>}
-
+            {!showBankForm && (
               <Box flex flexDirection="column" style={{ gap: 8 }}>
+                {(ownerName || user?.name) && (
+                  <Text style={{ fontSize: 14 }}>
+                    <Text style={{ fontWeight: "bold" }}>Họ và tên:</Text> {ownerName || user?.name}
+                  </Text>
+                )}
+                {phoneNumber && (
+                  <Text style={{ fontSize: 14 }}>
+                    <Text style={{ fontWeight: "bold" }}>Số điện thoại:</Text> {phoneNumber}
+                  </Text>
+                )}
+                {bankAccount && (
+                  <>
+                    <Text style={{ fontSize: 14 }}>
+                      <Text style={{ fontWeight: "bold" }}>Số tài khoản:</Text> {bankAccount}
+                    </Text>
+                    {bankName && (
+                      <Text style={{ fontSize: 14 }}>
+                        <Text style={{ fontWeight: "bold" }}>Ngân hàng:</Text> {bankName}
+                      </Text>
+                    )}
+                  </>
+                )}
 
-                {(bankName && bankAccount) ? (
-                  <Box flex flexDirection="column" alignItems="center" style={{ gap: 8 }}>
+                {qrCodeUrl && (
+                  <Box mt={2} flex flexDirection="column" alignItems="center">
                     <img
-                      src={`https://img.vietqr.io/image/${BANKS.find(b => b.name === bankName)?.bin || "970436"}-${bankAccount}-compact.jpg?accountName=${encodeURIComponent(user?.name || "")}`}
+                      src={qrCodeUrl}
                       alt="QR Code"
                       style={{
-                        width: 200,
-                        height: 200,
-                        objectFit: "contain",
+                        width: 150,
+                        height: 150,
                         border: "1px solid #e0e0e0",
                         borderRadius: 8,
                       }}
-                      onError={(e) => {
-                        e.currentTarget.style.display = 'none';
-                      }}
                     />
-                  </Box>
-                ) : (
-                  <Box p={4} style={{ backgroundColor: "#f5f5f5", borderRadius: 8, textAlign: "center" }}>
-                    <Text size="small" className="text-gray-400">Nhập Ngân hàng & STK để hiện QR</Text>
                   </Box>
                 )}
               </Box>
+            )}
 
-              <Box flex style={{ gap: 8 }}>
-                <Button
-                  onClick={handleSaveBankInfo}
-                  type="highlight"
-                  style={{ flex: 1 }}
-                  disabled={savingBank || !bankAccount.trim() || !bankName}
-                >
-                  {savingBank ? "Đang lưu..." : "Lưu"}
-                </Button>
-                <Button
-                  onClick={() => {
-                    setShowBankForm(false);
-                    loadBankInfo(); // Reset form
+            {showBankForm && (
+              <Box flex flexDirection="column" style={{ gap: 12 }}>
+                <Input
+                  value={ownerName || user?.name || ""}
+                  disabled
+                  label="Họ và tên"
+                />
+
+                <BankSelect
+                  value={bankName}
+                  onChange={(val, bin) => {
+                    setBankName(val);
                   }}
-                  type="neutral"
-                  style={{ flex: 1 }}
-                >
-                  Hủy
-                </Button>
-              </Box>
-            </Box>
-          )}
-        </Box>
+                  placeholder="Chọn ngân hàng *"
+                />
 
-        {buildings.length === 0 ? (
-          <Box
-            p={4}
-            flex
-            flexDirection="column"
-            alignItems="center"
-            style={{ gap: 8 }}
-          >
-            <Text style={{ color: "#999", textAlign: "center" }}>
-              Chưa có tòa nhà nào. Nhấn nút + để thêm tòa nhà mới.
-            </Text>
-          </Box>
-        ) : (
-          buildings.map((building) => (
-            <Box
-              key={building.id}
-              p={3}
-              onClick={() => handleBuildingClick(building.id)}
-              style={{
-                border: "1px solid #e0e0e0",
-                borderRadius: 8,
-                backgroundColor: "#fff",
-                cursor: "pointer",
-                transition: "all 0.2s",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = "#f5f5f5";
-                e.currentTarget.style.borderColor = "#007AFF";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = "#fff";
-                e.currentTarget.style.borderColor = "#e0e0e0";
-              }}
-            >
-              <Box flex justifyContent="space-between" alignItems="center" style={{ gap: 8 }}>
-                <Box flex flexDirection="column" style={{ flex: 1 }}>
-                  <Text style={{ fontSize: 16, fontWeight: "bold", marginBottom: 4 }}>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="black" xmlns="http://www.w3.org/2000/svg" style={{ display: "inline-block", verticalAlign: "middle", margin: "0 4px 2px 0" }}><path d="M12 7V3H2v18h20V7H12zM6 19H4v-2h2v2zm0-4H4v-2h2v2zm0-4H4V9h2v2zm0-4H4V5h2v2zm4 12H8v-2h2v2zm0-4H8v-2h2v2zm0-4H8V9h2v2zm0-4H8V5h2v2zm10 12h-8v-2h2v-2h-2v-2h2v-2h-2V9h8v10zm-2-8h-2v2h2v-2zm0 4h-2v2h2v-2z" /></svg>
-                    {building.name}
-                  </Text>
-                  {building.address && (
-                    <Text style={{ fontSize: 14, color: "#666", marginTop: 4 }}>
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="black" xmlns="http://www.w3.org/2000/svg" style={{ display: "inline-block", verticalAlign: "middle", margin: "0 4px 2px 0" }}><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" /></svg>
-                      {building.address}
-                    </Text>
-                  )}
-                </Box>
-                <Button
-                  style={{ background: "transparent", border: "none", boxShadow: "none", padding: 0, minWidth: "auto", height: "auto" }}
-                  size="small"
-                  onClick={async (e) => {
-                    e.stopPropagation();
-                    if (!confirm("Bạn có chắc muốn xóa tòa nhà này?")) return;
-                    try {
-                      const res = await fetch(`${API_BASE_URL}/api/buildings/${building.id}`, {
-                        method: "DELETE",
-                      });
-                      if (res.ok) {
-                        setBuildings(prev => prev.filter(b => b.id !== building.id));
-                      }
-                    } catch (error) {
-                      console.error("Lỗi xóa tòa nhà:", error);
+                <Input
+                  value={bankAccount}
+                  onChange={(e) => {
+                    const val = e.target.value.toString();
+                    // Chỉ cho phép nhập số
+                    if (/^\d*$/.test(val)) {
+                      setBankAccount(val);
                     }
                   }}
-                >
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="#d10000" xmlns="http://www.w3.org/2000/svg" style={{ display: "block" }}>
-                    <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
-                  </svg>
-                </Button>
+                  placeholder="Số tài khoản (0-9) *"
+                  type="text"
+                  inputMode="numeric"
+                  label="Số tài khoản"
+                  disabled={!bankName}
+                />
+                {!bankName && <Text size="xSmall" className="text-red-500" style={{ color: 'red', fontSize: 12 }}>Vui lòng chọn ngân hàng trước</Text>}
+
+                <Box flex flexDirection="column" style={{ gap: 8 }}>
+
+                  {(bankName && bankAccount) ? (
+                    <Box flex flexDirection="column" alignItems="center" style={{ gap: 8 }}>
+                      <img
+                        src={`https://img.vietqr.io/image/${BANKS.find(b => b.name === bankName)?.bin || "970436"}-${bankAccount}-compact.jpg?accountName=${encodeURIComponent(user?.name || "")}`}
+                        alt="QR Code"
+                        style={{
+                          width: 200,
+                          height: 200,
+                          objectFit: "contain",
+                          border: "1px solid #e0e0e0",
+                          borderRadius: 8,
+                        }}
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                        }}
+                      />
+                    </Box>
+                  ) : (
+                    <Box p={4} style={{ backgroundColor: "#f5f5f5", borderRadius: 8, textAlign: "center" }}>
+                      <Text size="small" className="text-gray-400">Nhập Ngân hàng & STK để hiện QR</Text>
+                    </Box>
+                  )}
+                </Box>
+
+                <Box flex style={{ gap: 8 }}>
+                  <Button
+                    onClick={handleSaveBankInfo}
+                    type="highlight"
+                    style={{ flex: 1 }}
+                    disabled={savingBank || !bankAccount.trim() || !bankName}
+                  >
+                    {savingBank ? "Đang lưu..." : "Lưu"}
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      setShowBankForm(false);
+                      loadBankInfo(); // Reset form
+                    }}
+                    type="neutral"
+                    style={{ flex: 1 }}
+                  >
+                    Hủy
+                  </Button>
+                </Box>
               </Box>
-            </Box>
-          ))
+            )}
+          </Box>
         )}
       </Box>
+
+      {/* Bottom Navigation */}
+      <Box
+        flex
+        style={{
+          position: "fixed",
+          bottom: 0,
+          left: 0,
+          right: 0,
+          height: 65,
+          backgroundColor: "#fff",
+          borderTop: "1px solid #e0e0e0",
+          justifyContent: "space-around",
+          alignItems: "center",
+          paddingBottom: "env(safe-area-inset-bottom)", // Fix cho iPhone tai thỏ
+          zIndex: 9999,
+        }}
+      >
+        <Box
+          flex
+          flexDirection="column"
+          alignItems="center"
+          justifyContent="center"
+          style={{ width: "33%", cursor: "pointer" }}
+          onClick={() => setActiveTab('home')}
+        >
+          {activeTab === 'home' ? (
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="#007AFF" xmlns="http://www.w3.org/2000/svg"><path d="M12 3L2 12h3v8h6v-6h2v6h6v-8h3L12 3z" /></svg>
+          ) : (
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+          )}
+          <Text style={{ fontSize: 11, color: activeTab === 'home' ? "#007AFF" : "black", marginTop: 4, fontWeight: activeTab === 'home' ? "bold" : "normal" }}>
+            Trang chủ
+          </Text>
+        </Box>
+
+        <Box
+          flex
+          flexDirection="column"
+          alignItems="center"
+          justifyContent="center"
+          style={{ width: "33%", cursor: "pointer" }}
+          onClick={() => setActiveTab('management')}
+        >
+          {activeTab === 'management' ? (
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="#007AFF" xmlns="http://www.w3.org/2000/svg"><path d="M12 7V3H2v18h20V7H12zM6 19H4v-2h2v2zm0-4H4v-2h2v2zm0-4H4V9h2v2zm0-4H4V5h2v2zm4 12H8v-2h2v2zm0-4H8v-2h2v2zm0-4H8V9h2v2zm0-4H8V5h2v2zm10 12h-8v-2h2v-2h-2v-2h2v-2h-2V9h8v10zm-2-8h-2v2h2v-2zm0 4h-2v2h2v-2z" /></svg>
+          ) : (
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 7V3H2v18h20V7H12zM6 19H4v-2h2v2zm0-4H4v-2h2v2zm0-4H4V9h2v2zm0-4H4V5h2v2zm4 12H8v-2h2v2zm0-4H8v-2h2v2zm0-4H8V9h2v2zm0-4H8V5h2v2zm10 12h-8v-2h2v-2h-2v-2h2v-2h-2V9h8v10zm-2-8h-2v2h2v-2zm0 4h-2v2h2v-2z" /></svg>
+          )}
+          <Text style={{ fontSize: 11, color: activeTab === 'management' ? "#007AFF" : "black", marginTop: 4, fontWeight: activeTab === 'management' ? "bold" : "normal" }}>
+            Quản lý
+          </Text>
+        </Box>
+
+        <Box
+          flex
+          flexDirection="column"
+          alignItems="center"
+          justifyContent="center"
+          style={{ width: "33%", cursor: "pointer", position: "relative" }}
+          onClick={() => navigate("/notifications")}
+        >
+          {false ? /* Placeholder for active tab logic if we sync states later */ null : (
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+          )}
+          {notificationCount > 0 && (
+            <Box
+              style={{
+                position: "absolute",
+                top: 2,
+                right: "26%",
+                backgroundColor: "#d10000",
+                color: "#fff",
+                borderRadius: 10,
+                minWidth: 16,
+                height: 16,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: 10,
+                fontWeight: "bold",
+                padding: "0 4px",
+              }}
+            >
+              {notificationCount > 99 ? "99+" : notificationCount}
+            </Box>
+          )}
+          <Text style={{ fontSize: 11, color: "black", marginTop: 4 }}>
+            Thông báo
+          </Text>
+        </Box>
+      </Box>
+
     </PageLayout>
   );
 };
