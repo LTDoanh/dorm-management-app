@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { HomeHeader, Utinities, ListOA, NewsSection } from "@components";
+import { NotificationOutlineIcon } from "../../components/icons";
 import PageLayout from "@components/layout/PageLayout";
 import { APP_UTINITIES } from "@constants/utinities";
 import { useStore } from "@store";
@@ -69,10 +70,7 @@ const HomePage: React.FunctionComponent = () => {
                             onClick={() => navigate("/tenant-notifications")}
                             type="neutral"
                         >
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: "inline-block", verticalAlign: "middle", margin: "0 4px 2px 0" }}>
-                                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
-                                <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
-                            </svg>
+                            <NotificationOutlineIcon size={18} color="black" style={{ display: "inline-block", verticalAlign: "middle", margin: "0 4px 2px 0" }} />
                             Thông báo
                         </Button>
                         {notificationCount > 0 && (

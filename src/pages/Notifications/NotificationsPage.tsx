@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import PageLayout from "@components/layout/PageLayout";
 import { HomeHeader } from "@components";
+import { HomeIcon, HomeFillIcon, BuildingIcon, BuildingFillIcon, NotificationOutlineIcon, NotificationFillIcon } from "../../components/icons";
 import { Box, Text, Button, Input, Spinner } from "zmp-ui";
 import { useNavigate } from "react-router-dom";
 import { useStore } from "@store";
@@ -68,7 +69,7 @@ const NotificationItem: React.FC<{
           <Text style={{ fontSize: 12, color: "#999" }}>
             <svg width="12" height="12" viewBox="0 0 24 24" fill="black" xmlns="http://www.w3.org/2000/svg" style={{ display: "inline-block", verticalAlign: "middle", margin: "0 4px 2px 0" }}><path d="M12 7V3H2v18h20V7H12zM6 19H4v-2h2v2zm0-4H4v-2h2v2zm0-4H4V9h2v2zm0-4H4V5h2v2zm4 12H8v-2h2v2zm0-4H8v-2h2v2zm0-4H8V9h2v2zm0-4H8V5h2v2zm10 12h-8v-2h2v-2h-2v-2h-2v-2h-2V9h8v10zm-2-8h-2v2h2v-2zm0 4h-2v2h2v-2z" /></svg>
             {notification.building_name} -
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: "inline-block", verticalAlign: "middle", margin: "0 2px" }}><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+            <HomeFillIcon size={12} color="currentColor" style={{ display: "inline-block", verticalAlign: "middle", margin: "0 2px" }} />
             Phòng {notification.room_name}
           </Text>
           <Text style={{ fontSize: 12, color: "#999", marginTop: 4 }}>
@@ -268,7 +269,7 @@ const NotificationsPage: React.FC = () => {
           style={{ width: "33%", cursor: "pointer" }}
           onClick={() => navigate("/home-owner")}
         >
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+          <HomeIcon size={24} color="black" />
           <Text style={{ fontSize: 11, color: "black", marginTop: 4 }}>
             Trang chủ
           </Text>
@@ -282,7 +283,7 @@ const NotificationsPage: React.FC = () => {
           style={{ width: "33%", cursor: "pointer" }}
           onClick={() => navigate("/home-owner", { state: { tab: 'management' } })}
         >
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 7V3H2v18h20V7H12zM6 19H4v-2h2v2zm0-4H4v-2h2v2zm0-4H4V9h2v2zm0-4H4V5h2v2zm4 12H8v-2h2v2zm0-4H8v-2h2v2zm0-4H8V9h2v2zm0-4H8V5h2v2zm10 12h-8v-2h2v-2h-2v-2h2v-2h-2V9h8v10zm-2-8h-2v2h2v-2zm0 4h-2v2h2v-2z" /></svg>
+          <BuildingIcon size={24} color="black" />
           <Text style={{ fontSize: 11, color: "black", marginTop: 4 }}>
             Quản lý
           </Text>
@@ -295,7 +296,7 @@ const NotificationsPage: React.FC = () => {
           justifyContent="center"
           style={{ width: "33%", cursor: "pointer", position: "relative" }}
         >
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="#007AFF" stroke="none"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+          <NotificationFillIcon size={24} color="#007AFF" />
           <Text style={{ fontSize: 11, color: "#007AFF", marginTop: 4, fontWeight: "bold" }}>
             Thông báo
           </Text>
