@@ -91,7 +91,10 @@ const TenantNotificationItem: React.FC<{
             {notification.message}
           </Text>
           <Text style={{ fontSize: 12, color: "#999" }}>
-            🏢 {notification.building_name} - 🚪 Phòng {notification.room_name}
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="black" xmlns="http://www.w3.org/2000/svg" style={{ display: "inline-block", verticalAlign: "middle", margin: "0 4px 2px 0" }}><path d="M12 7V3H2v18h20V7H12zM6 19H4v-2h2v2zm0-4H4v-2h2v2zm0-4H4V9h2v2zm0-4H4V5h2v2zm4 12H8v-2h2v2zm0-4H8v-2h2v2zm0-4H8V9h2v2zm0-4H8V5h2v2zm10 12h-8v-2h2v-2h-2v-2h2v-2h-2V9h8v10zm-2-8h-2v2h2v-2zm0 4h-2v2h2v-2z" /></svg>
+            {notification.building_name} -
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: "inline-block", verticalAlign: "middle", margin: "0 2px" }}><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+            Phòng {notification.room_name}
           </Text>
         </Box>
         {!notification.is_read && (
@@ -219,7 +222,7 @@ const TenantNotificationItem: React.FC<{
           <Box flex flexDirection="column" style={{ gap: 8 }}>
             <Button
               onClick={handlePay}
-              type="primary"
+              type="highlight"
               style={{ width: "100%" }}
               disabled={notification.payment_status === "paid" || notification.payment_status === "waiting_confirmation"}
             >
@@ -229,13 +232,13 @@ const TenantNotificationItem: React.FC<{
             {notification.payment_status === "pending" && (
               <Button
                 onClick={handleConfirmPayment}
-                type="secondary"
+                type="neutral"
                 style={{ width: "100%" }}
                 disabled={confirming}
               >
                 {confirming ? (
                   <>
-                    <Spinner size="small" style={{ marginRight: 8 }} />
+                    <div style={{ marginRight: 8, display: "flex", alignItems: "center" }}><Spinner /></div>
                     Đang xác nhận...
                   </>
                 ) : (
@@ -254,7 +257,7 @@ const TenantNotificationItem: React.FC<{
                 }}
               >
                 <Box flex alignItems="center" justifyContent="center" style={{ gap: 8 }}>
-                  <Spinner size="small" />
+                  <Spinner />
                   <Text style={{ fontSize: 12, fontWeight: "bold" }}>
                     Đang chờ chủ trọ xác nhận...
                   </Text>
@@ -283,7 +286,7 @@ const TenantNotificationItem: React.FC<{
 
             <Button
               onClick={handleViewBill}
-              type="secondary"
+              type="neutral"
               style={{ width: "100%" }}
             >
               📄 Xem chi tiết hóa đơn
@@ -376,7 +379,7 @@ const TenantNotificationsPage: React.FC = () => {
           <Box flex justifyContent="flex-end" style={{ marginBottom: 12 }}>
             <Button
               onClick={handleMarkAllAsRead}
-              type="secondary"
+              type="neutral"
               size="small"
             >
               Đánh dấu tất cả đã đọc

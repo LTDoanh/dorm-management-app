@@ -50,7 +50,7 @@ const TenantPaymentConfirmation: React.FC<{
         style={{ width: "100%" }}
         disabled={confirming || !receivedAmount}
       >
-        {confirming ? "Đang xác nhận..." : "✅ Xác nhận đã nhận tiền"}
+        {confirming ? "Đang xác nhận..." : "Xác nhận đã nhận tiền"}
       </Button>
     </Box>
   );
@@ -441,13 +441,14 @@ const RoomDetailPage: React.FC = () => {
             p={3}
             style={{
               backgroundColor: "#f0f7ff",
-              borderRadius: 8,
+              borderRadius: 4,
               border: "1px solid #007AFF",
             }}
           >
             <Box flex justifyContent="space-between" alignItems="center">
               <Text style={{ fontSize: 16, fontWeight: "bold" }}>
-                🚪 {room.name}
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: "inline-block", verticalAlign: "middle", margin: "0 4px 2px 0" }}><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                {room.name}
               </Text>
               {!editSection && (
                 <Box flex style={{ gap: 6 }}>
@@ -463,7 +464,7 @@ const RoomDetailPage: React.FC = () => {
                     type="neutral"
                     size="small"
                   >
-                    👥 Quản lý
+                    Quản lý
                   </Button>
                 </Box>
               )}
@@ -568,16 +569,25 @@ const RoomDetailPage: React.FC = () => {
             >
               <Box flex justifyContent="space-between" alignItems="center" style={{ marginBottom: 16 }}>
                 <Text style={{ fontSize: 18, fontWeight: "bold" }}>
-                  👥 Quản lý người thuê trọ
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: "inline-block", verticalAlign: "middle", margin: "0 6px 2px 0" }}>
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                  </svg>
+                  Quản lý người thuê trọ
                 </Text>
                 <Box flex style={{ gap: 6 }}>
                   {tenants.length > 0 && (
                     <Button
                       onClick={handleDeleteAllTenants}
-                      type="danger"
+                      style={{ background: "transparent", border: "none", boxShadow: "none", padding: 0, minWidth: "auto", height: "auto", display: "flex", alignItems: "center", gap: "4px", color: "#d10000" }}
                       size="small"
                     >
-                      🗑️ Xóa tất cả
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="#d10000" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
+                      </svg>
+                      Xóa tất cả
                     </Button>
                   )}
                   <Button
@@ -585,7 +595,13 @@ const RoomDetailPage: React.FC = () => {
                     type="neutral"
                     size="small"
                   >
-                    ✕ Đóng
+                    <Box flex alignItems="center" style={{ gap: 4 }}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: "block" }}>
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                      </svg>
+                      Đóng
+                    </Box>
                   </Button>
                 </Box>
               </Box>
@@ -603,7 +619,13 @@ const RoomDetailPage: React.FC = () => {
                   type="highlight"
                   disabled={addingTenant}
                 >
-                  {addingTenant ? "..." : "+"}
+                  {addingTenant ? "..." : (
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: "block" }}>
+                      <rect x="3" y="3" width="18" height="18" rx="4" ry="4"></rect>
+                      <line x1="12" y1="8" x2="12" y2="16"></line>
+                      <line x1="8" y1="12" x2="16" y2="12"></line>
+                    </svg>
+                  )}
                 </Button>
               </Box>
 
@@ -701,10 +723,12 @@ const RoomDetailPage: React.FC = () => {
                           <Box flex flexDirection="column" style={{ gap: 4 }}>
                             <Button
                               onClick={() => handleDeleteTenant(tenant.id)}
-                              type="danger"
+                              style={{ background: "transparent", border: "none", boxShadow: "none", padding: 0, minWidth: "auto", height: "auto" }}
                               size="small"
                             >
-                              🗑️
+                              <svg width="20" height="20" viewBox="0 0 24 24" fill="#d10000" xmlns="http://www.w3.org/2000/svg" style={{ display: "block" }}>
+                                <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
+                              </svg>
                             </Button>
                           </Box>
                         </Box>
@@ -809,15 +833,13 @@ const RoomDetailPage: React.FC = () => {
                             });
                           });
                         }}
-                        type={waterImage ? "highlight" : "neutral"}
+                        style={{ background: "transparent", border: "none", boxShadow: "none", padding: 0 }}
                         icon={parsingWater ? <Spinner /> : (
-                          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                             <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
                             <circle cx="12" cy="13" r="4"></circle>
                           </svg>
                         )}
-                        size="small"
-                        disabled={parsingWater}
                       />
                     </Box>
                   </Box>
@@ -830,7 +852,10 @@ const RoomDetailPage: React.FC = () => {
                         style={{ position: "absolute", top: -5, right: -5, padding: 0, width: 20, height: 20, minWidth: 20 }}
                         onClick={() => setWaterImage("")}
                       >
-                        ✕
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: "block", margin: "0 auto" }}>
+                          <line x1="18" y1="6" x2="6" y2="18"></line>
+                          <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
                       </Button>
                     </Box>
                   )}
@@ -879,15 +904,13 @@ const RoomDetailPage: React.FC = () => {
                             });
                           });
                         }}
-                        type={electricImage ? "highlight" : "neutral"}
+                        style={{ background: "transparent", border: "none", boxShadow: "none", padding: 0 }}
                         icon={parsingElectric ? <Spinner /> : (
-                          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                             <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
                             <circle cx="12" cy="13" r="4"></circle>
                           </svg>
                         )}
-                        size="small"
-                        disabled={parsingElectric}
                       />
                     </Box>
                   </Box>
@@ -900,7 +923,10 @@ const RoomDetailPage: React.FC = () => {
                         style={{ position: "absolute", top: -5, right: -5, padding: 0, width: 20, height: 20, minWidth: 20 }}
                         onClick={() => setElectricImage("")}
                       >
-                        ✕
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: "block", margin: "0 auto" }}>
+                          <line x1="18" y1="6" x2="6" y2="18"></line>
+                          <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
                       </Button>
                     </Box>
                   )}
@@ -948,7 +974,7 @@ const RoomDetailPage: React.FC = () => {
                       fontWeight: "bold",
                       color: billingStatus === "confirmed" ? "#2e7d32" : "#e65100",
                     }}>
-                      {billingStatus === "unpaid" ? "🔴 Chưa thanh toán" : "✅ Đã xác nhận thanh toán"}
+                      {billingStatus === "unpaid" ? "Chưa thanh toán" : "Đã xác nhận thanh toán"}
                     </Text>
                   </Box>
                 )}
@@ -958,7 +984,7 @@ const RoomDetailPage: React.FC = () => {
                   type="highlight"
                   disabled={!canSubmitBill}
                 >
-                  ✔️ Chấp nhận & tính tiền
+                  Xác nhận
                 </Button>
 
                 {billingStatus === "unpaid" && (
@@ -973,14 +999,14 @@ const RoomDetailPage: React.FC = () => {
                       color: "#2e7d32",
                     }}
                   >
-                    💵 Xác nhận thanh toán
+                    Xác nhận thanh toán
                   </Button>
                 )}
               </Box>
             </Box>
 
             <Text style={{ fontSize: 18, fontWeight: "bold" }}>
-              👥 Danh sách người thuê trọ
+              Danh sách người thuê trọ
             </Text>
 
             {tenants.length === 0 ? (

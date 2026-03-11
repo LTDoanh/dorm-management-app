@@ -192,7 +192,11 @@ const HomeOwnerPage: React.FC = () => {
                 borderRadius: 4,
               }}
             >
-              <Text style={{ fontSize: 20 }}>🔔</Text>
+              <Box style={{ paddingTop: 2 }}>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="#007AFF" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z" />
+                </svg>
+              </Box>
               {notificationCount > 0 && (
                 <Box
                   style={{
@@ -221,7 +225,18 @@ const HomeOwnerPage: React.FC = () => {
               type="highlight"
               size="small"
             >
-              {showAddForm ? "✕" : "+"}
+              {showAddForm ? (
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: "block" }}>
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              ) : (
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: "block" }}>
+                  <rect x="3" y="3" width="18" height="18" rx="4" ry="4"></rect>
+                  <line x1="12" y1="8" x2="12" y2="16"></line>
+                  <line x1="8" y1="12" x2="16" y2="12"></line>
+                </svg>
+              )}
             </Button>
           </Box>
         </Box>
@@ -282,14 +297,37 @@ const HomeOwnerPage: React.FC = () => {
         >
           <Box flex justifyContent="space-between" alignItems="center" style={{ marginBottom: 12 }}>
             <Text style={{ fontSize: 16, fontWeight: "bold" }}>
-              👤 Thông tin cá nhân & Ngân hàng
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: "inline-block", verticalAlign: "middle", margin: "0 4px 2px 0" }}>
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+              </svg>
+              Thông tin cá nhân & Ngân hàng
             </Text>
             <Button
               onClick={() => setShowBankForm(!showBankForm)}
-              type="neutral"
+              style={bankAccount && !showBankForm ? { background: "transparent", border: "none", boxShadow: "none", padding: 0, minWidth: "auto", height: "auto" } : {}}
+              type={bankAccount && !showBankForm ? undefined : "neutral"}
               size="small"
             >
-              {showBankForm ? "✕" : bankAccount ? "✏️ Sửa" : "+ Thêm"}
+              {showBankForm ? (
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: "block" }}>
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              ) : bankAccount ? (
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="black" xmlns="http://www.w3.org/2000/svg" style={{ display: "block" }}>
+                  <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
+                </svg>
+              ) : (
+                <Box flex alignItems="center" style={{ gap: 4 }}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: "block" }}>
+                    <rect x="3" y="3" width="18" height="18" rx="4" ry="4"></rect>
+                    <line x1="12" y1="8" x2="12" y2="16"></line>
+                    <line x1="8" y1="12" x2="16" y2="12"></line>
+                  </svg>
+                  Thêm
+                </Box>
+              )}
             </Button>
           </Box>
 
@@ -341,7 +379,7 @@ const HomeOwnerPage: React.FC = () => {
               <Input
                 value={user?.name || ""}
                 disabled
-                label="Họ tên (từ Zalo)"
+                label="Họ và tên"
               />
 
               <BankSelect
@@ -361,7 +399,7 @@ const HomeOwnerPage: React.FC = () => {
                     setBankAccount(val);
                   }
                 }}
-                placeholder="Số tài khoản ngân hàng (0-9) *"
+                placeholder="Số tài khoản (0-9) *"
                 type="text"
                 inputMode="numeric"
                 label="Số tài khoản"
@@ -370,7 +408,6 @@ const HomeOwnerPage: React.FC = () => {
               {!bankName && <Text size="xSmall" className="text-red-500" style={{ color: 'red', fontSize: 12 }}>Vui lòng chọn ngân hàng trước</Text>}
 
               <Box flex flexDirection="column" style={{ gap: 8 }}>
-                <Text size="small" style={{ fontWeight: 600 }}>Mã QR Chuyển khoản (Tự động tạo)</Text>
 
                 {(bankName && bankAccount) ? (
                   <Box flex flexDirection="column" alignItems="center" style={{ gap: 8 }}>
@@ -388,9 +425,6 @@ const HomeOwnerPage: React.FC = () => {
                         e.currentTarget.style.display = 'none';
                       }}
                     />
-                    <Text size="xSmall" className="text-gray-500" style={{ fontSize: 10 }}>
-                      * QR được tạo tự động từ thông tin trên.
-                    </Text>
                   </Box>
                 ) : (
                   <Box p={4} style={{ backgroundColor: "#f5f5f5", borderRadius: 8, textAlign: "center" }}>
@@ -406,7 +440,7 @@ const HomeOwnerPage: React.FC = () => {
                   style={{ flex: 1 }}
                   disabled={savingBank || !bankAccount.trim() || !bankName}
                 >
-                  {savingBank ? "Đang lưu..." : "💾 Lưu"}
+                  {savingBank ? "Đang lưu..." : "Lưu"}
                 </Button>
                 <Button
                   onClick={() => {
@@ -460,16 +494,18 @@ const HomeOwnerPage: React.FC = () => {
               <Box flex justifyContent="space-between" alignItems="center" style={{ gap: 8 }}>
                 <Box flex flexDirection="column" style={{ flex: 1 }}>
                   <Text style={{ fontSize: 16, fontWeight: "bold", marginBottom: 4 }}>
-                    🏢 {building.name}
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="black" xmlns="http://www.w3.org/2000/svg" style={{ display: "inline-block", verticalAlign: "middle", margin: "0 4px 2px 0" }}><path d="M12 7V3H2v18h20V7H12zM6 19H4v-2h2v2zm0-4H4v-2h2v2zm0-4H4V9h2v2zm0-4H4V5h2v2zm4 12H8v-2h2v2zm0-4H8v-2h2v2zm0-4H8V9h2v2zm0-4H8V5h2v2zm10 12h-8v-2h2v-2h-2v-2h2v-2h-2V9h8v10zm-2-8h-2v2h2v-2zm0 4h-2v2h2v-2z" /></svg>
+                    {building.name}
                   </Text>
                   {building.address && (
                     <Text style={{ fontSize: 14, color: "#666", marginTop: 4 }}>
-                      📍 {building.address}
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="black" xmlns="http://www.w3.org/2000/svg" style={{ display: "inline-block", verticalAlign: "middle", margin: "0 4px 2px 0" }}><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" /></svg>
+                      {building.address}
                     </Text>
                   )}
                 </Box>
                 <Button
-                  type="danger"
+                  style={{ background: "transparent", border: "none", boxShadow: "none", padding: 0, minWidth: "auto", height: "auto" }}
                   size="small"
                   onClick={async (e) => {
                     e.stopPropagation();
@@ -486,7 +522,9 @@ const HomeOwnerPage: React.FC = () => {
                     }
                   }}
                 >
-                  🗑️
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="#d10000" xmlns="http://www.w3.org/2000/svg" style={{ display: "block" }}>
+                    <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
+                  </svg>
                 </Button>
               </Box>
             </Box>
