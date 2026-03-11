@@ -65,6 +65,7 @@ CREATE TABLE IF NOT EXISTS payment_details (
     electricity_amount DECIMAL(12, 2) DEFAULT 0,
     water_amount DECIMAL(12, 2) DEFAULT 0,
     penalty DECIMAL(12, 2) DEFAULT 0,
+    penalty_details JSONB DEFAULT '[]'::jsonb,
     debt_amount DECIMAL(12, 2) DEFAULT 0,
     total_amount DECIMAL(12, 2) DEFAULT 0,
     current_electricity_index DECIMAL(10, 2) DEFAULT 0,

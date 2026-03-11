@@ -22,6 +22,7 @@ interface PaymentData {
     electricityAmount: number;
     waterAmount: number;
     penalty: number;
+    penaltyDetails?: { reason: string, amount: number }[];
     debtAmount: number;
     totalAmount: number;
   };
@@ -273,11 +274,31 @@ const PaymentPage: React.FC = () => {
               </Text>
             </Box>
 
-            <Box flex justifyContent="space-between">
-              <Text style={{ fontSize: 14, color: "#666" }}>⚠️ Tiền phạt:</Text>
-              <Text style={{ fontSize: 14, fontWeight: "bold" }}>
-                {formatPrice(paymentData.details.penalty)} VNĐ
-              </Text>
+            <Box flex flexDirection="column" style={{ gap: 4 }}>
+              <Box flex justifyContent="space-between">
+                <Text style={{ fontSize: 14, color: "#666" }}>⚠️ Tiền phạt:</Text>
+                <Text style={{ fontSize: 14, fontWeight: "bold" }}>
+                  {formatPrice(paymentData.details.penalty)} VNĐ
+                </Text>
+              </Box>
+              {paymentData.details.penaltyDetails && paymentData.details.penaltyDetails.length > 0 && (
+                <Box mt={2} style={{ border: "1px solid #eee", borderRadius: 8, overflow: 'hidden' }}>
+                  <Box flex style={{ padding: 8, backgroundColor: '#f5f5f5', borderBottom: '1px solid #eee' }}>
+                    <Text style={{ flex: 1, fontSize: 12, fontWeight: 'bold' }}>Nguyên nhân</Text>
+                    <Text style={{ width: 100, fontSize: 12, fontWeight: 'bold', textAlign: 'right' }}>Số tiền (VNĐ)</Text>
+                  </Box>
+                  {paymentData.details.penaltyDetails.map((p, idx) => (
+                    <Box key={idx} flex style={{ padding: 8, borderBottom: idx < paymentData.details.penaltyDetails!.length - 1 ? '1px solid #eee' : 'none' }}>
+                      <Text style={{ flex: 1, fontSize: 12, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                        {p.reason}
+                      </Text>
+                      <Text style={{ width: 100, fontSize: 12, textAlign: 'right', fontWeight: 'bold' }}>
+                        {formatPrice(p.amount)}
+                      </Text>
+                    </Box>
+                  ))}
+                </Box>
+              )}
             </Box>
 
             <Box flex justifyContent="space-between">

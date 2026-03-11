@@ -19,6 +19,7 @@ const HomeOwnerPage: React.FC = () => {
   const [bankName, setBankName] = useState("");
   const [qrCodeUrl, setQrCodeUrl] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
+  const [ownerName, setOwnerName] = useState("");
   const [savingBank, setSavingBank] = useState(false);
   const [notificationCount, setNotificationCount] = useState(0);
   const navigate = useNavigate();
@@ -50,6 +51,7 @@ const HomeOwnerPage: React.FC = () => {
           setBankName(data.bank_name || "");
           setQrCodeUrl(data.qr_code_url || "");
           setPhoneNumber(data.phone_number || "");
+          setOwnerName(data.name || "");
         }
       }
     } catch (error) {
@@ -65,7 +67,7 @@ const HomeOwnerPage: React.FC = () => {
 
       // Recalculate QR URL to ensure it matches current inputs
       const bin = BANKS.find(b => b.name === bankName)?.bin || "970436";
-      const finalQrUrl = `https://img.vietqr.io/image/${bin}-${bankAccount}-compact.jpg?accountName=${encodeURIComponent(user?.name || "")}`;
+      const finalQrUrl = `https://img.vietqr.io/image/${bin}-${bankAccount}-compact.jpg?accountName=${encodeURIComponent(ownerName || user?.name || "")}`;
 
       const res = await fetch(`${API_BASE_URL}/api/users/${userId}/bank-account`, {
         method: "PUT",
@@ -193,8 +195,9 @@ const HomeOwnerPage: React.FC = () => {
               }}
             >
               <Box style={{ paddingTop: 2 }}>
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="#007AFF" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z" />
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                  <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
                 </svg>
               </Box>
               {notificationCount > 0 && (
@@ -222,16 +225,16 @@ const HomeOwnerPage: React.FC = () => {
             </Box>
             <Button
               onClick={() => setShowAddForm(!showAddForm)}
-              type="highlight"
+              style={{ background: "transparent", border: "none", boxShadow: "none", padding: 0, minWidth: "auto", height: "auto" }}
               size="small"
             >
               {showAddForm ? (
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: "block" }}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: "block" }}>
                   <line x1="18" y1="6" x2="6" y2="18"></line>
                   <line x1="6" y1="6" x2="18" y2="18"></line>
                 </svg>
               ) : (
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: "block" }}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: "block" }}>
                   <rect x="3" y="3" width="18" height="18" rx="4" ry="4"></rect>
                   <line x1="12" y1="8" x2="12" y2="16"></line>
                   <line x1="8" y1="12" x2="16" y2="12"></line>
@@ -301,7 +304,7 @@ const HomeOwnerPage: React.FC = () => {
                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                 <circle cx="12" cy="7" r="4"></circle>
               </svg>
-              Thông tin cá nhân & Ngân hàng
+              Thông tin cá nhân
             </Text>
             <Button
               onClick={() => setShowBankForm(!showBankForm)}
@@ -333,14 +336,14 @@ const HomeOwnerPage: React.FC = () => {
 
           {!showBankForm && (
             <Box flex flexDirection="column" style={{ gap: 8 }}>
-              {user?.name && (
+              {(ownerName || user?.name) && (
                 <Text style={{ fontSize: 14 }}>
-                  <Text style={{ fontWeight: "bold" }}>Họ tên:</Text> {user.name}
+                  <Text style={{ fontWeight: "bold" }}>Họ và tên:</Text> {ownerName || user?.name}
                 </Text>
               )}
               {phoneNumber && (
                 <Text style={{ fontSize: 14 }}>
-                  <Text style={{ fontWeight: "bold" }}>SĐT:</Text> {phoneNumber}
+                  <Text style={{ fontWeight: "bold" }}>Số điện thoại:</Text> {phoneNumber}
                 </Text>
               )}
               {bankAccount && (
@@ -358,7 +361,6 @@ const HomeOwnerPage: React.FC = () => {
 
               {qrCodeUrl && (
                 <Box mt={2} flex flexDirection="column" alignItems="center">
-                  <Text size="xSmall" className="text-gray-500" style={{ marginBottom: 4 }}>Mã QR của bạn:</Text>
                   <img
                     src={qrCodeUrl}
                     alt="QR Code"
@@ -377,7 +379,7 @@ const HomeOwnerPage: React.FC = () => {
           {showBankForm && (
             <Box flex flexDirection="column" style={{ gap: 12 }}>
               <Input
-                value={user?.name || ""}
+                value={ownerName || user?.name || ""}
                 disabled
                 label="Họ và tên"
               />

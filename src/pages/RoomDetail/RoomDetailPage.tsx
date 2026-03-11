@@ -92,7 +92,11 @@ const RoomDetailPage: React.FC = () => {
   const [currentElectricIndex, setCurrentElectricIndex] = useState<string>("");
   const [parsingWater, setParsingWater] = useState(false);
   const [parsingElectric, setParsingElectric] = useState(false);
-  const [penalty, setPenalty] = useState<string>("");
+  const [penaltyDetails, setPenaltyDetails] = useState<{ reason: string, amount: number }[]>([]);
+  const [showPenaltyModal, setShowPenaltyModal] = useState(false);
+  const [editingPenaltyIdx, setEditingPenaltyIdx] = useState<number | null>(null);
+  const [modalPenaltyReason, setModalPenaltyReason] = useState("");
+  const [modalPenaltyAmount, setModalPenaltyAmount] = useState("");
   const [waterImage, setWaterImage] = useState<string>("");
   const [electricImage, setElectricImage] = useState<string>("");
 
@@ -317,10 +321,38 @@ const RoomDetailPage: React.FC = () => {
     const wp = waterPrice !== "" ? Number(waterPrice) : Number(room?.waterPrice || 0);
     const wu = waterUsage ? Number(waterUsage) : 0;
     const eu = electricUsage ? Number(electricUsage) : 0;
-    const pn = penalty ? Number(penalty) : 0;
+    const pn = penaltyDetails.reduce((sum, item) => sum + item.amount, 0);
 
     return rp + sf + ep * eu + wp * wu + pn;
-  }, [roomPrice, serviceFee, electricityPrice, waterPrice, waterUsage, electricUsage, penalty, room]);
+  }, [roomPrice, serviceFee, electricityPrice, waterPrice, waterUsage, electricUsage, penaltyDetails, room]);
+
+  const handleSavePenalty = () => {
+    const amount = Number(modalPenaltyAmount);
+    if (!modalPenaltyReason.trim() || !amount) return;
+
+    if (editingPenaltyIdx !== null) {
+      const newDetails = [...penaltyDetails];
+      newDetails[editingPenaltyIdx] = { reason: modalPenaltyReason, amount };
+      setPenaltyDetails(newDetails);
+    } else {
+      setPenaltyDetails([...penaltyDetails, { reason: modalPenaltyReason, amount }]);
+    }
+
+    setShowPenaltyModal(false);
+  };
+
+  const handleOpenPenaltyModal = (idx: number | null = null) => {
+    if (idx !== null) {
+      setEditingPenaltyIdx(idx);
+      setModalPenaltyReason(penaltyDetails[idx].reason);
+      setModalPenaltyAmount(penaltyDetails[idx].amount.toString());
+    } else {
+      setEditingPenaltyIdx(null);
+      setModalPenaltyReason("");
+      setModalPenaltyAmount("");
+    }
+    setShowPenaltyModal(true);
+  };
 
   const canSubmitBill = useMemo(() => {
     return currentWaterIndex.toString().trim() !== "" && currentElectricIndex.toString().trim() !== "";
@@ -337,7 +369,7 @@ const RoomDetailPage: React.FC = () => {
           electricity_usage: electricUsage,
           current_water_index: Number(currentWaterIndex),
           current_electricity_index: Number(currentElectricIndex),
-          penalty: penalty ? Number(penalty) : 0,
+          penalty_details: penaltyDetails,
         }),
       });
       if (res.ok) {
@@ -616,11 +648,11 @@ const RoomDetailPage: React.FC = () => {
                 />
                 <Button
                   onClick={handleAddTenant}
-                  type="highlight"
+                  style={{ background: "transparent", border: "none", boxShadow: "none", padding: 0, minWidth: "auto", height: "auto", alignSelf: "center", marginRight: 8 }}
                   disabled={addingTenant}
                 >
                   {addingTenant ? "..." : (
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: "block" }}>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: "block" }}>
                       <rect x="3" y="3" width="18" height="18" rx="4" ry="4"></rect>
                       <line x1="12" y1="8" x2="12" y2="16"></line>
                       <line x1="8" y1="12" x2="16" y2="12"></line>
@@ -834,7 +866,7 @@ const RoomDetailPage: React.FC = () => {
                           });
                         }}
                         style={{ background: "transparent", border: "none", boxShadow: "none", padding: 0 }}
-                        icon={parsingWater ? <Spinner /> : (
+                        icon={(
                           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                             <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
                             <circle cx="12" cy="13" r="4"></circle>
@@ -905,7 +937,7 @@ const RoomDetailPage: React.FC = () => {
                           });
                         }}
                         style={{ background: "transparent", border: "none", boxShadow: "none", padding: 0 }}
-                        icon={parsingElectric ? <Spinner /> : (
+                        icon={(
                           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                             <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
                             <circle cx="12" cy="13" r="4"></circle>
@@ -932,12 +964,45 @@ const RoomDetailPage: React.FC = () => {
                   )}
                 </Box>
 
-                <Input
-                  type="number"
-                  value={penalty}
-                  onChange={(e) => setPenalty(e.target.value.toString())}
-                  placeholder="Tiền phạt (VNĐ, tùy chọn, mặc định 0)"
-                />
+                <Box flex flexDirection="column" style={{ gap: 4 }}>
+                  <Box flex justifyContent="space-between" alignItems="center">
+                    <Text style={{ fontWeight: "bold", color: "#333" }}>Tiền phạt</Text>
+                    <Button
+                      onClick={() => handleOpenPenaltyModal()}
+                      style={{ background: "transparent", border: "none", boxShadow: "none", padding: 0, minWidth: "auto", height: "auto" }}
+                      size="small"
+                    >
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: "block" }}>
+                        <rect x="3" y="3" width="18" height="18" rx="4" ry="4"></rect>
+                        <line x1="12" y1="8" x2="12" y2="16"></line>
+                        <line x1="8" y1="12" x2="16" y2="12"></line>
+                      </svg>
+                    </Button>
+                  </Box>
+                  {penaltyDetails.length > 0 && (
+                    <Box mt={2} style={{ border: "1px solid #eee", borderRadius: 8, overflow: 'hidden' }}>
+                      <Box flex style={{ padding: 8, backgroundColor: '#f5f5f5', borderBottom: '1px solid #eee' }}>
+                        <Text style={{ flex: 1, fontSize: 13, fontWeight: 'bold' }}>Nguyên nhân</Text>
+                        <Text style={{ width: 100, fontSize: 13, fontWeight: 'bold', textAlign: 'right' }}>Số tiền (VNĐ)</Text>
+                      </Box>
+                      {penaltyDetails.map((p, idx) => (
+                        <Box
+                          key={idx}
+                          flex
+                          onClick={() => handleOpenPenaltyModal(idx)}
+                          style={{ padding: 8, borderBottom: idx < penaltyDetails.length - 1 ? '1px solid #eee' : 'none', cursor: 'pointer' }}
+                        >
+                          <Text style={{ flex: 1, fontSize: 13, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                            {p.reason}
+                          </Text>
+                          <Text style={{ width: 100, fontSize: 13, textAlign: 'right', fontWeight: 'bold' }}>
+                            {formatPrice(p.amount)}
+                          </Text>
+                        </Box>
+                      ))}
+                    </Box>
+                  )}
+                </Box>
 
                 <Box
                   flex
@@ -1083,6 +1148,105 @@ const RoomDetailPage: React.FC = () => {
           </>
         )}
       </Box>
+
+      {/* Thêm/Sửa Tiền Phạt Dialog */}
+      {showPenaltyModal && (
+        <Box
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setShowPenaltyModal(false);
+          }}
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100vw",
+            height: "100vh",
+            backgroundColor: "rgba(0, 0, 0, 0.5)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 9999,
+          }}
+        >
+          <Box
+            style={{
+              backgroundColor: "white",
+              padding: 24,
+              borderRadius: 12,
+              width: "90%",
+              maxWidth: 400,
+            }}
+          >
+            <Text style={{ fontSize: 18, fontWeight: "bold", marginBottom: 16 }}>
+              {editingPenaltyIdx !== null ? "Sửa khoản phạt" : "Thêm khoản phạt"}
+            </Text>
+
+            <Box flex flexDirection="column" style={{ gap: 16 }}>
+              <Input
+                value={modalPenaltyReason}
+                onChange={(e) => setModalPenaltyReason(e.target.value.toString())}
+                placeholder="Nguyên nhân phạt *"
+                label="Nguyên nhân phạt"
+              />
+              <Input
+                type="number"
+                value={modalPenaltyAmount}
+                onChange={(e) => {
+                  const val = e.target.value.toString();
+                  if (/^\d*$/.test(val)) setModalPenaltyAmount(val);
+                }}
+                placeholder="Số tiền phạt (VNĐ) *"
+                label="Số tiền phạt"
+              />
+            </Box>
+
+            <Box flex justifyContent="space-between" style={{ marginTop: 24, gap: 12 }}>
+              <Button
+                onClick={() => setShowPenaltyModal(false)}
+                style={{ flex: 1, backgroundColor: "#ff3b30", color: "white", border: "none" }}
+              >
+                Hủy
+              </Button>
+              <Button
+                onClick={handleSavePenalty}
+                style={{
+                  flex: 1,
+                  backgroundColor: (!modalPenaltyReason.trim() || !modalPenaltyAmount) ? "#d1d1d6" : "#4caf50",
+                  color: "white",
+                  border: "none"
+                }}
+                disabled={!modalPenaltyReason.trim() || !modalPenaltyAmount}
+              >
+                Lưu
+              </Button>
+            </Box>
+          </Box>
+        </Box>
+      )}
+
+      {/* Full-screen Loading Overlay for Meter Image Parsing */}
+      {(parsingWater || parsingElectric) && (
+        <Box
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100vw",
+            height: "100vh",
+            backgroundColor: "rgba(0, 0, 0, 0.8)",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 9999,
+          }}
+        >
+          <Spinner />
+          <Text style={{ color: "white", marginTop: 16, fontWeight: "bold" }}>
+            Đang trích xuất dữ liệu công tơ...
+          </Text>
+        </Box>
+      )}
     </PageLayout>
   );
 };

@@ -148,11 +148,31 @@ const TenantNotificationItem: React.FC<{
               </Text>
             </Box>
             {data.penalty > 0 && (
-              <Box flex justifyContent="space-between">
-                <Text style={{ fontSize: 12, color: "#666" }}>Tiền phạt:</Text>
-                <Text style={{ fontSize: 12, fontWeight: "bold" }}>
-                  {formatPrice(data.penalty || 0)} VNĐ
-                </Text>
+              <Box flex flexDirection="column" style={{ gap: 4 }}>
+                <Box flex justifyContent="space-between">
+                  <Text style={{ fontSize: 12, color: "#666" }}>Tiền phạt:</Text>
+                  <Text style={{ fontSize: 12, fontWeight: "bold" }}>
+                    {formatPrice(data.penalty || 0)} VNĐ
+                  </Text>
+                </Box>
+                {data.penalty_details && data.penalty_details.length > 0 && (
+                  <Box mt={2} style={{ border: "1px solid #eee", borderRadius: 8, overflow: 'hidden' }}>
+                    <Box flex style={{ padding: 8, backgroundColor: '#f5f5f5', borderBottom: '1px solid #eee' }}>
+                      <Text style={{ flex: 1, fontSize: 12, fontWeight: 'bold' }}>Nguyên nhân</Text>
+                      <Text style={{ width: 100, fontSize: 12, fontWeight: 'bold', textAlign: 'right' }}>Số tiền (VNĐ)</Text>
+                    </Box>
+                    {data.penalty_details.map((p: any, idx: number) => (
+                      <Box key={idx} flex style={{ padding: 8, borderBottom: idx < data.penalty_details.length - 1 ? '1px solid #eee' : 'none' }}>
+                        <Text style={{ flex: 1, fontSize: 12, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                          {p.reason}
+                        </Text>
+                        <Text style={{ width: 100, fontSize: 12, textAlign: 'right', fontWeight: 'bold' }}>
+                          {formatPrice(p.amount)}
+                        </Text>
+                      </Box>
+                    ))}
+                  </Box>
+                )}
               </Box>
             )}
             <Box flex justifyContent="space-between">

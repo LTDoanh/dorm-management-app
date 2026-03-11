@@ -78,6 +78,7 @@ router.get("/tenant/:userId", async (req, res) => {
         electricity_amount: 0,
         water_amount: 0,
         penalty: 0,
+        penalty_details: [],
         debt_amount: tenant.debt || 0,
         total_amount: tenant.current_bill || 0,
       };
@@ -99,6 +100,7 @@ router.get("/tenant/:userId", async (req, res) => {
         electricityAmount: parseFloat(paymentDetail.electricity_amount || 0),
         waterAmount: parseFloat(paymentDetail.water_amount || 0),
         penalty: parseFloat(paymentDetail.penalty || 0),
+        penaltyDetails: typeof paymentDetail.penalty_details === 'string' ? JSON.parse(paymentDetail.penalty_details) : (paymentDetail.penalty_details || []),
         debtAmount: parseFloat(paymentDetail.debt_amount || 0),
         totalAmount: parseFloat(paymentDetail.total_amount || 0),
       },
