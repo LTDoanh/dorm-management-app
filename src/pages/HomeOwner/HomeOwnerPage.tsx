@@ -137,6 +137,7 @@ const HomeOwnerPage: React.FC = () => {
   const [buildings, setBuildings] = useState<Building[]>([]);
   const [newBuildingName, setNewBuildingName] = useState("");
   const [newBuildingAddress, setNewBuildingAddress] = useState("");
+  const [newBuildingRtsp, setNewBuildingRtsp] = useState("");
   const [showAddForm, setShowAddForm] = useState(false);
   const [loading, setLoading] = useState(true);
   const [showBankForm, setShowBankForm] = useState(false);
@@ -337,6 +338,7 @@ const HomeOwnerPage: React.FC = () => {
           name: newBuildingName,
           address: newBuildingAddress || null,
           ownerId: userId,
+          cameraRtsp: newBuildingRtsp || null,
         }),
       });
 
@@ -345,6 +347,7 @@ const HomeOwnerPage: React.FC = () => {
         setBuildings([...buildings, building]);
         setNewBuildingName("");
         setNewBuildingAddress("");
+        setNewBuildingRtsp("");
         setShowAddForm(false);
       }
     } catch (error) {
@@ -427,6 +430,11 @@ const HomeOwnerPage: React.FC = () => {
                   onChange={(e) => setNewBuildingAddress(e.target.value.toString())}
                   placeholder="Địa chỉ (tùy chọn)"
                 />
+                <Input
+                  value={newBuildingRtsp}
+                  onChange={(e) => setNewBuildingRtsp(e.target.value.toString())}
+                  placeholder="RTSP Camera URL (tùy chọn)"
+                />
                 <Box flex style={{ gap: 8 }}>
                   <Button
                     onClick={addBuilding}
@@ -440,6 +448,7 @@ const HomeOwnerPage: React.FC = () => {
                       setShowAddForm(false);
                       setNewBuildingName("");
                       setNewBuildingAddress("");
+                      setNewBuildingRtsp("");
                     }}
                     type="neutral"
                     style={{ flex: 1 }}

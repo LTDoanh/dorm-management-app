@@ -36,11 +36,11 @@ router.get("/:id", async (req, res) => {
 
 // Tạo tòa nhà mới
 router.post("/", async (req, res) => {
-  const { name, address, ownerId } = req.body;
+  const { name, address, ownerId, cameraRtsp } = req.body;
   try {
     const result = await pool.query(
-      "INSERT INTO buildings (name, address, owner_id) VALUES ($1, $2, $3) RETURNING *",
-      [name, address || null, ownerId]
+      "INSERT INTO buildings (name, address, owner_id, camera_rtsp) VALUES ($1, $2, $3, $4) RETURNING *",
+      [name, address || null, ownerId, cameraRtsp || null]
     );
     res.json(result.rows[0]);
   } catch (err) {
@@ -51,11 +51,11 @@ router.post("/", async (req, res) => {
 
 // Cập nhật tòa nhà
 router.put("/:id", async (req, res) => {
-  const { name, address } = req.body;
+  const { name, address, cameraRtsp } = req.body;
   try {
     const result = await pool.query(
-      "UPDATE buildings SET name = $1, address = $2 WHERE id = $3 RETURNING *",
-      [name, address || null, req.params.id]
+      "UPDATE buildings SET name = $1, address = $2, camera_rtsp = $3 WHERE id = $4 RETURNING *",
+      [name, address || null, cameraRtsp || null, req.params.id]
     );
     if (result.rows.length === 0) {
       return res.status(404).json({ error: "Không tìm thấy tòa nhà" });

@@ -147,6 +147,60 @@ const BuildingDetailPage: React.FC = () => {
                 {building.address}
               </Text>
             )}
+            {building.camera_rtsp && (
+              <Text style={{ fontSize: 12, color: "#007AFF", marginTop: 4 }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#007AFF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: "inline-block", verticalAlign: "middle", margin: "0 4px 2px 0" }}>
+                  <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                  <circle cx="12" cy="13" r="4"></circle>
+                </svg>
+                Camera đã kết nối
+              </Text>
+            )}
+          </Box>
+        )}
+
+        {/* Camera Stream Section */}
+        {building?.camera_rtsp && (
+          <Box
+            p={3}
+            style={{
+              backgroundColor: "#fff",
+              borderRadius: 8,
+              border: "1px solid #e0e0e0",
+            }}
+          >
+            <Text style={{ fontSize: 16, fontWeight: "bold", marginBottom: 12 }}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: "inline-block", verticalAlign: "middle", margin: "0 4px 2px 0" }}>
+                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                <circle cx="12" cy="13" r="4"></circle>
+              </svg>
+              Camera giám sát
+            </Text>
+            <Box
+              flex
+              flexDirection="column"
+              alignItems="center"
+              justifyContent="center"
+              style={{
+                backgroundColor: "#1a1a1a",
+                borderRadius: 8,
+                height: 200,
+                position: "relative",
+                overflow: "hidden",
+              }}
+            >
+              {/* Placeholder - sẽ thay bằng video player khi có go2rtc relay */}
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#555" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                <circle cx="12" cy="13" r="4"></circle>
+              </svg>
+              <Text style={{ color: "#888", fontSize: 12, marginTop: 8 }}>
+                Cần setup go2rtc relay để xem livestream
+              </Text>
+              <Text style={{ color: "#555", fontSize: 10, marginTop: 4 }}>
+                {building.camera_rtsp}
+              </Text>
+            </Box>
           </Box>
         )}
 

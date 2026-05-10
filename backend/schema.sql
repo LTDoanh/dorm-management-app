@@ -16,6 +16,7 @@ CREATE TABLE IF NOT EXISTS buildings (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     address TEXT,
+    camera_rtsp TEXT,
     owner_id VARCHAR(255) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (owner_id) REFERENCES users(id) ON DELETE CASCADE

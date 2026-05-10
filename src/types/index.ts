@@ -141,6 +141,7 @@ export type Building = {
     name: string;
     address?: string;
     ownerId: string;
+    camera_rtsp?: string;
     createdAt?: Date;
 };
 
