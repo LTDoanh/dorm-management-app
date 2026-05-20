@@ -16,6 +16,7 @@ const CameraStream: React.FC<CameraStreamProps> = ({ rtspUrl }) => {
 
   const [status, setStatus] = useState<"connecting" | "playing" | "error">("connecting");
   const [errorMsg, setErrorMsg] = useState("");
+  const [retryKey, setRetryKey] = useState(0);
 
   /** Kết nối WebSocket tới go2rtc và khởi tạo MSE pipeline */
   useEffect(() => {
@@ -38,7 +39,17 @@ const CameraStream: React.FC<CameraStreamProps> = ({ rtspUrl }) => {
       setStatus("connecting");
       setErrorMsg("");
 
-      const wsBase = GO2RTC_URL.replace(/^http/, "ws");
+      const activeUrl = (() => {
+        if (GO2RTC_URL.includes("localhost") || GO2RTC_URL.includes("127.0.0.1")) {
+          const hostname = window.location.hostname;
+          if (hostname && hostname !== "localhost" && hostname !== "127.0.0.1") {
+            return GO2RTC_URL.replace("localhost", hostname).replace("127.0.0.1", hostname);
+          }
+        }
+        return GO2RTC_URL;
+      })();
+
+      const wsBase = activeUrl.replace(/^http/, "ws");
       const wsUrl = `${wsBase}/api/ws?src=${encodeURIComponent(rtspUrl)}`;
 
       try {
@@ -149,7 +160,7 @@ const CameraStream: React.FC<CameraStreamProps> = ({ rtspUrl }) => {
         videoRef.current.src = "";
       }
     };
-  }, [rtspUrl]);
+  }, [rtspUrl, retryKey]);
 
   /** Đồng bộ video với live edge, nhảy lên nếu trễ > 3s */
   useEffect(() => {
@@ -241,7 +252,7 @@ const CameraStream: React.FC<CameraStreamProps> = ({ rtspUrl }) => {
               textDecoration: "underline",
             }}
             onClick={() => {
-              window.location.reload();
+              setRetryKey(prev => prev + 1);
             }}
           >
             Thử lại
