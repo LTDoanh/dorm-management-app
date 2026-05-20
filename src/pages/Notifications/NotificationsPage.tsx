@@ -66,19 +66,32 @@ const NotificationItem: React.FC<{
           <Text style={{ fontSize: 14, color: "#666", marginBottom: 8 }}>
             {notification.message}
           </Text>
-          <Text style={{ fontSize: 12, color: "#999" }}>
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="black" xmlns="http://www.w3.org/2000/svg" style={{ display: "inline-block", verticalAlign: "middle", margin: "0 4px 2px 0" }}><path d="M12 7V3H2v18h20V7H12zM6 19H4v-2h2v2zm0-4H4v-2h2v2zm0-4H4V9h2v2zm0-4H4V5h2v2zm4 12H8v-2h2v2zm0-4H8v-2h2v2zm0-4H8V9h2v2zm0-4H8V5h2v2zm10 12h-8v-2h2v-2h-2v-2h-2v-2h-2V9h8v10zm-2-8h-2v2h2v-2zm0 4h-2v2h2v-2z" /></svg>
-            {notification.building_name} -
-            <HomeFillIcon size={12} color="currentColor" style={{ display: "inline-block", verticalAlign: "middle", margin: "0 2px" }} />
-            Phòng {notification.room_name}
-          </Text>
-          <Text style={{ fontSize: 12, color: "#999", marginTop: 4 }}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: "inline-block", verticalAlign: "middle", margin: "0 4px 2px 0" }}>
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-              <circle cx="12" cy="7" r="4"></circle>
-            </svg>
-            {notification.tenant_name}
-          </Text>
+          {notification.type === "unknown_plate" ? (
+            <Text style={{ fontSize: 12, color: "#999", marginTop: 4 }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ff3b30" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: "inline-block", verticalAlign: "middle", margin: "0 4px 2px 0" }}>
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                <line x1="12" y1="9" x2="12" y2="13"></line>
+                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+              </svg>
+              Cảnh báo an ninh
+            </Text>
+          ) : (
+            <>
+              <Text style={{ fontSize: 12, color: "#999" }}>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="black" xmlns="http://www.w3.org/2000/svg" style={{ display: "inline-block", verticalAlign: "middle", margin: "0 4px 2px 0" }}><path d="M12 7V3H2v18h20V7H12zM6 19H4v-2h2v2zm0-4H4v-2h2v2zm0-4H4V9h2v2zm0-4H4V5h2v2zm4 12H8v-2h2v2zm0-4H8v-2h2v2zm0-4H8V9h2v2zm0-4H8V5h2v2zm10 12h-8v-2h2v-2h-2v-2h-2v-2h-2V9h8v10zm-2-8h-2v2h2v-2zm0 4h-2v2h2v-2z" /></svg>
+                {notification.building_name} -
+                <HomeFillIcon size={12} color="currentColor" style={{ display: "inline-block", verticalAlign: "middle", margin: "0 2px" }} />
+                Phòng {notification.room_name}
+              </Text>
+              <Text style={{ fontSize: 12, color: "#999", marginTop: 4 }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: "inline-block", verticalAlign: "middle", margin: "0 4px 2px 0" }}>
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+                {notification.tenant_name}
+              </Text>
+            </>
+          )}
         </Box>
         {!notification.is_read && (
           <Box

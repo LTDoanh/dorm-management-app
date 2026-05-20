@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import PageLayout from "@components/layout/PageLayout";
 import { HomeHeader } from "@components";
 import CameraStream from "@components/CameraStream";
@@ -8,6 +8,24 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useStore } from "@store";
 import { Building, Room } from "@dts";
 import { API_BASE_URL } from "@constants/common";
+
+interface PlateInfo {
+  license_plate: string;
+  tenant_name: string;
+  room_name: string;
+  tenant_id: string;
+}
+
+interface ScanStatus {
+  running: boolean;
+  startedAt?: string;
+  frameCount: number;
+  lastDetected: string | null;
+  lastDetectedAt: string | null;
+  lastError: string | null;
+  knownPlates: string[];
+  unknownPlates: string[];
+}
 
 const BuildingDetailPage: React.FC = () => {
   const { buildingId } = useParams<{ buildingId: string }>();
@@ -19,12 +37,45 @@ const BuildingDetailPage: React.FC = () => {
   const navigate = useNavigate();
   const user = useStore(state => state.user);
 
+  // Biển số xe states
+  const [plates, setPlates] = useState<PlateInfo[]>([]);
+  const [loadingPlates, setLoadingPlates] = useState(false);
+  const [showPlates, setShowPlates] = useState(false);
+
+  // Scan states
+  const [scanStatus, setScanStatus] = useState<ScanStatus | null>(null);
+  const [scanning, setScanning] = useState(false);
+  const [togglingScanner, setTogglingScanner] = useState(false);
+  const scanPollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
   useEffect(() => {
     if (buildingId) {
       loadBuilding();
       loadRooms();
+      loadPlates();
+      checkScanStatus();
     }
+    return () => {
+      if (scanPollRef.current) clearInterval(scanPollRef.current);
+    };
   }, [buildingId]);
+
+  // Polling scan status khi đang quét
+  useEffect(() => {
+    if (scanning && buildingId) {
+      scanPollRef.current = setInterval(() => {
+        checkScanStatus();
+      }, 3000);
+    } else {
+      if (scanPollRef.current) {
+        clearInterval(scanPollRef.current);
+        scanPollRef.current = null;
+      }
+    }
+    return () => {
+      if (scanPollRef.current) clearInterval(scanPollRef.current);
+    };
+  }, [scanning, buildingId]);
 
   const loadBuilding = async () => {
     try {
@@ -52,6 +103,52 @@ const BuildingDetailPage: React.FC = () => {
       console.error("Lỗi tải danh sách phòng:", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadPlates = async () => {
+    try {
+      setLoadingPlates(true);
+      const res = await fetch(`${API_BASE_URL}/api/buildings/${buildingId}/plates`);
+      if (res.ok) {
+        const data = await res.json();
+        setPlates(data);
+      }
+    } catch (error) {
+      console.error("Lỗi tải biển số xe:", error);
+    } finally {
+      setLoadingPlates(false);
+    }
+  };
+
+  const checkScanStatus = async () => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/plate-detection/status/${buildingId}`);
+      if (res.ok) {
+        const data: ScanStatus = await res.json();
+        setScanStatus(data);
+        setScanning(data.running);
+      }
+    } catch (error) {
+      console.error("Lỗi kiểm tra trạng thái scan:", error);
+    }
+  };
+
+  const toggleScan = async () => {
+    setTogglingScanner(true);
+    try {
+      const endpoint = scanning ? "stop" : "scan";
+      const res = await fetch(`${API_BASE_URL}/api/plate-detection/${endpoint}/${buildingId}`, {
+        method: "POST",
+      });
+      if (res.ok) {
+        setScanning(!scanning);
+        await checkScanStatus();
+      }
+    } catch (error) {
+      console.error("Lỗi toggle scan:", error);
+    } finally {
+      setTogglingScanner(false);
     }
   };
 
@@ -169,16 +266,143 @@ const BuildingDetailPage: React.FC = () => {
               border: "1px solid #e0e0e0",
             }}
           >
-            <Text style={{ fontSize: 16, fontWeight: "bold", marginBottom: 12 }}>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: "inline-block", verticalAlign: "middle", margin: "0 4px 2px 0" }}>
-                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
-                <circle cx="12" cy="13" r="4"></circle>
-              </svg>
-              Camera giám sát
-            </Text>
+            <Box flex justifyContent="space-between" alignItems="center" style={{ marginBottom: 12 }}>
+              <Text style={{ fontSize: 16, fontWeight: "bold" }}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: "inline-block", verticalAlign: "middle", margin: "0 4px 2px 0" }}>
+                  <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                  <circle cx="12" cy="13" r="4"></circle>
+                </svg>
+                Camera giám sát
+              </Text>
+              <Button
+                onClick={toggleScan}
+                disabled={togglingScanner}
+                size="small"
+                style={{
+                  backgroundColor: scanning ? "#ff3b30" : "#34c759",
+                  color: "#fff",
+                  border: "none",
+                  borderRadius: 20,
+                  padding: "4px 12px",
+                  fontSize: 12,
+                  fontWeight: "bold",
+                }}
+              >
+                {togglingScanner ? "..." : scanning ? "⏹ Dừng quét" : "🔍 Quét biển số"}
+              </Button>
+            </Box>
             <CameraStream rtspUrl={building.camera_rtsp} />
+
+            {/* Scan Status */}
+            {scanning && scanStatus && (
+              <Box
+                p={2}
+                style={{
+                  marginTop: 8,
+                  backgroundColor: "#f0fff4",
+                  borderRadius: 6,
+                  border: "1px solid #34c759",
+                }}
+              >
+                <Box flex alignItems="center" style={{ gap: 6, marginBottom: 4 }}>
+                  <Box style={{ width: 8, height: 8, borderRadius: "50%", backgroundColor: "#34c759", animation: "pulse 1.5s infinite" }} />
+                  <Text style={{ fontSize: 12, fontWeight: "bold", color: "#34c759" }}>
+                    Đang giám sát biển số xe
+                  </Text>
+                </Box>
+                <Text style={{ fontSize: 11, color: "#666" }}>
+                  Đã quét: {scanStatus.frameCount} frame
+                </Text>
+                {scanStatus.lastDetected && (
+                  <Text style={{ fontSize: 11, color: "#007AFF", marginTop: 2 }}>
+                    Phát hiện gần nhất: {scanStatus.lastDetected}
+                  </Text>
+                )}
+                {scanStatus.unknownPlates.length > 0 && (
+                  <Box style={{ marginTop: 4 }}>
+                    <Text style={{ fontSize: 11, color: "#ff3b30", fontWeight: "bold" }}>
+                      ⚠️ Xe lạ: {scanStatus.unknownPlates.join(", ")}
+                    </Text>
+                  </Box>
+                )}
+                {scanStatus.lastError && (
+                  <Text style={{ fontSize: 11, color: "#ff3b30", marginTop: 2 }}>
+                    Lỗi: {scanStatus.lastError}
+                  </Text>
+                )}
+              </Box>
+            )}
           </Box>
         )}
+
+        {/* Danh sách biển số xe đã đăng ký */}
+        <Box
+          p={3}
+          style={{
+            backgroundColor: "#fff",
+            borderRadius: 8,
+            border: "1px solid #e0e0e0",
+          }}
+        >
+          <Box
+            flex
+            justifyContent="space-between"
+            alignItems="center"
+            onClick={() => setShowPlates(!showPlates)}
+            style={{ cursor: "pointer" }}
+          >
+            <Text style={{ fontSize: 16, fontWeight: "bold" }}>
+              🚗 Biển số xe đã đăng ký ({plates.length})
+            </Text>
+            <svg
+              width="20" height="20" viewBox="0 0 24 24" fill="none"
+              stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+              style={{ transform: showPlates ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.2s" }}
+            >
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </Box>
+
+          {showPlates && (
+            <Box style={{ marginTop: 12 }}>
+              {loadingPlates ? (
+                <Box flex justifyContent="center" p={2}>
+                  <Spinner />
+                </Box>
+              ) : plates.length === 0 ? (
+                <Text style={{ color: "#999", fontSize: 13, textAlign: "center", padding: 8 }}>
+                  Chưa có biển số xe nào được đăng ký
+                </Text>
+              ) : (
+                <Box flex flexDirection="column" style={{ gap: 6 }}>
+                  {plates.map((plate, idx) => (
+                    <Box
+                      key={idx}
+                      flex
+                      justifyContent="space-between"
+                      alignItems="center"
+                      p={2}
+                      style={{
+                        backgroundColor: "#f5f5f5",
+                        borderRadius: 6,
+                        borderLeft: "3px solid #007AFF",
+                      }}
+                    >
+                      <Box>
+                        <Text style={{ fontSize: 14, fontWeight: "bold", fontFamily: "monospace", color: "#007AFF" }}>
+                          {plate.license_plate}
+                        </Text>
+                        <Text style={{ fontSize: 11, color: "#666" }}>
+                          {plate.tenant_name} • {plate.room_name}
+                        </Text>
+                      </Box>
+                    </Box>
+                  ))}
+                </Box>
+              )}
+            </Box>
+          )}
+        </Box>
 
         <Box flex justifyContent="space-between" alignItems="center">
           <Text style={{ fontSize: 18, fontWeight: "bold" }}>
@@ -304,4 +528,3 @@ const BuildingDetailPage: React.FC = () => {
 };
 
 export default BuildingDetailPage;
-

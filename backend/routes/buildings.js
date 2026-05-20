@@ -84,5 +84,24 @@ router.delete("/:id", async (req, res) => {
   }
 });
 
+// Lấy danh sách biển số xe trong tòa nhà (tổng hợp từ tenants)
+router.get("/:id/plates", async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT t.license_plate, t.id as tenant_id, u.name as tenant_name, r.name as room_name
+       FROM tenants t
+       JOIN users u ON t.user_id = u.id
+       JOIN rooms r ON t.room_id = r.id
+       WHERE r.building_id = $1 AND t.license_plate IS NOT NULL AND t.license_plate != ''
+       ORDER BY t.license_plate`,
+      [req.params.id]
+    );
+    res.json(result.rows);
+  } catch (err) {
+    console.error("Lỗi lấy danh sách biển số xe:", err);
+    res.status(500).json({ error: "Không lấy được danh sách biển số xe" });
+  }
+});
+
 export default router;
 

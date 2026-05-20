@@ -23,7 +23,7 @@ router.get("/room/:roomId", async (req, res) => {
 
 // Thêm người thuê trọ vào phòng
 router.post("/", async (req, res) => {
-  const { roomId, userId } = req.body;
+  const { roomId, userId, licensePlate } = req.body;
   try {
     // Kiểm tra xem user đã có trong phòng chưa
     const checkResult = await pool.query(
@@ -36,13 +36,31 @@ router.post("/", async (req, res) => {
     }
 
     const result = await pool.query(
-      "INSERT INTO tenants (room_id, user_id) VALUES ($1, $2) RETURNING *",
-      [roomId, userId]
+      "INSERT INTO tenants (room_id, user_id, license_plate) VALUES ($1, $2, $3) RETURNING *",
+      [roomId, userId, licensePlate || null]
     );
     res.json(result.rows[0]);
   } catch (err) {
     console.error("Lỗi thêm người thuê trọ:", err);
     res.status(500).json({ error: "Không thêm được người thuê trọ" });
+  }
+});
+
+// Cập nhật biển số xe cho người thuê
+router.put("/:id/license-plate", async (req, res) => {
+  const { licensePlate } = req.body;
+  try {
+    const result = await pool.query(
+      "UPDATE tenants SET license_plate = $1 WHERE id = $2 RETURNING *",
+      [licensePlate || null, req.params.id]
+    );
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Không tìm thấy người thuê trọ" });
+    }
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error("Lỗi cập nhật biển số xe:", err);
+    res.status(500).json({ error: "Không cập nhật được biển số xe" });
   }
 });
 

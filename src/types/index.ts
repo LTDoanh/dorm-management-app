@@ -163,5 +163,6 @@ export type Tenant = {
     userId: string;
     nickname: string;
     zaloId?: string;
+    license_plate?: string;
     createdAt?: Date;
 };

@@ -68,6 +68,7 @@ interface Tenant {
   debt?: number;
   payment_status?: string;
   owner_confirmed_amount?: number;
+  license_plate?: string;
 }
 
 const RoomDetailPage: React.FC = () => {
@@ -85,6 +86,7 @@ const RoomDetailPage: React.FC = () => {
   const [electricityPrice, setElectricityPrice] = useState<string>("");
   const [waterPrice, setWaterPrice] = useState<string>("");
   const [newTenantPhone, setNewTenantPhone] = useState<string>("");
+  const [newTenantPlate, setNewTenantPlate] = useState<string>("");
   const [addingTenant, setAddingTenant] = useState(false);
   const [prevWaterIndex, setPrevWaterIndex] = useState<string>("");
   const [currentWaterIndex, setCurrentWaterIndex] = useState<string>("");
@@ -282,12 +284,14 @@ const RoomDetailPage: React.FC = () => {
         body: JSON.stringify({
           roomId: roomId,
           userId: user.id,
+          licensePlate: newTenantPlate.trim() || null,
         }),
       });
 
       if (addRes.ok) {
         await loadTenants();
         setNewTenantPhone("");
+        setNewTenantPlate("");
       } else {
         const error = await addRes.json();
         alert(error.error || "Không thể thêm người thuê trọ");
@@ -613,26 +617,34 @@ const RoomDetailPage: React.FC = () => {
               </Box>
 
               {/* Form thêm tenant mới */}
-              <Box flex style={{ gap: 8, marginBottom: 16 }}>
+              <Box flex flexDirection="column" style={{ gap: 8, marginBottom: 16 }}>
+                <Box flex style={{ gap: 8 }}>
+                  <Input
+                    value={newTenantPhone}
+                    onChange={(e) => setNewTenantPhone(e.target.value.toString())}
+                    placeholder="Nhập số điện thoại người thuê trọ"
+                    style={{ flex: 1 }}
+                  />
+                  <Button
+                    onClick={handleAddTenant}
+                    style={{ background: "transparent", border: "none", boxShadow: "none", padding: 0, minWidth: "auto", height: "auto", alignSelf: "center", marginRight: 8 }}
+                    disabled={addingTenant}
+                  >
+                    {addingTenant ? "..." : (
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: "block" }}>
+                        <rect x="3" y="3" width="18" height="18" rx="4" ry="4"></rect>
+                        <line x1="12" y1="8" x2="12" y2="16"></line>
+                        <line x1="8" y1="12" x2="16" y2="12"></line>
+                      </svg>
+                    )}
+                  </Button>
+                </Box>
                 <Input
-                  value={newTenantPhone}
-                  onChange={(e) => setNewTenantPhone(e.target.value.toString())}
-                  placeholder="Nhập số điện thoại người thuê trọ"
+                  value={newTenantPlate}
+                  onChange={(e) => setNewTenantPlate(e.target.value.toString().toUpperCase())}
+                  placeholder="Biển số xe (tùy chọn, VD: 29A-12345)"
                   style={{ flex: 1 }}
                 />
-                <Button
-                  onClick={handleAddTenant}
-                  style={{ background: "transparent", border: "none", boxShadow: "none", padding: 0, minWidth: "auto", height: "auto", alignSelf: "center", marginRight: 8 }}
-                  disabled={addingTenant}
-                >
-                  {addingTenant ? "..." : (
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: "block" }}>
-                      <rect x="3" y="3" width="18" height="18" rx="4" ry="4"></rect>
-                      <line x1="12" y1="8" x2="12" y2="16"></line>
-                      <line x1="8" y1="12" x2="16" y2="12"></line>
-                    </svg>
-                  )}
-                </Button>
               </Box>
 
               {/* Danh sách tenants */}
@@ -714,6 +726,11 @@ const RoomDetailPage: React.FC = () => {
                               <Text style={{ fontSize: 12, color: "#666" }}>
                                 ID: {tenant.user_id}
                               </Text>
+                              {tenant.license_plate && (
+                                <Text style={{ fontSize: 12, color: "#007AFF", marginTop: 2 }}>
+                                  🚗 {tenant.license_plate}
+                                </Text>
+                              )}
 
                               <Text style={{ fontSize: 12, fontWeight: "bold", color: statusColor, marginTop: 4 }}>
                                 Trạng thái: {statusText}

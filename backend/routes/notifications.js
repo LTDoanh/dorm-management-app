@@ -20,10 +20,10 @@ router.get("/owner/:ownerId", async (req, res) => {
              t.current_bill,
              t.debt
       FROM notifications n
-      JOIN tenants t ON n.tenant_id = t.id
-      JOIN users u ON t.user_id = u.id
-      JOIN rooms r ON n.room_id = r.id
-      JOIN buildings b ON r.building_id = b.id
+      LEFT JOIN tenants t ON n.tenant_id = t.id
+      LEFT JOIN users u ON t.user_id = u.id
+      LEFT JOIN rooms r ON n.room_id = r.id
+      LEFT JOIN buildings b ON r.building_id = b.id
       WHERE n.owner_id = $1
     `;
 

@@ -8,6 +8,7 @@ import buildingsRouter from "./routes/buildings.js";
 import tenantsRouter from "./routes/tenants.js";
 import paymentsRouter from "./routes/payments.js";
 import notificationsRouter from "./routes/notifications.js";
+import plateDetectionRouter from "./routes/plate-detection.js";
 import { testConnection } from "./db.js";
 
 dotenv.config();
@@ -57,6 +58,7 @@ app.use("/api/buildings", buildingsRouter);
 app.use("/api/tenants", tenantsRouter);
 app.use("/api/payments", paymentsRouter);
 app.use("/api/notifications", notificationsRouter);
+app.use("/api/plate-detection", plateDetectionRouter);
 
 // Root endpoint
 app.get("/", (req, res) => {
