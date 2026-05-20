@@ -40,6 +40,15 @@ app.get("/health", async (req, res) => {
   });
 });
 
+// Config endpoint - trả về URL go2rtc từ biến môi trường
+app.get("/api/config/go2rtc", (req, res) => {
+  const go2rtcUrl = process.env.GO2RTC_URL;
+  if (!go2rtcUrl) {
+    return res.status(404).json({ error: "GO2RTC_URL chưa được cấu hình" });
+  }
+  res.json({ url: go2rtcUrl });
+});
+
 // API Routes
 app.use("/api/bills", billsRouter);
 app.use("/api/users", usersRouter);

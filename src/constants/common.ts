@@ -1,7 +1,6 @@
 export const BASE_URL = "";
 export const MINI_APP_ID = (window as any).APP_ID || "";
 export const API_BASE_URL = "https://dorm-management-app.onrender.com";
-export const GO2RTC_URL = "http://localhost:1984";
 
 export const API = {
     GET_ORGANIZATION: "/get_organization_api",

@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Box, Text, Spinner } from "zmp-ui";
-import { GO2RTC_URL } from "@constants/common";
+import { API_BASE_URL } from "@constants/common";
 
 interface CameraStreamProps {
   rtspUrl: string;
@@ -17,10 +17,35 @@ const CameraStream: React.FC<CameraStreamProps> = ({ rtspUrl }) => {
   const [status, setStatus] = useState<"connecting" | "playing" | "error">("connecting");
   const [errorMsg, setErrorMsg] = useState("");
   const [retryKey, setRetryKey] = useState(0);
+  const [go2rtcUrl, setGo2rtcUrl] = useState<string | null>(null);
+
+  /** Fetch go2rtc URL từ backend khi mount hoặc retry */
+  useEffect(() => {
+    let cancelled = false;
+    setStatus("connecting");
+    setErrorMsg("");
+
+    fetch(`${API_BASE_URL}/api/config/go2rtc`)
+      .then((res) => {
+        if (!res.ok) throw new Error("GO2RTC_URL chưa được cấu hình trên server");
+        return res.json();
+      })
+      .then((data) => {
+        if (!cancelled) setGo2rtcUrl(data.url);
+      })
+      .catch((err) => {
+        if (!cancelled) {
+          setStatus("error");
+          setErrorMsg(`Không thể lấy URL go2rtc: ${err.message}`);
+        }
+      });
+
+    return () => { cancelled = true; };
+  }, [retryKey]);
 
   /** Kết nối WebSocket tới go2rtc và khởi tạo MSE pipeline */
   useEffect(() => {
-    if (!rtspUrl) return;
+    if (!rtspUrl || !go2rtcUrl) return;
 
     const video = videoRef.current;
     if (!video) return;
@@ -40,13 +65,14 @@ const CameraStream: React.FC<CameraStreamProps> = ({ rtspUrl }) => {
       setErrorMsg("");
 
       const activeUrl = (() => {
-        if (GO2RTC_URL.includes("localhost") || GO2RTC_URL.includes("127.0.0.1")) {
+        if (go2rtcUrl.includes("localhost") || go2rtcUrl.includes("127.0.0.1")) {
           const hostname = window.location.hostname;
-          if (hostname && hostname !== "localhost" && hostname !== "127.0.0.1") {
-            return GO2RTC_URL.replace("localhost", hostname).replace("127.0.0.1", hostname);
+          const isLocalIp = /^(192\.168\.|10\.|172\.(1[6-9]|2[0-9]|3[0-1])\.)/.test(hostname);
+          if (isLocalIp) {
+            return go2rtcUrl.replace("localhost", hostname).replace("127.0.0.1", hostname);
           }
         }
-        return GO2RTC_URL;
+        return go2rtcUrl;
       })();
 
       const wsBase = activeUrl.replace(/^http/, "ws");
@@ -56,9 +82,9 @@ const CameraStream: React.FC<CameraStreamProps> = ({ rtspUrl }) => {
         ws = new WebSocket(wsUrl);
         wsRef.current = ws;
         ws.binaryType = "arraybuffer";
-      } catch (e) {
+      } catch (e: any) {
         setStatus("error");
-        setErrorMsg("Không thể tạo kết nối WebSocket");
+        setErrorMsg(`Không thể tạo kết nối WebSocket: ${e?.message || e}`);
         return;
       }
 
@@ -160,7 +186,7 @@ const CameraStream: React.FC<CameraStreamProps> = ({ rtspUrl }) => {
         videoRef.current.src = "";
       }
     };
-  }, [rtspUrl, retryKey]);
+  }, [rtspUrl, go2rtcUrl]);
 
   /** Đồng bộ video với live edge, nhảy lên nếu trễ > 3s */
   useEffect(() => {
