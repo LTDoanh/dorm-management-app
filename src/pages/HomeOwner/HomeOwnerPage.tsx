@@ -164,10 +164,9 @@ const HomeOwnerPage: React.FC = () => {
       loadNotificationsList();
     }
 
-    // Polling để cập nhật số thông báo
     const interval = setInterval(() => {
       loadNotificationCount();
-    }, 5000); // Check mỗi 5 giây
+    }, 5000);
 
     return () => clearInterval(interval);
   }, []);
@@ -178,6 +177,9 @@ const HomeOwnerPage: React.FC = () => {
     }
   }, [activeTab]);
 
+  /**
+   * Tải thông tin tài khoản ngân hàng và liên hệ của chủ trọ từ server
+   */
   const loadBankInfo = async () => {
     try {
       const userId = user?.idByOA || user?.id;
@@ -199,13 +201,15 @@ const HomeOwnerPage: React.FC = () => {
     }
   };
 
+  /**
+   * Lưu thông tin liên hệ và tính toán/lưu QR thanh toán VietQR của chủ trọ
+   */
   const handleSaveBankInfo = async () => {
     try {
       setSavingBank(true);
       const userId = user?.idByOA || user?.id;
       if (!userId) return;
 
-      // Recalculate QR URL to ensure it matches current inputs
       const bin = BANKS.find(b => b.name === bankName)?.bin || "970436";
       const finalQrUrl = `https://img.vietqr.io/image/${bin}-${bankAccount}-compact.jpg?accountName=${encodeURIComponent(ownerName || user?.name || "")}`;
 
@@ -235,6 +239,9 @@ const HomeOwnerPage: React.FC = () => {
     }
   };
 
+  /**
+   * Tải số lượng thông báo chưa đọc của chủ trọ
+   */
   const loadNotificationCount = async () => {
     try {
       const userId = user?.idByOA || user?.id;
@@ -250,6 +257,9 @@ const HomeOwnerPage: React.FC = () => {
     }
   };
 
+  /**
+   * Tải danh sách chi tiết các thông báo từ người thuê
+   */
   const loadNotificationsList = async () => {
     try {
       setLoading(true);
@@ -270,6 +280,9 @@ const HomeOwnerPage: React.FC = () => {
     }
   };
 
+  /**
+   * Xác nhận nhận tiền thanh toán và đánh dấu thông báo đã đọc
+   */
   const handleConfirmPayment = async (
     notificationId: number,
     tenantId: number,
@@ -286,12 +299,10 @@ const HomeOwnerPage: React.FC = () => {
       });
 
       if (res.ok) {
-        // Đánh dấu thông báo đã đọc
         await fetch(`${API_BASE_URL}/api/notifications/${notificationId}/read`, {
           method: "PUT",
         });
 
-        // Xóa thông báo khỏi danh sách
         setNotifications((prev) =>
           prev.filter((n) => n.id !== notificationId)
         );
@@ -306,6 +317,9 @@ const HomeOwnerPage: React.FC = () => {
     }
   };
 
+  /**
+   * Tải danh sách tòa nhà thuộc quản lý của chủ trọ
+   */
   const loadBuildings = async () => {
     try {
       setLoading(true);
@@ -324,6 +338,9 @@ const HomeOwnerPage: React.FC = () => {
     }
   };
 
+  /**
+   * Khởi tạo và thêm mới một tòa nhà trọ
+   */
   const addBuilding = async () => {
     if (!newBuildingName.trim()) return;
 
@@ -537,7 +554,6 @@ const HomeOwnerPage: React.FC = () => {
           </>
         )}
 
-        {/* Home Tab: Thông tin cá nhân */}
         {activeTab === 'home' && (
           <Box
             p={3}
@@ -643,7 +659,6 @@ const HomeOwnerPage: React.FC = () => {
                   value={bankAccount}
                   onChange={(e) => {
                     const val = e.target.value.toString();
-                    // Chỉ cho phép nhập số
                     if (/^\d*$/.test(val)) {
                       setBankAccount(val);
                     }
@@ -694,7 +709,7 @@ const HomeOwnerPage: React.FC = () => {
                   <Button
                     onClick={() => {
                       setShowBankForm(false);
-                      loadBankInfo(); // Reset form
+                      loadBankInfo();
                     }}
                     type="neutral"
                     style={{ flex: 1 }}
@@ -707,7 +722,6 @@ const HomeOwnerPage: React.FC = () => {
           </Box>
         )}
 
-        {/* Cụm render cho Tab Thông báo */}
         {activeTab === 'notifications' && (
           <Box flex flexDirection="column" style={{ gap: 16 }}>
             {notifications.length === 0 ? (
@@ -736,7 +750,6 @@ const HomeOwnerPage: React.FC = () => {
         )}
       </Box>
 
-      {/* Bottom Navigation */}
       <Box
         flex
         style={{
@@ -749,7 +762,7 @@ const HomeOwnerPage: React.FC = () => {
           borderTop: "1px solid #e0e0e0",
           justifyContent: "space-around",
           alignItems: "center",
-          paddingBottom: "env(safe-area-inset-bottom)", // Fix cho iPhone tai thỏ
+          paddingBottom: "env(safe-area-inset-bottom)",
           zIndex: 9999,
         }}
       >

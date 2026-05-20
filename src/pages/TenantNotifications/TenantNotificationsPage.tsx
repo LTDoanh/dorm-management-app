@@ -15,7 +15,7 @@ import {
 import { BANKS } from "@components/common/BankSelect";
 import zmp from "zmp-sdk";
 
-// Component cho mỗi notification item
+/** Component hiển thị từng thông báo của người thuê */
 const TenantNotificationItem: React.FC<{
   notification: TenantNotification;
   onConfirmPayment: (notificationId: number, tenantId: number) => Promise<void>;
@@ -55,15 +55,13 @@ const TenantNotificationItem: React.FC<{
       return;
     }
 
-    // Tìm BIN ngân hàng từ danh sách BANKS
     const bankInfo = BANKS.find(b => b.name === notification.bank_name);
-    const bin = bankInfo?.bin || "970436"; // Fallback Vietcombank
+    const bin = bankInfo?.bin || "970436";
     const accountName = encodeURIComponent(notification.owner_name || "CHU TRO");
     const description = encodeURIComponent(
       `Thanh toan tien tro - ${notification.room_name}`
     );
 
-    // Sử dụng VietQR deep link để mở app ngân hàng
     const transferUrl = `https://img.vietqr.io/image/${bin}-${notification.bank_account}-compact2.jpg?amount=${totalAmount}&addInfo=${description}&accountName=${accountName}`;
 
     await zmp.openWebview({

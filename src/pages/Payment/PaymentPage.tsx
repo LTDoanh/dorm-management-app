@@ -46,17 +46,19 @@ const PaymentPage: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    // Polling để cập nhật trạng thái thanh toán (đồng bộ với các tenant khác trong phòng)
     const interval = setInterval(() => {
       if (user?.idByOA || user?.id) {
         checkPaymentStatus();
-        loadPaymentData(); // Reload để đảm bảo đồng bộ với các tenant khác trong phòng
+        loadPaymentData();
       }
-    }, 3000); // Check mỗi 3 giây
+    }, 3000);
 
     return () => clearInterval(interval);
   }, [user]);
 
+  /**
+   * Tải thông tin hóa đơn và thông tin chuyển khoản từ server
+   */
   const loadPaymentData = async () => {
     try {
       setLoading(true);
@@ -76,6 +78,9 @@ const PaymentPage: React.FC = () => {
     }
   };
 
+  /**
+   * Kiểm tra và đồng bộ trạng thái thanh toán của người thuê
+   */
   const checkPaymentStatus = async () => {
     try {
       const userId = user?.idByOA || user?.id;
@@ -86,7 +91,6 @@ const PaymentPage: React.FC = () => {
         const data = await res.json();
         setPaymentStatus(data.paymentStatus);
 
-        // Cập nhật lại paymentData nếu có thay đổi
         if (data.paymentStatus !== paymentStatus) {
           await loadPaymentData();
         }
@@ -96,6 +100,9 @@ const PaymentPage: React.FC = () => {
     }
   };
 
+  /**
+   * Mở webview chuyển tiền ZaloPay/VietQR theo tài khoản ngân hàng của chủ trọ
+   */
   const handlePay = async () => {
     if (!paymentData) return;
 
@@ -108,9 +115,8 @@ const PaymentPage: React.FC = () => {
         return;
       }
 
-      // Giả sử bank code là 13 (ZaloPay) - có thể lấy từ ownerBankInfo sau
       const bankCode = "13";
-      const accountName = "CHU TRO"; // Có thể lấy từ ownerBankInfo
+      const accountName = "CHU TRO";
       const description = encodeURIComponent(`Thanh toan tien tro - ${paymentData.tenant.roomName}`);
 
       const transferUrl = `https://social.zalopay.vn/transfer?accountno=${bankAccount}&bankcode=${bankCode}&amount=${total}&accountname=${accountName}&desc=${description}`;
@@ -118,15 +124,15 @@ const PaymentPage: React.FC = () => {
       await zmp.openWebview({
         url: transferUrl,
       });
-
-      // Sau khi mở webview, tự động back về trang này
-      // (Zalo sẽ tự động back khi thanh toán xong)
     } catch (error) {
       console.error("Lỗi thanh toán:", error);
       alert("Không thể mở trang thanh toán");
     }
   };
 
+  /**
+   * Người thuê báo cáo đã chuyển khoản thành công và chờ chủ trọ phê duyệt
+   */
   const handleConfirmPayment = async () => {
     if (!paymentData) return;
 
@@ -141,7 +147,6 @@ const PaymentPage: React.FC = () => {
       });
 
       if (res.ok) {
-        // Tất cả tenant trong phòng sẽ có cùng trạng thái
         setPaymentStatus("waiting_confirmation");
         await loadPaymentData();
         alert("Đã xác nhận chuyển khoản. Tất cả người thuê trọ trong phòng đang chờ chủ trọ xác nhận.");
@@ -378,7 +383,6 @@ const PaymentPage: React.FC = () => {
           </Box>
         )}
 
-        {/* Trạng thái thanh toán - hiển thị cho tất cả tenant trong phòng */}
         {paymentStatus !== "pending" && (
           <Box
             p={3}

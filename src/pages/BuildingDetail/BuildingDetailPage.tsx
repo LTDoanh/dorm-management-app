@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import PageLayout from "@components/layout/PageLayout";
 import { HomeHeader } from "@components";
+import CameraStream from "@components/CameraStream";
 import { HomeFillIcon, BuildingFillIcon } from "../../components/icons";
 import { Button, Box, Text, Input, Spinner } from "zmp-ui";
 import { useNavigate, useParams } from "react-router-dom";
@@ -76,7 +77,6 @@ const BuildingDetailPage: React.FC = () => {
         setRooms([...rooms, room]);
         setNewRoomName("");
         setShowAddForm(false);
-        // Chuyển sang trang phòng với edit mode để chủ trọ set giá
         navigate(`/room/${room.id}?edit=1`);
       }
     } catch (error) {
@@ -176,31 +176,7 @@ const BuildingDetailPage: React.FC = () => {
               </svg>
               Camera giám sát
             </Text>
-            <Box
-              flex
-              flexDirection="column"
-              alignItems="center"
-              justifyContent="center"
-              style={{
-                backgroundColor: "#1a1a1a",
-                borderRadius: 8,
-                height: 200,
-                position: "relative",
-                overflow: "hidden",
-              }}
-            >
-              {/* Placeholder - sẽ thay bằng video player khi có go2rtc relay */}
-              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#555" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
-                <circle cx="12" cy="13" r="4"></circle>
-              </svg>
-              <Text style={{ color: "#888", fontSize: 12, marginTop: 8 }}>
-                Cần setup go2rtc relay để xem livestream
-              </Text>
-              <Text style={{ color: "#555", fontSize: 10, marginTop: 4 }}>
-                {building.camera_rtsp}
-              </Text>
-            </Box>
+            <CameraStream rtspUrl={building.camera_rtsp} />
           </Box>
         )}
 

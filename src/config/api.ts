@@ -1,7 +1,5 @@
-// API Configuration
-// Luôn dùng production URL cho Zalo Mini App
-
+/** Cấu hình API endpoint */
 export const API_BASE_URL = "https://dorm-management-app.onrender.com";
 
-// Helper function để tạo API URL
+/** Tạo URL API đầy đủ từ path */
 export const createApiUrl = (path: string) => `${API_BASE_URL}${path}`;

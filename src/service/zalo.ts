@@ -9,6 +9,7 @@ import {
 import { User } from "@dts";
 import { ImageType } from "zmp-ui/image-viewer";
 
+/** Lấy thông tin người dùng từ Zalo SDK */
 export const getZaloUserInfo = async (): Promise<User> => {
     try {
         const user = await getUserInfo({ avatarType: "normal" });
@@ -19,9 +20,9 @@ export const getZaloUserInfo = async (): Promise<User> => {
     }
 };
 
+/** Lấy token truy cập từ Zalo SDK */
 export const getToken = async (): Promise<string> => {
     try {
-        // "ACCESS_TOKEN" for development, remove it before deploy
         const token = (await getAccessToken({})) || "ACCESS_TOKEN";
         return Promise.resolve(token);
     } catch (err) {
@@ -29,6 +30,7 @@ export const getToken = async (): Promise<string> => {
     }
 };
 
+/** Theo dõi Zalo Official Account (OA) */
 export const followOfficialAccount = async ({
     id,
 }: {
@@ -42,6 +44,7 @@ export const followOfficialAccount = async ({
     }
 };
 
+/** Mở liên kết webview trong Zalo */
 export const openWebView = async (link: string): Promise<void> => {
     try {
         await openWebview({ url: link });
@@ -51,6 +54,7 @@ export const openWebView = async (link: string): Promise<void> => {
     }
 };
 
+/** Lưu ảnh base64 vào thư viện thiết bị */
 export const saveImage = async (img: string): Promise<void> => {
     try {
         await saveImageToGallery({ imageBase64Data: img });
@@ -71,6 +75,7 @@ export interface UploadImageResponse {
     images: string[];
 }
 
+/** Chọn ảnh từ thiết bị và tự động tải lên server upload */
 export const pickImages = async (
     params: PickImageParams,
 ): Promise<(ImageType & { name: string })[]> => {

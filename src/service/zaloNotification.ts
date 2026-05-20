@@ -1,23 +1,10 @@
 /**
- * Zalo Notification Service
- * 
- * Service này được tạo để chuẩn bị tích hợp Zalo Official Account (OA) API
- * để gửi thông báo qua Zalo Notification Service (ZNS).
- * 
- * ĐIỀU KIỆN CẦN THIẾT:
- * 1. Cần có Zalo Official Account (OA) đã xác thực
- * 2. Mini App phải được liên kết với OA
- * 3. Người dùng phải follow OA và cấp quyền nhận thông báo
- * 4. Cần có OA Access Token để gọi API
- * 
- * TÀI LIỆU THAM KHẢO:
- * - Zalo OA API: https://developers.zalo.me/docs/api/official-account-api
- * - Zalo Notification Service: https://developers.zalo.me/docs/api/zns-api
+ * Dịch vụ tích hợp gửi thông báo qua Zalo Official Account (OA) và Zalo Notification Service (ZNS).
  */
 
 interface ZaloOAMessage {
   recipient: {
-    user_id: string; // Zalo user ID
+    user_id: string;
   };
   message: {
     text?: string;
@@ -38,17 +25,16 @@ interface ZaloOAMessage {
 }
 
 interface ZaloNotificationConfig {
-  oaId: string; // Official Account ID
-  accessToken: string; // OA Access Token
-  apiEndpoint?: string; // Default: https://openapi.zalo.me/v2.0/oa
+  oaId: string;
+  accessToken: string;
+  apiEndpoint?: string;
 }
 
 /**
  * Gửi thông báo hóa đơn mới đến người thuê trọ qua Zalo OA
- * 
- * @param config - Cấu hình Zalo OA
- * @param userId - Zalo user ID của người thuê trọ
- * @param billData - Dữ liệu hóa đơn
+ * @param config Cấu hình Zalo OA
+ * @param userId ID người dùng Zalo
+ * @param billData Dữ liệu hóa đơn gửi đi
  */
 export const sendBillNotification = async (
   config: ZaloNotificationConfig,
@@ -63,64 +49,14 @@ export const sendBillNotification = async (
     qrCodeUrl?: string;
   }
 ): Promise<void> => {
-  // TODO: Implement khi đã có OA
-  // Ví dụ implementation:
-  /*
-  const message: ZaloOAMessage = {
-    recipient: {
-      user_id: userId,
-    },
-    message: {
-      text: `Hóa đơn tiền trọ tháng ${billData.month}/${billData.year}\nPhòng: ${billData.roomName}\nTổng tiền: ${billData.totalAmount.toLocaleString('vi-VN')} VNĐ`,
-      attachment: {
-        type: "template",
-        payload: {
-          template_type: "button",
-          text: `Hóa đơn tiền trọ tháng ${billData.month}/${billData.year}\nPhòng: ${billData.roomName}\nTổng tiền: ${billData.totalAmount.toLocaleString('vi-VN')} VNĐ`,
-          buttons: [
-            {
-              type: "web_url",
-              title: "Xem hóa đơn",
-              url: `https://mini.zalo.me/YOUR_APP_ID/payment`, // Deep link vào Mini App
-            },
-            {
-              type: "postback",
-              title: "Xác nhận thanh toán",
-              payload: JSON.stringify({
-                action: "confirm_payment",
-                tenantId: userId,
-              }),
-            },
-          ],
-        },
-      },
-    },
-  };
-
-  const apiEndpoint = config.apiEndpoint || "https://openapi.zalo.me/v2.0/oa/message";
-  const response = await fetch(apiEndpoint, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "access_token": config.accessToken,
-    },
-    body: JSON.stringify(message),
-  });
-
-  if (!response.ok) {
-    throw new Error("Không thể gửi thông báo qua Zalo");
-  }
-  */
-  
   console.log("Zalo OA notification service chưa được tích hợp. Cần có OA để sử dụng.");
 };
 
 /**
  * Gửi thông báo xác nhận thanh toán đến chủ trọ qua Zalo OA
- * 
- * @param config - Cấu hình Zalo OA
- * @param ownerId - Zalo user ID của chủ trọ
- * @param paymentData - Dữ liệu thanh toán
+ * @param config Cấu hình Zalo OA
+ * @param ownerId ID chủ trọ Zalo
+ * @param paymentData Dữ liệu thông tin thanh toán
  */
 export const sendPaymentConfirmationNotification = async (
   config: ZaloNotificationConfig,
@@ -132,35 +68,30 @@ export const sendPaymentConfirmationNotification = async (
     totalAmount: number;
   }
 ): Promise<void> => {
-  // TODO: Implement khi đã có OA
   console.log("Zalo OA notification service chưa được tích hợp. Cần có OA để sử dụng.");
 };
 
 /**
  * Kiểm tra xem người dùng có cấp quyền nhận thông báo từ OA không
- * 
- * @param config - Cấu hình Zalo OA
- * @param userId - Zalo user ID
+ * @param config Cấu hình Zalo OA
+ * @param userId ID người dùng Zalo
  */
 export const checkNotificationPermission = async (
   config: ZaloNotificationConfig,
   userId: string
 ): Promise<boolean> => {
-  // TODO: Implement khi đã có OA
   return false;
 };
 
 /**
  * Yêu cầu người dùng cấp quyền nhận thông báo
- * 
- * @param config - Cấu hình Zalo OA
- * @param userId - Zalo user ID
+ * @param config Cấu hình Zalo OA
+ * @param userId ID người dùng Zalo
  */
 export const requestNotificationPermission = async (
   config: ZaloNotificationConfig,
   userId: string
 ): Promise<void> => {
-  // TODO: Implement khi đã có OA
   console.log("Yêu cầu cấp quyền nhận thông báo chưa được tích hợp.");
 };
 

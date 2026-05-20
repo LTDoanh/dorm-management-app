@@ -12,8 +12,7 @@ const Auth = () => {
     useEffect(() => {
         const init = async () => {
             try {
-                // Chỉ lấy token và user info từ Zalo SDK
-                // KHÔNG gọi API backend ở đây để tránh treo splash
+                // Khởi tạo access token và thông tin người dùng từ Zalo SDK
                 if (!token) {
                     await getToken();
                 }

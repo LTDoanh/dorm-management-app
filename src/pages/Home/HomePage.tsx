@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { useStore } from "@store";
 
 const HomePage: React.FC = () => {
-  const [loading, setLoading] = useState(true); // Bắt đầu với loading = true
+  const [loading, setLoading] = useState(true);
   const [checkingRole, setCheckingRole] = useState(true);
   const [userName, setUserName] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
@@ -19,37 +19,33 @@ const HomePage: React.FC = () => {
     state.setUser,
   ]);
 
-  // Pre-fill tên từ Zalo nếu có
   useEffect(() => {
     if (user?.name && !userName) {
       setUserName(user.name);
     }
   }, [user?.name]);
 
-  // Kiểm tra role khi vào trang
   useEffect(() => {
+    /**
+     * Xác thực và điều hướng dựa trên vai trò (chủ trọ hoặc người thuê) đã lưu
+     */
     const checkRole = async () => {
       try {
         setCheckingRole(true);
-        // Đợi user info được load từ Auth component
         if (!user) {
-          // Chờ 500ms rồi thử lại
           setTimeout(() => setCheckingRole(false), 500);
           return;
         }
 
-        // Kiểm tra role trong database
         const role = await checkUserRole();
 
         if (role) {
-          // Nếu đã có role, redirect đến trang home tương ứng
           if (role === "chu-tro") {
             navigate("/home-owner", { replace: true });
           } else if (role === "nguoi-thue") {
             navigate("/home-tenant", { replace: true });
           }
         } else {
-          // Nếu chưa có role, hiển thị trang chọn role
           setLoading(false);
         }
       } catch (error) {
@@ -63,15 +59,16 @@ const HomePage: React.FC = () => {
     checkRole();
   }, [user, checkUserRole, navigate]);
 
+  /**
+   * Lưu vai trò người dùng được chọn và điều hướng về trang tương ứng
+   */
   const chooseRole = async (role: "chu-tro" | "nguoi-thue") => {
     try {
       setLoading(true);
-      // Cập nhật tên nếu user đã sửa
       if (user && userName && userName !== user.name) {
         setUser({ ...user, name: userName });
       }
       await saveUserRole(role, phoneNumber);
-      // Chuyển đến trang home tương ứng
       if (role === "chu-tro") {
         navigate("/home-owner", { replace: true });
       } else {
@@ -83,12 +80,12 @@ const HomePage: React.FC = () => {
     }
   };
 
+  /**
+   * Tra cứu vai trò của người dùng theo số điện thoại và chuyển hướng nhanh nếu đã tồn tại
+   */
   const handleOkClick = async () => {
     try {
       setLoading(true);
-      // Query the API using find-by-phone
-      // Note: Because the app uses API_BASE_URL we need to import it or declare it
-      // if not already imported. We can just use the absolute path variable used in other files
       const API_BASE_URL = "https://dorm-management-app.onrender.com";
 
       const res = await fetch(`${API_BASE_URL}/api/tenants/find-by-phone`, {
@@ -99,20 +96,16 @@ const HomePage: React.FC = () => {
 
       if (res.ok) {
         const data = await res.json();
-        // If the user already has a role, auto-redirect them mapping "chu-tro" and "nguoi-thue"
         if (data.role && (data.role === "chu-tro" || data.role === "nguoi-thue")) {
-          // Sync name changes to User state
           if (user && userName && userName !== user.name) {
             setUser({ ...user, name: userName });
           }
-          // The saveUserRole acts as an upsert to the database which updates their name if changed
           await saveUserRole(data.role as "chu-tro" | "nguoi-thue", phoneNumber);
           navigate(data.role === "chu-tro" ? "/home-owner" : "/home-tenant", { replace: true });
           return;
         }
       }
       
-      // If NOT OK or user doesn't have a role, show the role selection
       setLoading(false);
       setConfirmedInfo(true);
 
@@ -123,7 +116,6 @@ const HomePage: React.FC = () => {
     }
   };
 
-  // Hiển thị loading khi đang kiểm tra role
   if (checkingRole || loading) {
     return (
       <PageLayout
@@ -173,7 +165,6 @@ const HomePage: React.FC = () => {
             textAlign: "center"
           }}
         >
-          {/* Welcome Message at ~1/5 screen height */}
           <Box style={{ marginTop: "10vh", marginBottom: 20 }}>
             <Text
               style={{

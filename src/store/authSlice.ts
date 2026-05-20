@@ -60,15 +60,15 @@ const authSlice: StateCreator<AuthSlice, [], [], AuthSlice> = (set, get) => ({
             set(state => ({ ...state, loadingToken: false }));
         }
     },
+    /**
+     * Đồng bộ và kiểm tra vai trò hiện tại của người dùng từ cache hoặc cơ sở dữ liệu
+     */
     checkUserRole: async () => {
         try {
             set(state => ({ ...state, loadingAuth: true }));
 
-            // 1. Check local storage first for immediate feedback
             const cachedRole = localStorage.getItem("user_role") as "chu-tro" | "nguoi-thue" | null;
             if (cachedRole) {
-                // Still fetch updated user info but return cached role immediately if valid
-                // This makes the app feel faster
                 console.log("Found cached role:", cachedRole);
             }
 
@@ -76,7 +76,6 @@ const authSlice: StateCreator<AuthSlice, [], [], AuthSlice> = (set, get) => ({
             let zaloUser = currentUser;
 
             if (!zaloUser?.idByOA) {
-                // Lấy thông tin user từ Zalo nếu chưa có
                 zaloUser = await getZaloUserInfo();
                 set(state => ({ ...state, user: zaloUser }));
             }
@@ -85,11 +84,9 @@ const authSlice: StateCreator<AuthSlice, [], [], AuthSlice> = (set, get) => ({
                 return null;
             }
 
-            // Kiểm tra user trong database
             const dbUser = await getUserById(zaloUser.idByOA);
 
             if (dbUser?.role) {
-                // Save to local storage
                 localStorage.setItem("user_role", dbUser.role);
 
                 set(state => ({
@@ -101,11 +98,6 @@ const authSlice: StateCreator<AuthSlice, [], [], AuthSlice> = (set, get) => ({
 
             return null;
         } catch (err) {
-            console.log("ERR checkUserRole: ", err);
-            // Fallback to cache if network fails? 
-            // For now, let's trust the cache if we have it and DB fails?
-            // Conservative approach: return null. 
-            // Better UX: return cached role if available ? 
             const cachedRole = localStorage.getItem("user_role") as "chu-tro" | "nguoi-thue" | null;
             if (cachedRole) return cachedRole;
 
@@ -114,6 +106,9 @@ const authSlice: StateCreator<AuthSlice, [], [], AuthSlice> = (set, get) => ({
             set(state => ({ ...state, loadingAuth: false }));
         }
     },
+    /**
+     * Khởi tạo hoặc cập nhật vai trò người dùng lên server và đồng bộ cache local
+     */
     saveUserRole: async (role: "chu-tro" | "nguoi-thue", phoneNumber?: string) => {
         try {
             set(state => ({ ...state, loadingAuth: true }));
@@ -133,7 +128,6 @@ const authSlice: StateCreator<AuthSlice, [], [], AuthSlice> = (set, get) => ({
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const savedUser = await saveUser(userData as any);
 
-            // Save to local storage
             localStorage.setItem("user_role", savedUser.role);
 
             set(state => ({

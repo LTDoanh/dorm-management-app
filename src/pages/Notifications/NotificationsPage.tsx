@@ -25,7 +25,7 @@ interface Notification {
   debt: number;
 }
 
-// Component cho mỗi notification item
+/** Component hiển thị từng thông báo của chủ trọ */
 const NotificationItem: React.FC<{
   notification: Notification;
   onConfirm: (notificationId: number, tenantId: number, receivedAmount: number) => Promise<void>;
@@ -181,12 +181,10 @@ const NotificationsPage: React.FC = () => {
       });
 
       if (res.ok) {
-        // Đánh dấu thông báo đã đọc
         await fetch(`${API_BASE_URL}/api/notifications/${notificationId}/read`, {
           method: "PUT",
         });
 
-        // Xóa thông báo khỏi danh sách
         setNotifications((prev) =>
           prev.filter((n) => n.id !== notificationId)
         );
@@ -244,7 +242,6 @@ const NotificationsPage: React.FC = () => {
         )}
       </Box>
 
-      {/* Bottom Navigation */}
       <Box
         flex
         style={{

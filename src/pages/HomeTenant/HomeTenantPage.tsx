@@ -20,14 +20,16 @@ const HomePage: React.FunctionComponent = () => {
     useEffect(() => {
         loadNotificationCount();
 
-        // Polling để cập nhật số thông báo
         const interval = setInterval(() => {
             loadNotificationCount();
-        }, 5000); // Check mỗi 5 giây
+        }, 5000);
 
         return () => clearInterval(interval);
     }, []);
 
+    /**
+     * Tải số lượng thông báo chưa đọc của người thuê từ server
+     */
     const loadNotificationCount = async () => {
         try {
             const userId = user?.idByOA || user?.id;
@@ -50,7 +52,6 @@ const HomePage: React.FunctionComponent = () => {
             }
         >
             <Box p={3}>
-                {/* Nút thông báo với badge */}
                 <Box
                     flex
                     justifyContent="space-between"
@@ -103,7 +104,6 @@ const HomePage: React.FunctionComponent = () => {
                     </Box>
                 </Box>
 
-                {/* Nút thanh toán */}
                 <Box style={{ marginBottom: 16 }}>
                     <Button
                         onClick={() => navigate("/payment")}

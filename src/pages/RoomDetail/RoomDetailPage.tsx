@@ -7,7 +7,7 @@ import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { Room } from "@dts";
 import { API_BASE_URL } from "@constants/common";
 
-// Component để xác nhận thanh toán cho từng tenant
+/** Component xác nhận thanh toán cho từng khách thuê */
 const TenantPaymentConfirmation: React.FC<{
   tenant: Tenant;
   onConfirm: (tenantId: string, receivedAmount: number) => Promise<void>;
@@ -80,7 +80,6 @@ const RoomDetailPage: React.FC = () => {
   const [saving, setSaving] = useState(false);
   const [billingStatus, setBillingStatus] = useState<string>("");
 
-  // Form values
   const [roomPrice, setRoomPrice] = useState<string>("");
   const [serviceFee, setServiceFee] = useState<string>("");
   const [electricityPrice, setElectricityPrice] = useState<string>("");
@@ -117,19 +116,20 @@ const RoomDetailPage: React.FC = () => {
     if (roomId) {
       loadRoom();
       loadTenants();
-      // Nếu có edit=1 trên URL, bật edit mode
       if (searchParams.get("edit") === "1") {
         setEditSection("price");
       }
     }
   }, [roomId, searchParams]);
 
+  /**
+   * Tải thông tin chi tiết và thiết lập đơn giá dịch vụ của phòng trọ
+   */
   const loadRoom = async () => {
     try {
       const res = await fetch(`${API_BASE_URL}/api/rooms/${roomId}`);
       if (res.ok) {
         const data = await res.json();
-        // Map snake_case từ backend sang camelCase
         const roomData: Room = {
           ...data,
           buildingId: data.building_id,
@@ -140,7 +140,6 @@ const RoomDetailPage: React.FC = () => {
           waterPrice: data.water_price,
         };
         setRoom(roomData);
-        // Set form values
         setRoomPrice(data.room_price?.toString() || "");
         setServiceFee(data.service_fee?.toString() || "");
         setElectricityPrice(data.electricity_price?.toString() || "");
@@ -153,6 +152,9 @@ const RoomDetailPage: React.FC = () => {
     }
   };
 
+  /**
+   * Tải danh sách những người thuê hiện tại của phòng trọ
+   */
   const loadTenants = async () => {
     try {
       setLoading(true);
@@ -170,6 +172,9 @@ const RoomDetailPage: React.FC = () => {
     }
   };
 
+  /**
+   * Cập nhật và lưu các đơn giá (phòng, dịch vụ, điện, nước) mới
+   */
   const handleSave = async () => {
     try {
       setSaving(true);
@@ -196,7 +201,6 @@ const RoomDetailPage: React.FC = () => {
   };
 
   const handleCancel = () => {
-    // Reset form values
     if (room) {
       setRoomPrice(room.roomPrice?.toString() || "");
       setServiceFee(room.serviceFee?.toString() || "");
@@ -207,6 +211,9 @@ const RoomDetailPage: React.FC = () => {
     setNewTenantPhone("");
   };
 
+  /**
+   * Xóa người thuê ra khỏi phòng
+   */
   const handleDeleteTenant = async (tenantId: string) => {
     if (!confirm("Bạn có chắc muốn xóa người thuê trọ này?")) return;
 
@@ -223,6 +230,9 @@ const RoomDetailPage: React.FC = () => {
     }
   };
 
+  /**
+   * Xóa toàn bộ người thuê trọ trong phòng này
+   */
   const handleDeleteAllTenants = async () => {
     if (!confirm("Bạn có chắc muốn xóa TẤT CẢ người thuê trọ trong phòng này?")) return;
 
@@ -242,6 +252,9 @@ const RoomDetailPage: React.FC = () => {
     }
   };
 
+  /**
+   * Tìm người dùng theo số điện thoại và đăng ký vào phòng
+   */
   const handleAddTenant = async () => {
     if (!newTenantPhone.trim()) {
       alert("Vui lòng nhập số điện thoại");
@@ -250,7 +263,6 @@ const RoomDetailPage: React.FC = () => {
 
     try {
       setAddingTenant(true);
-      // Tìm user bằng số điện thoại
       const findRes = await fetch(`${API_BASE_URL}/api/tenants/find-by-phone`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -264,7 +276,6 @@ const RoomDetailPage: React.FC = () => {
 
       const user = await findRes.json();
 
-      // Thêm tenant vào phòng
       const addRes = await fetch(`${API_BASE_URL}/api/tenants`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -289,6 +300,9 @@ const RoomDetailPage: React.FC = () => {
     }
   };
 
+  /**
+   * Chủ trọ xác nhận đã nhận tiền thanh toán và đồng bộ trạng thái phòng
+   */
   const handleConfirmPayment = async (tenantId: string, receivedAmount: number) => {
     try {
       const res = await fetch(`${API_BASE_URL}/api/payments/owner-confirm`, {
@@ -313,7 +327,7 @@ const RoomDetailPage: React.FC = () => {
     }
   };
 
-  // Tính tổng tiền preview
+  /** Tính tổng tiền hóa đơn dự kiến */
   const totalPreview = useMemo(() => {
     const rp = roomPrice ? Number(roomPrice) : Number(room?.roomPrice || 0);
     const sf = serviceFee ? Number(serviceFee) : Number(room?.serviceFee || 0);
@@ -359,6 +373,9 @@ const RoomDetailPage: React.FC = () => {
     return currentWaterIndex.toString().trim() !== "" && currentElectricIndex.toString().trim() !== "";
   }, [currentWaterIndex, currentElectricIndex]);
 
+  /**
+   * Tính toán hóa đơn phòng (gồm dịch vụ, điện, nước, phạt) và tạo mới hóa đơn
+   */
   const handleCreateBill = async () => {
     if (!canSubmitBill) return;
     try {
@@ -377,7 +394,6 @@ const RoomDetailPage: React.FC = () => {
         const data = await res.json();
         alert(`Đã tính tiền: ${new Intl.NumberFormat("vi-VN").format(data.total)} VNĐ`);
         setBillingStatus("unpaid");
-        // Làm mới danh sách tenants để hiển thị current_bill / debt
         await loadTenants();
       } else {
         const err = await res.json();
@@ -389,6 +405,9 @@ const RoomDetailPage: React.FC = () => {
     }
   };
 
+  /**
+   * Gửi ảnh chụp công tơ lên Roboflow API để tự động đọc chỉ số số điện/nước
+   */
   const processMeterImage = async (filePath: string, type: 'water' | 'electric') => {
     try {
       if (type === 'water') setParsingWater(true);
@@ -805,7 +824,7 @@ const RoomDetailPage: React.FC = () => {
               </Box>
             </Box>
 
-            {/* Tính tiền tháng (Tách riêng) */}
+            {/* Nhóm các khoản tính tiền dịch vụ tháng */}
             <Box
               p={3}
               style={{
@@ -817,11 +836,7 @@ const RoomDetailPage: React.FC = () => {
             >
               <Text style={{ fontSize: 16, fontWeight: "bold", marginBottom: 12 }}>Tính tiền tháng</Text>
 
-              {/* Nhập số điện/nước và phạt để tính tiền tháng */}
-              <Box flex flexDirection="column" style={{ gap: 12 }}>
-
-                {/* Nước */}
-                {/* Nước */}
+                {/* Phần tính tiền nước */}
                 <Box flex flexDirection="column" style={{ gap: 8, padding: 12, border: "1px solid #eee", borderRadius: 8 }}>
                   <Text style={{ fontWeight: "bold", color: "#333" }}>Nước</Text>
                   <Box flex justifyContent="space-between" style={{ gap: 8 }}>
@@ -891,8 +906,7 @@ const RoomDetailPage: React.FC = () => {
                   )}
                 </Box>
 
-                {/* Điện */}
-                {/* Điện */}
+                {/* Phần tính tiền điện */}
                 <Box flex flexDirection="column" style={{ gap: 8, padding: 12, border: "1px solid #eee", borderRadius: 8 }}>
                   <Text style={{ fontWeight: "bold", color: "#333" }}>Điện</Text>
                   <Box flex justifyContent="space-between" style={{ gap: 8 }}>
@@ -999,7 +1013,6 @@ const RoomDetailPage: React.FC = () => {
                           </Text>
                         </Box>
                       ))}
-                      {/* Subtotal row */}
                       <Box flex style={{ padding: 8, backgroundColor: '#fff0f0', borderTop: '1px solid #eee' }}>
                         <Text style={{ flex: 1, fontSize: 13, fontWeight: 'bold', color: '#d10000' }}>Tổng cộng:</Text>
                         <Text style={{ width: 100, fontSize: 13, fontWeight: 'bold', color: '#d10000', textAlign: 'right' }}>
@@ -1026,8 +1039,6 @@ const RoomDetailPage: React.FC = () => {
                     {formatPrice(totalPreview)} VNĐ
                   </Text>
                 </Box>
-
-                {/* Trạng thái thanh toán */}
                 {billingStatus && (
                   <Box
                     flex
@@ -1074,20 +1085,18 @@ const RoomDetailPage: React.FC = () => {
                   </Button>
                 )}
               </Box>
-            </Box>
 
-            {/* Danh sách người thuê trọ */}
-            <Box
-              p={3}
-              style={{
-                border: "1px solid #e0e0e0",
-                borderRadius: 8,
-                backgroundColor: "#fff",
-                marginTop: 8
-              }}
-            >
-              <Box flex justifyContent="space-between" alignItems="center" style={{ marginBottom: 12 }}>
-                <Text style={{ fontSize: 16, fontWeight: "bold" }}>
+              <Box
+                p={3}
+                style={{
+                  border: "1px solid #e0e0e0",
+                  borderRadius: 8,
+                  backgroundColor: "#fff",
+                  marginTop: 8
+                }}
+              >
+                <Box flex justifyContent="space-between" alignItems="center" style={{ marginBottom: 12 }}>
+                  <Text style={{ fontSize: 16, fontWeight: "bold" }}>
                   Danh sách người thuê trọ
                 </Text>
                 {!editSection && (
@@ -1179,7 +1188,7 @@ const RoomDetailPage: React.FC = () => {
         }
       </Box >
 
-      {/* Thêm/Sửa Tiền Phạt Dialog */}
+      {/* Dialog Thêm/Sửa Tiền Phạt */}
       {
         showPenaltyModal && (
           <Box
@@ -1256,7 +1265,7 @@ const RoomDetailPage: React.FC = () => {
         )
       }
 
-      {/* Full-screen Loading Overlay for Meter Image Parsing */}
+      {/* Overlay chờ trích xuất thông số công tơ */}
       {
         (parsingWater || parsingElectric) && (
           <Box

@@ -21,7 +21,6 @@ import { generatePath } from "@utils/string";
 import { formatDate } from "@utils/date-time";
 import { request } from "./request";
 
-// API Base URL - sử dụng Render.com cho production
 const API_BASE_URL = "https://dorm-management-app.onrender.com";
 
 export interface GetOrganizationParams {
@@ -406,6 +405,9 @@ export interface SaveUserParams {
     phone_number?: string | null;
 }
 
+/**
+ * Lấy thông tin tài khoản và vai trò của người dùng theo ID
+ */
 export const getUserById = async (userId: string): Promise<UserWithRole | null> => {
     try {
         const response = await fetch(`${API_BASE_URL}/api/users/${userId}`);
@@ -420,6 +422,9 @@ export const getUserById = async (userId: string): Promise<UserWithRole | null> 
     }
 };
 
+/**
+ * Lưu hoặc cập nhật thông tin tài khoản người dùng
+ */
 export const saveUser = async (params: SaveUserParams): Promise<UserWithRole> => {
     try {
         const response = await fetch(`${API_BASE_URL}/api/users`, {
@@ -438,7 +443,6 @@ export const saveUser = async (params: SaveUserParams): Promise<UserWithRole> =>
     }
 };
 
-// ========== TENANT NOTIFICATIONS ==========
 
 export interface TenantNotification {
     id: number;
@@ -461,6 +465,9 @@ export interface TenantNotification {
     payment_status: string;
 }
 
+/**
+ * Lấy danh sách các thông báo gửi đến người thuê
+ */
 export const getTenantNotifications = async (userId: string): Promise<TenantNotification[]> => {
     try {
         const response = await fetch(`${API_BASE_URL}/api/notifications/tenant/${userId}`);
@@ -474,6 +481,9 @@ export const getTenantNotifications = async (userId: string): Promise<TenantNoti
     }
 };
 
+/**
+ * Lấy số lượng thông báo chưa đọc của người thuê
+ */
 export const getTenantUnreadNotificationCount = async (userId: string): Promise<number> => {
     try {
         const response = await fetch(`${API_BASE_URL}/api/notifications/tenant/${userId}/count`);
@@ -488,6 +498,9 @@ export const getTenantUnreadNotificationCount = async (userId: string): Promise<
     }
 };
 
+/**
+ * Đánh dấu một thông báo của người thuê đã đọc
+ */
 export const markTenantNotificationAsRead = async (notificationId: number): Promise<void> => {
     try {
         const response = await fetch(`${API_BASE_URL}/api/notifications/${notificationId}/read`, {
@@ -502,6 +515,9 @@ export const markTenantNotificationAsRead = async (notificationId: number): Prom
     }
 };
 
+/**
+ * Đánh dấu tất cả thông báo của người thuê đã đọc
+ */
 export const markAllTenantNotificationsAsRead = async (userId: string): Promise<void> => {
     try {
         const response = await fetch(`${API_BASE_URL}/api/notifications/tenant/${userId}/read-all`, {
@@ -516,6 +532,9 @@ export const markAllTenantNotificationsAsRead = async (userId: string): Promise<
     }
 };
 
+/**
+ * Gửi yêu cầu xác nhận đã chuyển khoản thanh toán của người thuê
+ */
 export const confirmTenantPayment = async (tenantId: number): Promise<void> => {
     try {
         const response = await fetch(`${API_BASE_URL}/api/payments/confirm`, {
