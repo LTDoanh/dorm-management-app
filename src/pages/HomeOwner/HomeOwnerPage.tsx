@@ -156,6 +156,51 @@ const HomeOwnerPage: React.FC = () => {
   );
   const user = useStore(state => state.user);
 
+  const [editingBuildingId, setEditingBuildingId] = useState<string | null>(null);
+  const [editBuildingName, setEditBuildingName] = useState("");
+  const [editBuildingAddress, setEditBuildingAddress] = useState("");
+  const [editBuildingRtsp, setEditBuildingRtsp] = useState("");
+
+  /**
+   * Khởi chạy chế độ chỉnh sửa cho tòa nhà được chọn và điền thông tin cũ
+   */
+  const startEditingBuilding = (building: Building) => {
+    setEditingBuildingId(building.id);
+    setEditBuildingName(building.name);
+    setEditBuildingAddress(building.address || "");
+    setEditBuildingRtsp(building.camera_rtsp || "");
+  };
+
+  /**
+   * Gửi yêu cầu cập nhật thông tin tòa nhà lên server
+   */
+  const handleUpdateBuilding = async (buildingId: string) => {
+    if (!editBuildingName.trim()) return;
+
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/buildings/${buildingId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: editBuildingName,
+          address: editBuildingAddress || null,
+          cameraRtsp: editBuildingRtsp || null,
+        }),
+      });
+
+      if (res.ok) {
+        const updated = await res.json();
+        setBuildings(prev => prev.map(b => b.id === buildingId ? updated : b));
+        setEditingBuildingId(null);
+      } else {
+        alert("Không thể cập nhật tòa nhà");
+      }
+    } catch (error) {
+      console.error("Lỗi cập nhật tòa nhà:", error);
+      alert("Có lỗi xảy ra khi cập nhật tòa nhà");
+    }
+  };
+
   useEffect(() => {
     loadBuildings();
     loadBankInfo();
@@ -489,67 +534,143 @@ const HomeOwnerPage: React.FC = () => {
                 </Text>
               </Box>
             ) : (
-              buildings.map((building) => (
-                <Box
-                  key={building.id}
-                  p={3}
-                  onClick={() => handleBuildingClick(building.id)}
-                  style={{
-                    border: "1px solid #e0e0e0",
-                    borderRadius: 8,
-                    backgroundColor: "#fff",
-                    cursor: "pointer",
-                    transition: "all 0.2s",
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = "#f5f5f5";
-                    e.currentTarget.style.borderColor = "#007AFF";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = "#fff";
-                    e.currentTarget.style.borderColor = "#e0e0e0";
-                  }}
-                >
-                  <Box flex justifyContent="space-between" alignItems="center" style={{ gap: 8 }}>
-                    <Box flex flexDirection="column" style={{ flex: 1 }}>
-                      <Text style={{ fontSize: 16, fontWeight: "bold", marginBottom: 4 }}>
-                        <BuildingFillIcon size={16} color="black" style={{ display: "inline-block", verticalAlign: "middle", margin: "0 4px 2px 0" }} />
-                        {building.name}
-                      </Text>
-                      {building.address && (
-                        <Text style={{ fontSize: 14, color: "#666", marginTop: 4 }}>
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="black" xmlns="http://www.w3.org/2000/svg" style={{ display: "inline-block", verticalAlign: "middle", margin: "0 4px 2px 0" }}>
-                            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
-                          </svg>
-                          {building.address}
-                        </Text>
-                      )}
-                    </Box>
-                    <Button
-                      style={{ background: "transparent", border: "none", boxShadow: "none", padding: 0, minWidth: "auto", height: "auto" }}
-                      size="small"
-                      onClick={async (e) => {
-                        e.stopPropagation();
-                        if (!confirm("Bạn có chắc muốn xóa tòa nhà này?")) return;
-                        try {
-                          const res = await fetch(`${API_BASE_URL}/api/buildings/${building.id}`, {
-                            method: "DELETE",
-                          });
-                          if (res.ok) {
-                            setBuildings(prev => prev.filter(b => b.id !== building.id));
-                          }
-                        } catch (error) {
-                          console.error("Lỗi xóa tòa nhà:", error);
-                        }
+              buildings.map((building) => {
+                if (editingBuildingId === building.id) {
+                  return (
+                    <Box
+                      key={building.id}
+                      p={3}
+                      style={{
+                        border: "1px solid #007AFF",
+                        borderRadius: 8,
+                        backgroundColor: "#f9f9f9",
+                        gap: 12,
+                        display: "flex",
+                        flexDirection: "column",
                       }}
+                      onClick={(e) => e.stopPropagation()}
                     >
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="#d10000" xmlns="http://www.w3.org/2000/svg" style={{ display: "block" }}>
-                        <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
-                      </svg>
-                    </Button>
+                      <Text style={{ fontSize: 16, fontWeight: "bold" }}>Chỉnh sửa tòa nhà</Text>
+                      <Input
+                        value={editBuildingName}
+                        onChange={(e) => setEditBuildingName(e.target.value.toString())}
+                        placeholder="Tên tòa nhà *"
+                      />
+                      <Input
+                        value={editBuildingAddress}
+                        onChange={(e) => setEditBuildingAddress(e.target.value.toString())}
+                        placeholder="Địa chỉ (tùy chọn)"
+                      />
+                      <Input
+                        value={editBuildingRtsp}
+                        onChange={(e) => setEditBuildingRtsp(e.target.value.toString())}
+                        placeholder="RTSP Camera URL (tùy chọn)"
+                      />
+                      <Box flex style={{ gap: 8 }}>
+                        <Button
+                          onClick={() => handleUpdateBuilding(building.id)}
+                          type="highlight"
+                          style={{ flex: 1 }}
+                          disabled={!editBuildingName.trim()}
+                        >
+                          Lưu
+                        </Button>
+                        <Button
+                          onClick={() => setEditingBuildingId(null)}
+                          type="neutral"
+                          style={{ flex: 1 }}
+                        >
+                          Hủy
+                        </Button>
+                      </Box>
+                    </Box>
+                  );
+                }
+
+                return (
+                  <Box
+                    key={building.id}
+                    p={3}
+                    onClick={() => handleBuildingClick(building.id)}
+                    style={{
+                      border: "1px solid #e0e0e0",
+                      borderRadius: 8,
+                      backgroundColor: "#fff",
+                      cursor: "pointer",
+                      transition: "all 0.2s",
+                      position: "relative",
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = "#f5f5f5";
+                      e.currentTarget.style.borderColor = "#007AFF";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = "#fff";
+                      e.currentTarget.style.borderColor = "#e0e0e0";
+                    }}
+                  >
+                    <Box flex justifyContent="space-between" alignItems="flex-start">
+                      <Box flex flexDirection="column" style={{ flex: 1, paddingRight: 64 }}>
+                        <Text style={{ fontSize: 16, fontWeight: "bold", marginBottom: 4 }}>
+                          <BuildingFillIcon size={16} color="black" style={{ display: "inline-block", verticalAlign: "middle", margin: "0 4px 2px 0" }} />
+                          {building.name}
+                        </Text>
+                        {building.address && (
+                          <Text style={{ fontSize: 14, color: "#666", marginTop: 4 }}>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="black" xmlns="http://www.w3.org/2000/svg" style={{ display: "inline-block", verticalAlign: "middle", margin: "0 4px 2px 0" }}>
+                              <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
+                            </svg>
+                            {building.address}
+                          </Text>
+                        )}
+                      </Box>
+                      <Box
+                        style={{
+                          position: "absolute",
+                          top: 12,
+                          right: 12,
+                          display: "flex",
+                          gap: 12,
+                          alignItems: "center",
+                          zIndex: 10,
+                        }}
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <div
+                          style={{ cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", padding: 4 }}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            startEditingBuilding(building);
+                          }}
+                        >
+                          <EditIcon size={18} color="black" />
+                        </div>
+                        <div
+                          style={{ cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", padding: 4 }}
+                          onClick={async (e) => {
+                            e.stopPropagation();
+                            if (!confirm("Bạn có chắc muốn xóa tòa nhà này?")) return;
+                            try {
+                              const res = await fetch(`${API_BASE_URL}/api/buildings/${building.id}`, {
+                                method: "DELETE",
+                              });
+                              if (res.ok) {
+                                setBuildings(prev => prev.filter(b => b.id !== building.id));
+                              }
+                            } catch (error) {
+                              console.error("Lỗi xóa tòa nhà:", error);
+                            }
+                          }}
+                        >
+                          <svg width="20" height="20" viewBox="0 0 24 24" fill="#d10000" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
+                          </svg>
+                        </div>
+                      </Box>
+                    </Box>
                   </Box>
-                </Box>
-              ))
+                );
+              })
             )}
           </>
         )}
