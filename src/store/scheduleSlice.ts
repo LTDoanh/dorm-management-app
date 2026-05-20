@@ -25,6 +25,10 @@ const scheduleSlice: StateCreator<
 > = (set, get) => ({
     gettingSchedule: false,
     creatingSchedule: false,
+
+    /**
+     * Tải thông tin lịch hẹn làm việc của người dùng hiện tại và lưu vào store
+     */
     getSchedule: async () => {
         try {
             const organizationId = get().organization?.id;
@@ -53,6 +57,10 @@ const scheduleSlice: StateCreator<
             }));
         }
     },
+
+    /**
+     * Gửi yêu cầu đăng ký lịch hẹn mới và cập nhật trạng thái vào store
+     */
     createSchedule: async (
         params: Omit<CreateWorkScheduleParams, "organizationId">,
     ) => {

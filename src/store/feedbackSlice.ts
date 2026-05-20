@@ -31,6 +31,9 @@ const feedbackSlice: StateCreator<FeedbackSlice> = (set, get) => ({
     gettingFeedback: false,
     gettingFeedbackType: false,
 
+    /**
+     * Gửi yêu cầu phản hồi mới và lưu trạng thái kết quả phản hồi vào store
+     */
     createFeedback: async (
         feedback: CreateFeedbackParams,
         organizationId: string,
@@ -54,6 +57,10 @@ const feedbackSlice: StateCreator<FeedbackSlice> = (set, get) => ({
             }));
         }
     },
+
+    /**
+     * Tải danh sách phản hồi/góp ý theo phân trang và cập nhật vào store
+     */
     getFeedbacks: async (params: GetFeedbacksParams) => {
         try {
             const { firstFetch = false } = params;
@@ -86,6 +93,10 @@ const feedbackSlice: StateCreator<FeedbackSlice> = (set, get) => ({
             }));
         }
     },
+
+    /**
+     * Tải danh sách phân loại phản hồi/góp ý từ máy chủ
+     */
     getFeedbackTypes: async (params: GetFeedbackTypeParams) => {
         try {
             set(state => ({
@@ -106,6 +117,10 @@ const feedbackSlice: StateCreator<FeedbackSlice> = (set, get) => ({
             }));
         }
     },
+
+    /**
+     * Tìm kiếm và trích xuất thông tin chi tiết của một phản hồi có sẵn trong store
+     */
     getFeedback: (params: { id: number }) => {
         const { id } = params;
 

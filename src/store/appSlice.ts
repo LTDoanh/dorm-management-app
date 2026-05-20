@@ -8,6 +8,9 @@ export interface AppSlice {
 }
 
 const appSlice: StateCreator<AppSlice, [], [], AppSlice> = (set, get) => ({
+    /**
+     * Thiết lập và tự động xóa thông báo lỗi hệ thống bằng debounce
+     */
     setError: (error?: AppError) => {
         set(state => ({ ...state, error }));
         debounce(() => {

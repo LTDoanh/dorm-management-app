@@ -27,6 +27,9 @@ export interface GetOrganizationParams {
     miniAppId: string;
 }
 
+/**
+ * Lấy thông tin chi tiết của tổ chức/quản lý mini app từ máy chủ
+ */
 export const getOrganization = async (
     params: GetOrganizationParams,
 ): Promise<Organization> => {
@@ -66,6 +69,9 @@ export interface GetArticlesResponse {
     total: number;
 }
 
+/**
+ * Lấy danh sách các bài viết/tin tức của tổ chức theo phân trang
+ */
 export const getArticles = async (
     params: GetArticlesParams,
 ): Promise<Articles> => {
@@ -114,6 +120,9 @@ export interface GetFeedbacksResponse {
     total: number;
 }
 
+/**
+ * Lấy danh sách phản hồi/góp ý của người dùng theo phân trang
+ */
 export const getFeedbacks = async (
     params: GetFeedbacksParams,
 ): Promise<Feedbacks> => {
@@ -161,6 +170,9 @@ export interface GetFeedbackTypeParams {
     organizationId: string;
 }
 
+/**
+ * Lấy danh sách các phân loại góp ý/phản hồi được cấu hình
+ */
 export const getFeedbackTypes = async (params: GetFeedbackTypeParams) => {
     try {
         const { organizationId } = params;
@@ -189,6 +201,9 @@ export interface CreateFeedbackParams {
     token: string;
 }
 
+/**
+ * Gửi biểu mẫu tạo phản hồi/góp ý mới lên máy chủ
+ */
 export const createFeedback = async (
     feedback: CreateFeedbackParams,
     organizationId: string,
@@ -217,6 +232,9 @@ export interface GetInformationGuidesResponse {
     total: number;
 }
 
+/**
+ * Lấy danh sách các bài viết hướng dẫn thông tin (Q&A) theo phân trang
+ */
 export const getInformationGuides = async (
     params: GetInformationGuidesParams,
 ): Promise<InformationGuides> => {
@@ -269,6 +287,9 @@ export interface GetWorkScheduleResponse {
     rejectedInfo?: string;
 }
 
+/**
+ * Lấy lịch hẹn làm việc hiện tại của người dùng với ban quản lý/chủ trọ
+ */
 export const getWorkSchedule = async (
     params: GetWorkScheduleParams,
 ): Promise<ScheduleAppointment | null> => {
@@ -324,6 +345,9 @@ export interface CreateWorkScheduleResponse {
     status: ScheduleAppointmentStatus;
 }
 
+/**
+ * Gửi yêu cầu đăng ký lịch hẹn làm việc mới lên hệ thống
+ */
 export const createWorkSchedule = async (
     params: CreateWorkScheduleParams,
 ): Promise<ScheduleAppointment | null> => {
@@ -370,6 +394,9 @@ export interface SearchProfileParams {
 
 export type SearchProfilesResponse = Profile[];
 
+/**
+ * Tìm kiếm danh sách hồ sơ căn hộ/phòng trọ hoặc hợp đồng theo mã tra cứu
+ */
 export const searchProfiles = async (
     params: SearchProfileParams,
 ): Promise<Profile[] | undefined> => {

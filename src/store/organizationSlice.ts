@@ -25,6 +25,9 @@ const organizationSlice: StateCreator<OrganizationSlice> = (set, get) => ({
     gettingOrganization: false,
     gettingProfile: false,
 
+    /**
+     * Gửi yêu cầu quan tâm Official Account Zalo và cập nhật trạng thái tương tác vào store
+     */
     followOA: async (params: { id: string }) => {
         try {
             await followOfficialAccount(params);
@@ -50,6 +53,10 @@ const organizationSlice: StateCreator<OrganizationSlice> = (set, get) => ({
             console.log("err: ", err);
         }
     },
+
+    /**
+     * Tải thông tin chi tiết của tổ chức/quản lý và lưu vào store
+     */
     getOrganization: async (params: GetOrganizationParams) => {
         try {
             set(state => ({
@@ -69,6 +76,10 @@ const organizationSlice: StateCreator<OrganizationSlice> = (set, get) => ({
             }));
         }
     },
+
+    /**
+     * Tải danh sách bài viết/tin tức của tổ chức theo phân trang và lưu vào store
+     */
     getArticles: async (params: GetArticlesParams) => {
         try {
             set(state => ({

@@ -1,5 +1,8 @@
 import { padWithLeadingZeros } from "./string";
 
+/**
+ * Định dạng đối tượng Date thành chuỗi ký tự theo định dạng tùy chọn (mặc định: mm/dd/yyyy)
+ */
 export const formatDate = (date: Date, format = "mm/dd/yyyy"): string => {
     if (!date) {
         return "";
@@ -32,6 +35,9 @@ export const formatDate = (date: Date, format = "mm/dd/yyyy"): string => {
     });
 };
 
+/**
+ * Định dạng đối tượng Date thành chuỗi hiển thị đầy đủ ngày giờ (Ví dụ: 14:30 - 20/05/2026)
+ */
 export const formatDateTime = (date?: Date): string => {
     if (!date) {
         return "";

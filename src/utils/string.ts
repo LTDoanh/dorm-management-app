@@ -1,3 +1,6 @@
+/**
+ * Tạo ký tự viết tắt đại diện cho tên người dùng làm avatar mặc định
+ */
 export const getAvatarName = ({
     name,
     length = 2,
@@ -11,8 +14,8 @@ export const getAvatarName = ({
         .join("")
         .slice(0, length);
 
-/*
-  generatePath function from  @remix-run/router
+/**
+ * Tạo đường dẫn URL động bằng cách ghép các tham số truyền vào
  */
 export const generatePath = (
     originalPath: string,
@@ -58,13 +61,13 @@ export const generatePath = (
 };
 
 /**
- * Add leading zero number
+ * Bổ sung các chữ số 0 ở đầu để đảm bảo độ dài chuỗi ký tự cố định
  */
 export const padWithLeadingZeros = (num: number, totalLength: number) =>
     String(num).padStart(totalLength, "0");
 
 /**
- * Validate phoneNumber
+ * Kiểm tra tính hợp lệ của định dạng số điện thoại
  */
 export const isValidPhoneNumber = (number: string) => {
     const phoneno = /^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/;

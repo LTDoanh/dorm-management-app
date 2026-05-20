@@ -14,6 +14,9 @@ export interface InformationGuideSlice {
 const informationGuideSlice: StateCreator<InformationGuideSlice> = set => ({
     gettingInformationGuide: true,
 
+    /**
+     * Tải danh sách bài viết hướng dẫn thông tin (Q&A) theo phân trang và cập nhật vào store
+     */
     getInformationGuides: async (params: GetInformationGuidesParams) => {
         try {
             set(state => ({
