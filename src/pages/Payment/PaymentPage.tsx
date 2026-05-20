@@ -6,6 +6,7 @@ import { Box, Text, Button, Spinner } from "zmp-ui";
 import { useStore } from "@store";
 import zmp from "zmp-sdk";
 import { API_BASE_URL } from "@constants/common";
+import { BANKS } from "@components/common/BankSelect";
 
 interface PaymentData {
   tenant: {
@@ -109,17 +110,19 @@ const PaymentPage: React.FC = () => {
     try {
       const total = paymentData.details.totalAmount;
       const bankAccount = paymentData.ownerBankInfo.bankAccount;
+      const bankName = paymentData.ownerBankInfo.bankName;
 
-      if (!bankAccount) {
-        alert("Chủ trọ chưa cập nhật số tài khoản ngân hàng");
+      if (!bankAccount || !bankName) {
+        alert("Chủ trọ chưa cập nhật đầy đủ số tài khoản ngân hàng");
         return;
       }
 
-      const bankCode = "13";
-      const accountName = "CHU TRO";
-      const description = encodeURIComponent(`Thanh toan tien tro - ${paymentData.tenant.roomName}`);
+      const bin = BANKS.find(b => b.name === bankName)?.bin || "970436";
+      const accountName = "CHU TRO"; // Có thể thay bằng tên thật của chủ trọ nếu có
+      const description = encodeURIComponent(`Thanh toan tien tro ${paymentData.tenant.roomName}`);
 
-      const transferUrl = `https://social.zalopay.vn/transfer?accountno=${bankAccount}&bankcode=${bankCode}&amount=${total}&accountname=${accountName}&desc=${description}`;
+      // ZaloPay social transfer deep link
+      const transferUrl = `https://social.zalopay.vn/transfer?accountno=${bankAccount}&bankcode=${bin}&amount=${total}&accountname=${accountName}&desc=${description}`;
 
       await zmp.openWebview({
         url: transferUrl,
@@ -345,18 +348,18 @@ const PaymentPage: React.FC = () => {
               🏦 Thông tin chuyển khoản
             </Text>
 
-            {paymentData.ownerBankInfo.qrCodeUrl && (
+            {paymentData.ownerBankInfo.bankAccount && paymentData.ownerBankInfo.bankName && (
               <Box
                 flex
                 justifyContent="center"
                 style={{ marginBottom: 16 }}
               >
                 <img
-                  src={paymentData.ownerBankInfo.qrCodeUrl}
-                  alt="QR Code"
+                  src={`https://img.vietqr.io/image/${BANKS.find(b => b.name === paymentData.ownerBankInfo.bankName)?.bin || "970436"}-${paymentData.ownerBankInfo.bankAccount}-compact2.jpg?amount=${paymentData.details.totalAmount}&addInfo=${encodeURIComponent(`Thanh toan tien tro ${paymentData.tenant.roomName}`)}&accountName=CHU TRO`}
+                  alt="VietQR Code"
                   style={{
-                    width: 200,
-                    height: 200,
+                    width: 250,
+                    height: 250,
                     border: "1px solid #e0e0e0",
                     borderRadius: 8,
                   }}
