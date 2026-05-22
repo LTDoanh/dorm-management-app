@@ -105,7 +105,7 @@ const HomePage: React.FC = () => {
           return;
         }
       }
-      
+
       setLoading(false);
       setConfirmedInfo(true);
 
@@ -173,7 +173,7 @@ const HomePage: React.FC = () => {
                 color: "#006AF5"
               }}
             >
-              Xin chào{userName ? `, ${userName}` : ""}! 👋
+              Xin chào{userName ? `, ${userName}` : ""}!
             </Text>
           </Box>
 
@@ -189,7 +189,7 @@ const HomePage: React.FC = () => {
 
           <Box flex flexDirection="column" style={{ gap: 10 }}>
             <Input
-              placeholder="Tên người dùng *"
+              placeholder="Tên *"
               value={userName}
               onChange={(e) => setUserName(e.target.value.toString())}
               type="text"
@@ -198,7 +198,7 @@ const HomePage: React.FC = () => {
             />
 
             <Input
-              placeholder="Số điện thoại của bạn *"
+              placeholder="Số điện thoại *"
               value={phoneNumber}
               onChange={(e) => {
                 const val = e.target.value.toString();
@@ -243,7 +243,7 @@ const HomePage: React.FC = () => {
                   fontWeight: "bold",
                 }}
               >
-                🏠 Tôi là Chủ trọ
+                Tôi là Chủ trọ
               </Button>
 
               <Button
@@ -256,7 +256,7 @@ const HomePage: React.FC = () => {
                   fontWeight: "bold",
                 }}
               >
-                🏡 Tôi là Người thuê trọ
+                Tôi là Người thuê trọ
               </Button>
 
               <Button

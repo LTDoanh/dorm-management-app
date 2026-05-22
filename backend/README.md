@@ -1,23 +1,54 @@
-# Backend API - Rental Management System
+# Backend API - Dorm Management System
 
 Backend server cho ứng dụng quản lý nhà trọ Zalo Mini App.
 
-## 🚀 Tính năng
+## Tính năng
 
-- RESTful API cho quản lý users, buildings, rooms, tenants, bills
+- RESTful API cho quản lý users, buildings, rooms, tenants, payments, notifications
+- Hệ thống tạo hóa đơn hàng tháng (billing engine)
+- Xác nhận thanh toán 2 chiều (người thuê ↔ chủ trọ)
 - Hỗ trợ PostgreSQL (local hoặc Supabase)
 - Health check endpoint
-- Error handling và logging
+- Config endpoint cho go2rtc (camera RTSP relay)
+- Error handling và request logging (dev mode)
 - CORS configuration
-- Graceful shutdown
+- Graceful shutdown (SIGTERM, SIGINT)
 
-## 📋 Yêu cầu
+## Yêu cầu
 
 - Node.js >= 16.x
 - PostgreSQL >= 12.x (hoặc Supabase account)
-- npm hoặc yarn
+- npm
 
-## 🛠️ Cài đặt
+## Cấu trúc thư mục
+
+```
+backend/
+├── server.js               # Entry point, middleware, route mounting
+├── db.js                   # PostgreSQL connection pool (pg)
+├── schema.sql              # DDL tạo bảng + index (bản đầy đủ)
+├── routes/
+│   ├── users.js            # CRUD user, cập nhật bank info
+│   ├── buildings.js        # CRUD tòa nhà
+│   ├── rooms.js            # CRUD phòng
+│   ├── tenants.js          # CRUD người thuê + tạo hóa đơn (billing)
+│   ├── payments.js         # Xác nhận thanh toán (tenant + owner)
+│   ├── notifications.js    # Thông báo cho owner & tenant
+│   ├── bills.js            # Hỗ trợ truy vấn payment_details
+│   └── plate-detection.js  # Nhận diện biển số xe
+├── migrations/             # DB migration scripts (chạy thủ công)
+│   ├── add-room-prices.sql
+│   ├── add-tenant-billing-columns.sql
+│   ├── add-payment-fields.sql
+│   ├── add-notifications-table.sql
+│   ├── add-penalty-details.sql
+│   ├── add_camera_rtsp.sql
+│   └── add_license_plate.sql
+├── package.json
+└── .env                    # Environment variables (không commit)
+```
+
+## Cài đặt
 
 ### 1. Cài đặt dependencies
 
@@ -28,7 +59,7 @@ npm install
 
 ### 2. Cấu hình Database
 
-#### Option A: Sử dụng PostgreSQL Local
+#### Option A: PostgreSQL Local
 
 1. Cài đặt PostgreSQL trên máy local
 2. Tạo database:
@@ -41,27 +72,24 @@ CREATE DATABASE rental_management;
 npm run setup-db
 ```
 
-Script này sẽ tự động tạo tất cả các bảng và index cần thiết.
-
 Hoặc chạy thủ công:
 ```bash
 psql -U postgres -d rental_management -f schema.sql
 ```
 
-#### Option B: Sử dụng Supabase
+#### Option B: Supabase (Production)
 
 1. Tạo project trên [Supabase](https://supabase.com)
 2. Lấy connection string từ Supabase dashboard
 3. Sử dụng connection string trong file `.env`
+4. Copy nội dung `schema.sql` vào SQL Editor của Supabase để tạo bảng
 
 ### 3. Cấu hình Environment Variables
 
-1. Copy file `.env.example` thành `.env`:
+Copy file `.env.example` thành `.env`:
 ```bash
 cp .env.example .env
 ```
-
-2. Chỉnh sửa file `.env` với thông tin của bạn:
 
 **Cho PostgreSQL Local:**
 ```env
@@ -77,67 +105,114 @@ DB_PASSWORD=your_password
 DATABASE_URL=postgresql://user:password@host:port/database
 ```
 
-## 🏃 Chạy Server
+## Chạy Server
 
-### Test database connection:
-```bash
-npm run test-db
-```
-
-### Setup database (tạo tables):
-```bash
-npm run setup-db
-```
-
-### Development Mode (với auto-reload)
-
+### Development Mode (có request logging)
 ```bash
 npm run dev
 ```
 
 ### Production Mode
-
 ```bash
 npm start
 ```
 
-Server sẽ chạy ở `http://localhost:4000` (hoặc PORT bạn đã cấu hình).
+Server sẽ chạy ở `http://localhost:4000` (hoặc PORT đã cấu hình).
 
-## 📡 API Endpoints
+### Test database connection
+```bash
+npm run test-db
+```
 
-### Health Check
-- `GET /health` - Kiểm tra trạng thái server và database
+## API Endpoints
 
-### Users
-- `GET /api/users` - Lấy danh sách users
-- `GET /api/users/:id` - Lấy thông tin một user
-- `POST /api/users` - Tạo/cập nhật user
+### Health Check & Config
+| Method | Endpoint | Mô tả |
+|--------|----------|-------|
+| `GET` | `/health` | Kiểm tra trạng thái server và database |
+| `GET` | `/api/config/go2rtc` | Lấy URL go2rtc relay (cho camera RTSP) |
+| `GET` | `/` | Thông tin API (tên, version, danh sách endpoint) |
 
-### Buildings
-- `GET /api/buildings/owner/:ownerId` - Lấy danh sách tòa nhà của chủ trọ
-- `GET /api/buildings/:id` - Lấy thông tin một tòa nhà
-- `POST /api/buildings` - Tạo tòa nhà mới
-- `PUT /api/buildings/:id` - Cập nhật tòa nhà
-- `DELETE /api/buildings/:id` - Xóa tòa nhà
+### Users (`/api/users`)
+| Method | Endpoint | Mô tả |
+|--------|----------|-------|
+| `POST` | `/api/users` | Tạo/cập nhật user (upsert bằng ON CONFLICT) |
+| `GET` | `/api/users` | Lấy danh sách tất cả users |
+| `GET` | `/api/users/:id` | Lấy thông tin một user theo Zalo ID |
+| `PUT` | `/api/users/:id/bank-account` | Cập nhật thông tin ngân hàng & SĐT |
 
-### Rooms
-- `GET /api/rooms/building/:buildingId` - Lấy danh sách phòng trong tòa nhà
-- `GET /api/rooms/:id` - Lấy thông tin một phòng
-- `POST /api/rooms` - Tạo phòng mới
-- `PUT /api/rooms/:id` - Cập nhật phòng
-- `DELETE /api/rooms/:id` - Xóa phòng
+### Buildings (`/api/buildings`)
+| Method | Endpoint | Mô tả |
+|--------|----------|-------|
+| `GET` | `/api/buildings/owner/:ownerId` | Danh sách tòa nhà của chủ trọ |
+| `GET` | `/api/buildings/:id` | Chi tiết một tòa nhà |
+| `POST` | `/api/buildings` | Tạo tòa nhà mới (có camera RTSP URL) |
+| `PUT` | `/api/buildings/:id` | Cập nhật tòa nhà |
+| `DELETE` | `/api/buildings/:id` | Xóa tòa nhà (cascade) |
 
-### Tenants
-- `GET /api/tenants/room/:roomId` - Lấy danh sách người thuê trọ trong phòng
-- `POST /api/tenants` - Thêm người thuê trọ vào phòng
-- `DELETE /api/tenants/:id` - Xóa người thuê trọ khỏi phòng
+### Rooms (`/api/rooms`)
+| Method | Endpoint | Mô tả |
+|--------|----------|-------|
+| `GET` | `/api/rooms/building/:buildingId` | Danh sách phòng trong tòa nhà |
+| `GET` | `/api/rooms/:id` | Chi tiết một phòng |
+| `POST` | `/api/rooms` | Tạo phòng mới |
+| `PUT` | `/api/rooms/:id` | Cập nhật phòng (giá, chỉ số điện/nước) |
+| `DELETE` | `/api/rooms/:id` | Xóa phòng |
 
-### Bills
-- Các endpoint cho quản lý hóa đơn (xem trong `routes/bills.js`)
+### Tenants (`/api/tenants`)
+| Method | Endpoint | Mô tả |
+|--------|----------|-------|
+| `GET` | `/api/tenants/room/:roomId` | Danh sách tenant trong phòng (JOIN users) |
+| `POST` | `/api/tenants` | Thêm tenant vào phòng |
+| `DELETE` | `/api/tenants/:id` | Xóa một tenant |
+| `DELETE` | `/api/tenants/room/:roomId/all` | Xóa tất cả tenant trong phòng |
+| `POST` | `/api/tenants/find-by-phone` | Tìm user bằng SĐT |
+| `POST` | `/api/tenants/room/:roomId/billing` | Tạo hóa đơn tháng (tính tiền, lưu payment_details, tạo notification) |
 
-## 🔧 Cấu hình
+### Payments (`/api/payments`)
+| Method | Endpoint | Mô tả |
+|--------|----------|-------|
+| `GET` | `/api/payments/tenant/:userId` | Lấy chi tiết hóa đơn + bank info chủ trọ |
+| `GET` | `/api/payments/tenant/:userId/status` | Lấy trạng thái thanh toán |
+| `POST` | `/api/payments/confirm` | Người thuê xác nhận đã chuyển khoản |
+| `POST` | `/api/payments/owner-confirm` | Chủ trọ xác nhận đã nhận tiền (tính partial/paid/overpaid) |
 
-### Environment Variables
+### Notifications (`/api/notifications`)
+| Method | Endpoint | Mô tả |
+|--------|----------|-------|
+| `GET` | `/api/notifications/owner/:ownerId` | Thông báo của chủ trọ |
+| `GET` | `/api/notifications/owner/:ownerId/count` | Đếm thông báo chưa đọc (chủ trọ) |
+| `GET` | `/api/notifications/tenant/:userId` | Thông báo của người thuê |
+| `GET` | `/api/notifications/tenant/:userId/count` | Đếm thông báo chưa đọc (tenant) |
+| `PUT` | `/api/notifications/:id/read` | Đánh dấu đã đọc một thông báo |
+| `PUT` | `/api/notifications/owner/:ownerId/read-all` | Đánh dấu tất cả đã đọc (chủ trọ) |
+| `PUT` | `/api/notifications/tenant/:userId/read-all` | Đánh dấu tất cả đã đọc (tenant) |
+| `DELETE` | `/api/notifications/:id` | Xóa thông báo |
+
+### Plate Detection (`/api/plate-detection`)
+| Method | Endpoint | Mô tả |
+|--------|----------|-------|
+| - | `/api/plate-detection/...` | Nhận diện biển số xe (đang phát triển) |
+
+## Database Migrations
+
+Các migration script nằm trong thư mục `migrations/`. Chạy thủ công bằng cách copy nội dung vào psql hoặc Supabase SQL Editor.
+
+**Thứ tự chạy migration (nếu DB đã có schema cũ):**
+
+1. `add-room-prices.sql` — Thêm cột giá phòng, phí dịch vụ, giá điện/nước vào `rooms`
+2. `add-tenant-billing-columns.sql` — Thêm cột `current_bill`, `debt`, `last_bill_at` vào `tenants`
+3. `add-payment-fields.sql` — Thêm bank info vào `users`, payment status vào `tenants`, tạo bảng `payment_details`
+4. `add-notifications-table.sql` — Tạo bảng `notifications` + index
+5. `add-penalty-details.sql` — Thêm cột `penalty_details` (JSONB) vào `payment_details`
+6. `add_camera_rtsp.sql` — Thêm cột `camera_rtsp` vào `buildings`
+7. `add_license_plate.sql` — Thêm cột `license_plate` vào `tenants`, nullable FK notifications
+
+> **Lưu ý:** Nếu setup DB mới từ đầu, chỉ cần chạy `schema.sql` — file này đã bao gồm toàn bộ cấu trúc bảng. Các migration chỉ cần thiết khi nâng cấp DB cũ.
+
+Tất cả migration đều **idempotent** (chạy lại nhiều lần không lỗi) nhờ sử dụng `IF NOT EXISTS`.
+
+## Environment Variables
 
 | Biến | Mô tả | Mặc định |
 |------|-------|----------|
@@ -145,24 +220,32 @@ Server sẽ chạy ở `http://localhost:4000` (hoặc PORT bạn đã cấu hì
 | `PORT` | Port server chạy | `4000` |
 | `HOST` | Host server | `0.0.0.0` |
 | `FRONTEND_URL` | URL frontend (cho CORS) | `*` |
-| `DATABASE_URL` | PostgreSQL connection string | - |
-| `DB_HOST` | Database host | `localhost` |
-| `DB_PORT` | Database port | `5432` |
-| `DB_NAME` | Database name | `rental_management` |
-| `DB_USER` | Database user | `postgres` |
-| `DB_PASSWORD` | Database password | `postgres` |
+| `DATABASE_URL` | PostgreSQL connection string (production) | - |
+| `DB_HOST` | Database host (local) | `localhost` |
+| `DB_PORT` | Database port (local) | `5432` |
+| `DB_NAME` | Database name (local) | `rental_management` |
+| `DB_USER` | Database user (local) | `postgres` |
+| `DB_PASSWORD` | Database password (local) | `postgres` |
+| `GO2RTC_URL` | URL go2rtc relay server (cho camera RTSP) | - |
 
-## 📦 Deploy
+## Deploy
+
+### Deploy lên Render.com (Production hiện tại)
+
+1. Tạo Web Service trên [Render](https://render.com)
+2. Kết nối GitHub repository, chọn thư mục `backend/`
+3. Build Command: `npm install`
+4. Start Command: `npm start`
+5. Cấu hình environment variables (`DATABASE_URL`, `FRONTEND_URL`, `NODE_ENV=production`)
 
 ### Deploy lên VPS/Server
 
 1. Clone repository lên server
 2. Cài đặt dependencies: `npm install`
 3. Cấu hình `.env` file
-4. Chạy migrations (nếu có)
-5. Sử dụng PM2 hoặc systemd để chạy server:
+4. Chạy migrations (nếu nâng cấp từ DB cũ)
+5. Sử dụng PM2 để quản lý process:
 
-**Với PM2:**
 ```bash
 npm install -g pm2
 pm2 start server.js --name rental-api
@@ -170,70 +253,25 @@ pm2 save
 pm2 startup
 ```
 
-**Với systemd:**
-Tạo file `/etc/systemd/system/rental-api.service`:
-```ini
-[Unit]
-Description=Rental Management API
-After=network.target
-
-[Service]
-Type=simple
-User=your-user
-WorkingDirectory=/path/to/backend
-ExecStart=/usr/bin/node server.js
-Restart=always
-Environment=NODE_ENV=production
-
-[Install]
-WantedBy=multi-user.target
-```
-
-Sau đó:
-```bash
-sudo systemctl enable rental-api
-sudo systemctl start rental-api
-```
-
-### Deploy lên Heroku/Railway/Render
-
-1. Tạo account và project mới
-2. Kết nối GitHub repository
-3. Cấu hình environment variables
-4. Deploy tự động sẽ chạy `npm start`
-
-## 🐛 Troubleshooting
+## Troubleshooting
 
 ### Lỗi kết nối database
-
 - Kiểm tra PostgreSQL đang chạy: `sudo systemctl status postgresql`
 - Kiểm tra thông tin trong file `.env`
-- Test connection: `psql -U postgres -d rental_management`
+- Test connection: `npm run test-db`
 
 ### Port đã được sử dụng
-
 - Thay đổi PORT trong file `.env`
 - Hoặc kill process đang dùng port: `lsof -ti:4000 | xargs kill`
 
 ### CORS errors
-
 - Kiểm tra `FRONTEND_URL` trong file `.env`
-- Đảm bảo frontend URL đúng format
+- Trong production, set `FRONTEND_URL` cụ thể thay vì `*`
 
-## 📝 Notes
-
-- Server tự động test database connection khi khởi động
-- Health check endpoint có thể dùng để monitor server
-- Logs được hiển thị trong console (có thể cấu hình thêm logging service)
-
-## 🔐 Security
+## Security
 
 - Không commit file `.env` lên Git
 - Sử dụng environment variables cho sensitive data
-- Cấu hình CORS đúng cho production
+- Cấu hình CORS đúng cho production (không dùng `origin: "*"`)
 - Sử dụng HTTPS trong production
-
-## 📞 Support
-
-Nếu gặp vấn đề, vui lòng tạo issue trên repository.
-
+- **Lưu ý:** Backend hiện chưa có authentication middleware — cần bổ sung nếu deploy public

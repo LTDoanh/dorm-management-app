@@ -4,9 +4,9 @@ import dotenv from "dotenv";
 dotenv.config();
 const { Pool } = pkg;
 
-// Cấu hình database linh hoạt cho cả local và production
+// Cấu hình database cho cả local và production
 const getDbConfig = () => {
-  // Nếu có DATABASE_URL (cho Supabase hoặc production)
+  // Nếu có DATABASE_URL
   if (process.env.DATABASE_URL) {
     return {
       connectionString: process.env.DATABASE_URL,
@@ -16,7 +16,7 @@ const getDbConfig = () => {
     };
   }
 
-  // Cấu hình cho database local (PostgreSQL)
+  // Cấu hình PostgreSQL
   return {
     host: process.env.DB_HOST || "localhost",
     port: parseInt(process.env.DB_PORT || "5432"),
@@ -34,11 +34,11 @@ export const pool = new Pool(getDbConfig());
 
 // Test connection khi khởi động
 pool.on("connect", () => {
-  console.log("✅ Kết nối database thành công");
+  console.log("Kết nối database thành công");
 });
 
 pool.on("error", (err) => {
-  console.error("❌ Lỗi kết nối database:", err);
+  console.error("Lỗi kết nối database:", err);
 });
 
 // Test connection
@@ -46,11 +46,11 @@ export const testConnection = async () => {
   try {
     const client = await pool.connect();
     const result = await client.query("SELECT NOW()");
-    console.log("✅ Database connection test:", result.rows[0].now);
+    console.log("Database connection test:", result.rows[0].now);
     client.release();
     return true;
   } catch (err) {
-    console.error("❌ Database connection test failed:", err.message);
+    console.error("Database connection test failed:", err.message);
     return false;
   }
 };

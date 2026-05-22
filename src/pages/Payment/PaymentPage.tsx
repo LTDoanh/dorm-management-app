@@ -57,9 +57,7 @@ const PaymentPage: React.FC = () => {
     return () => clearInterval(interval);
   }, [user]);
 
-  /**
-   * Tải thông tin hóa đơn và thông tin chuyển khoản từ server
-   */
+  // Tải hóa đơn và thông tin chuyển khoản
   const loadPaymentData = async () => {
     try {
       setLoading(true);
@@ -79,9 +77,7 @@ const PaymentPage: React.FC = () => {
     }
   };
 
-  /**
-   * Kiểm tra và đồng bộ trạng thái thanh toán của người thuê
-   */
+  // Kiểm tra và đồng bộ trạng thái thanh toán
   const checkPaymentStatus = async () => {
     try {
       const userId = user?.idByOA || user?.id;
@@ -101,9 +97,7 @@ const PaymentPage: React.FC = () => {
     }
   };
 
-  /**
-   * Mở webview chuyển tiền ZaloPay/VietQR theo tài khoản ngân hàng của chủ trọ
-   */
+  // Mở webview chuyển tiền ZaloPay
   const handlePay = async () => {
     if (!paymentData) return;
 
@@ -118,7 +112,7 @@ const PaymentPage: React.FC = () => {
       }
 
       const bin = BANKS.find(b => b.name === bankName)?.bin || "970436";
-      const accountName = "CHU TRO"; // Có thể thay bằng tên thật của chủ trọ nếu có
+      const accountName = "CHU TRO";
       const description = encodeURIComponent(`Thanh toan tien tro ${paymentData.tenant.roomName}`);
 
       // ZaloPay social transfer deep link
@@ -133,9 +127,7 @@ const PaymentPage: React.FC = () => {
     }
   };
 
-  /**
-   * Người thuê báo cáo đã chuyển khoản thành công và chờ chủ trọ phê duyệt
-   */
+  // Báo cáo đã chuyển khoản thành công
   const handleConfirmPayment = async () => {
     if (!paymentData) return;
 
@@ -152,7 +144,7 @@ const PaymentPage: React.FC = () => {
       if (res.ok) {
         setPaymentStatus("waiting_confirmation");
         await loadPaymentData();
-        alert("Đã xác nhận chuyển khoản. Tất cả người thuê trọ trong phòng đang chờ chủ trọ xác nhận.");
+        alert("Đã xác nhận chuyển khoản. Chờ chủ trọ xác nhận.");
       } else {
         const error = await res.json();
         alert(error.error || "Không thể xác nhận thanh toán");
@@ -177,13 +169,13 @@ const PaymentPage: React.FC = () => {
     const difference = totalAmount - received;
 
     if (paymentStatus === "paid") {
-      return "✅ Chuyển khoản thành công";
+      return "Chuyển khoản thành công";
     } else if (paymentStatus === "partial") {
-      return `⚠️ Thiếu: ${formatPrice(difference)} VNĐ`;
+      return `Thiếu: ${formatPrice(difference)} VNĐ`;
     } else if (paymentStatus === "overpaid") {
-      return `💰 Thừa: ${formatPrice(-difference)} VNĐ`;
+      return `Thừa: ${formatPrice(-difference)} VNĐ`;
     } else if (paymentStatus === "waiting_confirmation") {
-      return "⏳ Đang chờ chủ trọ xác nhận...";
+      return "Đang chờ chủ trọ xác nhận...";
     }
     return "";
   };
@@ -256,28 +248,28 @@ const PaymentPage: React.FC = () => {
 
           <Box flex flexDirection="column" style={{ gap: 12 }}>
             <Box flex justifyContent="space-between">
-              <Text style={{ fontSize: 14, color: "#666" }}>🏠 Tiền phòng:</Text>
+              <Text style={{ fontSize: 14, color: "#666" }}>Tiền phòng:</Text>
               <Text style={{ fontSize: 14, fontWeight: "bold" }}>
                 {formatPrice(paymentData.details.roomPrice)} VNĐ
               </Text>
             </Box>
 
             <Box flex justifyContent="space-between">
-              <Text style={{ fontSize: 14, color: "#666" }}>🛠️ Phí dịch vụ:</Text>
+              <Text style={{ fontSize: 14, color: "#666" }}>Phí dịch vụ:</Text>
               <Text style={{ fontSize: 14, fontWeight: "bold" }}>
                 {formatPrice(paymentData.details.serviceFee)} VNĐ
               </Text>
             </Box>
 
             <Box flex justifyContent="space-between">
-              <Text style={{ fontSize: 14, color: "#666" }}>💡 Tiền điện:</Text>
+              <Text style={{ fontSize: 14, color: "#666" }}>Tiền điện:</Text>
               <Text style={{ fontSize: 14, fontWeight: "bold" }}>
                 {formatPrice(paymentData.details.electricityAmount)} VNĐ
               </Text>
             </Box>
 
             <Box flex justifyContent="space-between">
-              <Text style={{ fontSize: 14, color: "#666" }}>🚰 Tiền nước:</Text>
+              <Text style={{ fontSize: 14, color: "#666" }}>Tiền nước:</Text>
               <Text style={{ fontSize: 14, fontWeight: "bold" }}>
                 {formatPrice(paymentData.details.waterAmount)} VNĐ
               </Text>
@@ -285,7 +277,7 @@ const PaymentPage: React.FC = () => {
 
             <Box flex flexDirection="column" style={{ gap: 4 }}>
               <Box flex justifyContent="space-between">
-                <Text style={{ fontSize: 14, color: "#666" }}>⚠️ Tiền phạt:</Text>
+                <Text style={{ fontSize: 14, color: "#666" }}>Tiền phạt:</Text>
                 <Text style={{ fontSize: 14, fontWeight: "bold" }}>
                   {formatPrice(paymentData.details.penalty)} VNĐ
                 </Text>
@@ -311,7 +303,7 @@ const PaymentPage: React.FC = () => {
             </Box>
 
             <Box flex justifyContent="space-between">
-              <Text style={{ fontSize: 14, color: "#666" }}>📊 Tiền nợ:</Text>
+              <Text style={{ fontSize: 14, color: "#666" }}>Tiền nợ:</Text>
               <Text style={{ fontSize: 14, fontWeight: "bold", color: "#d10000" }}>
                 {formatPrice(paymentData.details.debtAmount)} VNĐ
               </Text>
@@ -345,7 +337,7 @@ const PaymentPage: React.FC = () => {
             }}
           >
             <Text style={{ fontSize: 16, fontWeight: "bold", marginBottom: 12 }}>
-              🏦 Thông tin chuyển khoản
+              Thông tin chuyển khoản
             </Text>
 
             {paymentData.ownerBankInfo.bankAccount && paymentData.ownerBankInfo.bankName && (
@@ -412,7 +404,7 @@ const PaymentPage: React.FC = () => {
             style={{ width: "100%" }}
             disabled={paymentStatus === "paid" || paymentStatus === "waiting_confirmation"}
           >
-            💳 Chuyển khoản
+            Chuyển khoản
           </Button>
 
           {paymentStatus === "pending" && (
@@ -428,7 +420,7 @@ const PaymentPage: React.FC = () => {
                   Đang xác nhận...
                 </>
               ) : (
-                "✔️ Xác nhận chuyển khoản thành công"
+                "Xác nhận đã chuyển khoản"
               )}
             </Button>
           )}
@@ -449,7 +441,7 @@ const PaymentPage: React.FC = () => {
                 </Text>
               </Box>
               <Text style={{ fontSize: 12, color: "#666", textAlign: "center", marginTop: 8 }}>
-                Một người thuê trọ trong phòng đã xác nhận. Tất cả đang chờ chủ trọ xác nhận.
+                Đã xác nhận chuyển khoản. Chờ chủ trọ xác nhận.
               </Text>
             </Box>
           )}

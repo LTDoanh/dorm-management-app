@@ -48,6 +48,7 @@ const BuildingDetailPage: React.FC = () => {
   const [togglingScanner, setTogglingScanner] = useState(false);
   const scanPollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
+  // Khởi tạo dữ liệu
   useEffect(() => {
     if (buildingId) {
       loadBuilding();
@@ -60,7 +61,7 @@ const BuildingDetailPage: React.FC = () => {
     };
   }, [buildingId]);
 
-  // Polling scan status khi đang quét
+  // Cập nhật trạng thái
   useEffect(() => {
     if (scanning && buildingId) {
       scanPollRef.current = setInterval(() => {
@@ -77,6 +78,7 @@ const BuildingDetailPage: React.FC = () => {
     };
   }, [scanning, buildingId]);
 
+  // Tải thông tin chi tiết của tòa nhà
   const loadBuilding = async () => {
     try {
       const res = await fetch(`${API_BASE_URL}/api/buildings/${buildingId}`);
@@ -89,6 +91,7 @@ const BuildingDetailPage: React.FC = () => {
     }
   };
 
+  // Tải danh sách các phòng
   const loadRooms = async () => {
     try {
       setLoading(true);
@@ -106,6 +109,7 @@ const BuildingDetailPage: React.FC = () => {
     }
   };
 
+  // Tải danh sách biển số xe
   const loadPlates = async () => {
     try {
       setLoadingPlates(true);
@@ -121,6 +125,7 @@ const BuildingDetailPage: React.FC = () => {
     }
   };
 
+  // Kiểm tra trạng thái hiện tại của tiến trình quét biển số xe
   const checkScanStatus = async () => {
     try {
       const res = await fetch(`${API_BASE_URL}/api/plate-detection/status/${buildingId}`);
@@ -134,6 +139,7 @@ const BuildingDetailPage: React.FC = () => {
     }
   };
 
+  // Bật hoặc tắt tiến trình quét
   const toggleScan = async () => {
     setTogglingScanner(true);
     try {
@@ -152,6 +158,7 @@ const BuildingDetailPage: React.FC = () => {
     }
   };
 
+  // Thêm phòng mới
   const addRoom = async () => {
     if (!newRoomName.trim()) return;
 
@@ -181,6 +188,7 @@ const BuildingDetailPage: React.FC = () => {
     }
   };
 
+  // Xóa phòng
   const deleteRoom = async (roomId: string) => {
     if (!confirm("Bạn có chắc muốn xóa phòng này?")) return;
     try {
@@ -195,6 +203,7 @@ const BuildingDetailPage: React.FC = () => {
     }
   };
 
+  // Chuyển hướng khi click vào phòng
   const handleRoomClick = (roomId: string) => {
     navigate(`/room/${roomId}`);
   };
@@ -288,7 +297,7 @@ const BuildingDetailPage: React.FC = () => {
                   fontWeight: "bold",
                 }}
               >
-                {togglingScanner ? "..." : scanning ? "⏹ Dừng quét" : "🔍 Quét biển số"}
+                {togglingScanner ? "..." : scanning ? "⏹ Dừng quét" : "Quét biển số"}
               </Button>
             </Box>
             <CameraStream rtspUrl={building.camera_rtsp} />
@@ -321,7 +330,7 @@ const BuildingDetailPage: React.FC = () => {
                 {scanStatus.unknownPlates.length > 0 && (
                   <Box style={{ marginTop: 4 }}>
                     <Text style={{ fontSize: 11, color: "#ff3b30", fontWeight: "bold" }}>
-                      ⚠️ Xe lạ: {scanStatus.unknownPlates.join(", ")}
+                      Xe lạ: {scanStatus.unknownPlates.join(", ")}
                     </Text>
                   </Box>
                 )}
@@ -335,7 +344,7 @@ const BuildingDetailPage: React.FC = () => {
           </Box>
         )}
 
-        {/* Danh sách biển số xe đã đăng ký */}
+        {/* Danh sách xe đã đăng ký */}
         <Box
           p={3}
           style={{
@@ -352,7 +361,7 @@ const BuildingDetailPage: React.FC = () => {
             style={{ cursor: "pointer" }}
           >
             <Text style={{ fontSize: 16, fontWeight: "bold" }}>
-              🚗 Biển số xe đã đăng ký ({plates.length})
+              Danh sách xe đã đăng ký ({plates.length})
             </Text>
             <svg
               width="20" height="20" viewBox="0 0 24 24" fill="none"

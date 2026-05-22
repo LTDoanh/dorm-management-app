@@ -27,9 +27,7 @@ const HomePage: React.FunctionComponent = () => {
         return () => clearInterval(interval);
     }, []);
 
-    /**
-     * Tải số lượng thông báo chưa đọc của người thuê từ server
-     */
+    // Tải số lượng thông báo chưa đọc
     const loadNotificationCount = async () => {
         try {
             const userId = user?.idByOA || user?.id;
@@ -110,7 +108,7 @@ const HomePage: React.FunctionComponent = () => {
                         type="highlight"
                         style={{ width: "100%" }}
                     >
-                        💳 Thanh toán tiền trọ
+                        Thanh toán tiền trọ
                     </Button>
                 </Box>
 

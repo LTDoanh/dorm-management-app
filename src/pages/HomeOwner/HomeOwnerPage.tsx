@@ -104,7 +104,7 @@ const NotificationItem: React.FC<{
           }}
         >
           <Text style={{ fontSize: 14, fontWeight: "bold", marginBottom: 8 }}>
-            💰 Xác nhận thanh toán
+            Xác nhận thanh toán
           </Text>
           <Text style={{ fontSize: 12, color: "#666", marginBottom: 8 }}>
             Số tiền cần thanh toán: <Text style={{ fontWeight: "bold", color: "#d10000" }}>{formatPrice(totalAmount)} VNĐ</Text>
@@ -125,7 +125,7 @@ const NotificationItem: React.FC<{
             style={{ width: "100%" }}
             disabled={confirming || !receivedAmount}
           >
-            {confirming ? "Đang xác nhận..." : "✅ Xác nhận đã nhận tiền"}
+            {confirming ? "Đang xác nhận..." : "Xác nhận đã nhận tiền"}
           </Button>
         </Box>
       )}
@@ -162,7 +162,7 @@ const HomeOwnerPage: React.FC = () => {
   const [editBuildingRtsp, setEditBuildingRtsp] = useState("");
 
   /**
-   * Khởi chạy chế độ chỉnh sửa cho tòa nhà được chọn và điền thông tin cũ
+   * Chỉnh sửa cho tòa nhà
    */
   const startEditingBuilding = (building: Building) => {
     setEditingBuildingId(building.id);
@@ -172,7 +172,7 @@ const HomeOwnerPage: React.FC = () => {
   };
 
   /**
-   * Gửi yêu cầu cập nhật thông tin tòa nhà lên server
+   * Gửi yêu cầu cập nhật thông tin tòa nhà
    */
   const handleUpdateBuilding = async (buildingId: string) => {
     if (!editBuildingName.trim()) return;
@@ -223,7 +223,7 @@ const HomeOwnerPage: React.FC = () => {
   }, [activeTab]);
 
   /**
-   * Tải thông tin tài khoản ngân hàng và liên hệ của chủ trọ từ server
+   * Tải thông tin tài khoản ngân hàng và liên hệ
    */
   const loadBankInfo = async () => {
     try {
@@ -247,7 +247,7 @@ const HomeOwnerPage: React.FC = () => {
   };
 
   /**
-   * Lưu thông tin liên hệ và tính toán/lưu QR thanh toán VietQR của chủ trọ
+   * Lưu thông tin
    */
   const handleSaveBankInfo = async () => {
     try {
@@ -285,7 +285,7 @@ const HomeOwnerPage: React.FC = () => {
   };
 
   /**
-   * Tải số lượng thông báo chưa đọc của chủ trọ
+   * Tải các thông báo
    */
   const loadNotificationCount = async () => {
     try {
@@ -303,7 +303,7 @@ const HomeOwnerPage: React.FC = () => {
   };
 
   /**
-   * Tải danh sách chi tiết các thông báo từ người thuê
+   * Tải danh sách chi tiết các thông báo
    */
   const loadNotificationsList = async () => {
     try {
@@ -363,7 +363,7 @@ const HomeOwnerPage: React.FC = () => {
   };
 
   /**
-   * Tải danh sách tòa nhà thuộc quản lý của chủ trọ
+   * Tải danh sách tòa nhà
    */
   const loadBuildings = async () => {
     try {
@@ -384,7 +384,7 @@ const HomeOwnerPage: React.FC = () => {
   };
 
   /**
-   * Khởi tạo và thêm mới một tòa nhà trọ
+   * Thêm mới một tòa nhà
    */
   const addBuilding = async () => {
     if (!newBuildingName.trim()) return;

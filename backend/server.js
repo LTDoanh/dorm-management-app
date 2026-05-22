@@ -23,7 +23,7 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Request logging middleware (chỉ trong development)
+// Request logging middleware
 if (process.env.NODE_ENV !== "production") {
   app.use((req, res, next) => {
     console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
@@ -95,9 +95,9 @@ const PORT = process.env.PORT || 4000;
 const HOST = process.env.HOST || "0.0.0.0";
 
 const server = app.listen(PORT, HOST, async () => {
-  console.log(`🚀 Server đang chạy ở http://${HOST === "0.0.0.0" ? "localhost" : HOST}:${PORT}`);
-  console.log(`📝 Environment: ${process.env.NODE_ENV || "development"}`);
-  
+  console.log(`Server đang chạy ở http://${HOST === "0.0.0.0" ? "localhost" : HOST}:${PORT}`);
+  console.log(`Environment: ${process.env.NODE_ENV || "development"}`);
+
   // Test database connection
   await testConnection();
 });

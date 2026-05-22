@@ -3,6 +3,7 @@ import { pool } from "../db.js";
 
 const router = express.Router();
 
+// Tọa hoặc cập nhật user
 router.post("/", async (req, res) => {
   const { id, name, avatar, role, phone_number } = req.body;
 
@@ -25,7 +26,7 @@ router.post("/", async (req, res) => {
   }
 });
 
-
+// Lấy danh sách tất cả user
 router.get("/", async (req, res) => {
   try {
     const result = await pool.query("SELECT * FROM users ORDER BY name ASC");
@@ -36,6 +37,7 @@ router.get("/", async (req, res) => {
   }
 });
 
+// Lấy user theo id
 router.get("/:id", async (req, res) => {
   try {
     const result = await pool.query("SELECT * FROM users WHERE id = $1", [

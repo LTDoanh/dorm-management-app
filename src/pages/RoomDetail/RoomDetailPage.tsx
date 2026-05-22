@@ -7,7 +7,7 @@ import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { Room } from "@dts";
 import { API_BASE_URL } from "@constants/common";
 
-/** Component xác nhận thanh toán cho từng khách thuê */
+// Xác nhận thanh toán
 const TenantPaymentConfirmation: React.FC<{
   tenant: Tenant;
   onConfirm: (tenantId: string, receivedAmount: number) => Promise<void>;
@@ -124,9 +124,7 @@ const RoomDetailPage: React.FC = () => {
     }
   }, [roomId, searchParams]);
 
-  /**
-   * Tải thông tin chi tiết và thiết lập đơn giá dịch vụ của phòng trọ
-   */
+  // Tải chi tiết và thiết lập đơn giá dịch vụ phòng
   const loadRoom = async () => {
     try {
       const res = await fetch(`${API_BASE_URL}/api/rooms/${roomId}`);
@@ -154,9 +152,7 @@ const RoomDetailPage: React.FC = () => {
     }
   };
 
-  /**
-   * Tải danh sách những người thuê hiện tại của phòng trọ
-   */
+  // Tải danh sách người thuê hiện tại
   const loadTenants = async () => {
     try {
       setLoading(true);
@@ -174,9 +170,7 @@ const RoomDetailPage: React.FC = () => {
     }
   };
 
-  /**
-   * Cập nhật và lưu các đơn giá (phòng, dịch vụ, điện, nước) mới
-   */
+  // Cập nhật và lưu các chỉ số mới
   const handleSave = async () => {
     try {
       setSaving(true);
@@ -213,9 +207,7 @@ const RoomDetailPage: React.FC = () => {
     setNewTenantPhone("");
   };
 
-  /**
-   * Xóa người thuê ra khỏi phòng
-   */
+  // Xóa người thuê
   const handleDeleteTenant = async (tenantId: string) => {
     if (!confirm("Bạn có chắc muốn xóa người thuê trọ này?")) return;
 
@@ -232,9 +224,7 @@ const RoomDetailPage: React.FC = () => {
     }
   };
 
-  /**
-   * Xóa toàn bộ người thuê trọ trong phòng này
-   */
+  // Xóa toàn bộ người thuê
   const handleDeleteAllTenants = async () => {
     if (!confirm("Bạn có chắc muốn xóa TẤT CẢ người thuê trọ trong phòng này?")) return;
 
@@ -254,9 +244,7 @@ const RoomDetailPage: React.FC = () => {
     }
   };
 
-  /**
-   * Tìm người dùng theo số điện thoại và đăng ký vào phòng
-   */
+  // Tìm người dùng theo số điện thoại và đăng ký vào phòng
   const handleAddTenant = async () => {
     if (!newTenantPhone.trim()) {
       alert("Vui lòng nhập số điện thoại");
@@ -304,9 +292,7 @@ const RoomDetailPage: React.FC = () => {
     }
   };
 
-  /**
-   * Chủ trọ xác nhận đã nhận tiền thanh toán và đồng bộ trạng thái phòng
-   */
+  // Xác nhận đã nhận tiền thanh toán và đồng bộ trạng thái
   const handleConfirmPayment = async (tenantId: string, receivedAmount: number) => {
     try {
       const res = await fetch(`${API_BASE_URL}/api/payments/owner-confirm`, {
@@ -331,7 +317,7 @@ const RoomDetailPage: React.FC = () => {
     }
   };
 
-  /** Tính tổng tiền hóa đơn dự kiến */
+  // Tính tổng tiền
   const totalPreview = useMemo(() => {
     const rp = roomPrice ? Number(roomPrice) : Number(room?.roomPrice || 0);
     const sf = serviceFee ? Number(serviceFee) : Number(room?.serviceFee || 0);
@@ -377,9 +363,7 @@ const RoomDetailPage: React.FC = () => {
     return currentWaterIndex.toString().trim() !== "" && currentElectricIndex.toString().trim() !== "";
   }, [currentWaterIndex, currentElectricIndex]);
 
-  /**
-   * Tính toán hóa đơn phòng (gồm dịch vụ, điện, nước, phạt) và tạo mới hóa đơn
-   */
+  // Tính tiền và tạo mới hóa đơn
   const handleCreateBill = async () => {
     if (!canSubmitBill) return;
     try {
@@ -409,9 +393,7 @@ const RoomDetailPage: React.FC = () => {
     }
   };
 
-  /**
-   * Gửi ảnh chụp công tơ lên Roboflow API để tự động đọc chỉ số số điện/nước
-   */
+  // Gửi ảnh chụp công tơ
   const processMeterImage = async (filePath: string, type: 'water' | 'electric') => {
     try {
       if (type === 'water') setParsingWater(true);
@@ -492,7 +474,7 @@ const RoomDetailPage: React.FC = () => {
       }
     >
       <Box p={4} flex flexDirection="column" style={{ gap: 16 }}>
-        {/* Bỏ khối header cũ màu xanh lam ở đây vì nó được gộp xuống dưới theo thiết kế mới */}
+        { }
 
         {editSection === "price" ? (
           <>
@@ -791,7 +773,7 @@ const RoomDetailPage: React.FC = () => {
           </>
         ) : (
           <>
-            {/* Thông tin tiền phòng (Tách riêng) */}
+            {/* Thông tin tiền phòng */}
             <Box
               p={3}
               style={{
@@ -841,7 +823,7 @@ const RoomDetailPage: React.FC = () => {
               </Box>
             </Box>
 
-            {/* Nhóm các khoản tính tiền dịch vụ tháng */}
+            {/* Các dịch vụ tháng */}
             <Box
               p={3}
               style={{
@@ -853,267 +835,267 @@ const RoomDetailPage: React.FC = () => {
             >
               <Text style={{ fontSize: 16, fontWeight: "bold", marginBottom: 12 }}>Tính tiền tháng</Text>
 
-                {/* Phần tính tiền nước */}
-                <Box flex flexDirection="column" style={{ gap: 8, padding: 12, border: "1px solid #eee", borderRadius: 8 }}>
-                  <Text style={{ fontWeight: "bold", color: "#333" }}>Nước</Text>
-                  <Box flex justifyContent="space-between" style={{ gap: 8 }}>
-                    <Input
-                      type="number"
-                      value={prevWaterIndex}
-                      onChange={(e) => setPrevWaterIndex(e.target.value.toString())}
-                      placeholder="Chỉ số cũ"
-                      style={{ flex: 1 }}
-                      label="Chỉ số cũ"
-                    />
-                    <Input
-                      type="number"
-                      value={currentWaterIndex}
-                      onChange={(e) => setCurrentWaterIndex(e.target.value.toString())}
-                      placeholder="Chỉ số mới *"
-                      style={{ flex: 1 }}
-                      label="Chỉ số mới"
-                    />
-                  </Box>
-                  <Box flex alignItems="center" justifyContent="space-between">
-                    <Text style={{ fontSize: 13, color: "#666" }}>
-                      Sử dụng: <Text style={{ fontWeight: "bold", color: "#333" }}>{waterUsage} khối</Text>
-                    </Text>
-                    <Box flex style={{ gap: 8 }}>
-                      <Button
-                        onClick={() => {
-                          import("zmp-sdk/apis").then(({ chooseImage }) => {
-                            chooseImage({
-                              sourceType: ["camera", "album"],
-                              count: 1,
-                              success: (res) => {
-                                if (res.filePaths && res.filePaths.length > 0) {
-                                  setWaterImage(res.filePaths[0]);
-                                  processMeterImage(res.filePaths[0], 'water');
-                                }
-                              },
-                              fail: (err) => console.error(err)
-                            });
-                          });
-                        }}
-                        style={{ background: "transparent", border: "none", boxShadow: "none", padding: 0 }}
-                        icon={(
-                          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
-                            <circle cx="12" cy="13" r="4"></circle>
-                          </svg>
-                        )}
-                      />
-                    </Box>
-                  </Box>
-                  {waterImage && (
-                    <Box mt={1} style={{ position: "relative", width: 80, height: 80 }}>
-                      <img src={waterImage} style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: 4 }} />
-                      <Button
-                        size="small"
-                        type="danger"
-                        style={{ position: "absolute", top: -5, right: -5, padding: 0, width: 20, height: 20, minWidth: 20 }}
-                        onClick={() => setWaterImage("")}
-                      >
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: "block", margin: "0 auto" }}>
-                          <line x1="18" y1="6" x2="6" y2="18"></line>
-                          <line x1="6" y1="6" x2="18" y2="18"></line>
-                        </svg>
-                      </Button>
-                    </Box>
-                  )}
+              {/* Nước */}
+              <Box flex flexDirection="column" style={{ gap: 8, padding: 12, border: "1px solid #eee", borderRadius: 8 }}>
+                <Text style={{ fontWeight: "bold", color: "#333" }}>Nước</Text>
+                <Box flex justifyContent="space-between" style={{ gap: 8 }}>
+                  <Input
+                    type="number"
+                    value={prevWaterIndex}
+                    onChange={(e) => setPrevWaterIndex(e.target.value.toString())}
+                    placeholder="Chỉ số cũ"
+                    style={{ flex: 1 }}
+                    label="Chỉ số cũ"
+                  />
+                  <Input
+                    type="number"
+                    value={currentWaterIndex}
+                    onChange={(e) => setCurrentWaterIndex(e.target.value.toString())}
+                    placeholder="Chỉ số mới *"
+                    style={{ flex: 1 }}
+                    label="Chỉ số mới"
+                  />
                 </Box>
-
-                {/* Phần tính tiền điện */}
-                <Box flex flexDirection="column" style={{ gap: 8, padding: 12, border: "1px solid #eee", borderRadius: 8 }}>
-                  <Text style={{ fontWeight: "bold", color: "#333" }}>Điện</Text>
-                  <Box flex justifyContent="space-between" style={{ gap: 8 }}>
-                    <Input
-                      type="number"
-                      value={prevElectricIndex}
-                      onChange={(e) => setPrevElectricIndex(e.target.value.toString())}
-                      placeholder="Chỉ số cũ"
-                      style={{ flex: 1 }}
-                      label="Chỉ số cũ"
-                    />
-                    <Input
-                      type="number"
-                      value={currentElectricIndex}
-                      onChange={(e) => setCurrentElectricIndex(e.target.value.toString())}
-                      placeholder="Chỉ số mới *"
-                      style={{ flex: 1 }}
-                      label="Chỉ số mới"
-                    />
-                  </Box>
-                  <Box flex alignItems="center" justifyContent="space-between">
-                    <Text style={{ fontSize: 13, color: "#666" }}>
-                      Sử dụng: <Text style={{ fontWeight: "bold", color: "#333" }}>{electricUsage} số</Text>
-                    </Text>
-                    <Box flex style={{ gap: 8 }}>
-                      <Button
-                        onClick={() => {
-                          import("zmp-sdk/apis").then(({ chooseImage }) => {
-                            chooseImage({
-                              sourceType: ["camera", "album"],
-                              count: 1,
-                              success: (res) => {
-                                if (res.filePaths && res.filePaths.length > 0) {
-                                  setElectricImage(res.filePaths[0]);
-                                  processMeterImage(res.filePaths[0], 'electric');
-                                }
-                              },
-                              fail: (err) => console.error(err)
-                            });
-                          });
-                        }}
-                        style={{ background: "transparent", border: "none", boxShadow: "none", padding: 0 }}
-                        icon={(
-                          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
-                            <circle cx="12" cy="13" r="4"></circle>
-                          </svg>
-                        )}
-                      />
-                    </Box>
-                  </Box>
-                  {electricImage && (
-                    <Box mt={1} style={{ position: "relative", width: 80, height: 80 }}>
-                      <img src={electricImage} style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: 4 }} />
-                      <Button
-                        size="small"
-                        type="danger"
-                        style={{ position: "absolute", top: -5, right: -5, padding: 0, width: 20, height: 20, minWidth: 20 }}
-                        onClick={() => setElectricImage("")}
-                      >
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: "block", margin: "0 auto" }}>
-                          <line x1="18" y1="6" x2="6" y2="18"></line>
-                          <line x1="6" y1="6" x2="18" y2="18"></line>
-                        </svg>
-                      </Button>
-                    </Box>
-                  )}
-                </Box>
-
-                {/* Tiền phạt */}
-                <Box flex flexDirection="column" style={{ gap: 8, padding: 12, border: "1px solid #eee", borderRadius: 8 }}>
-                  <Box flex justifyContent="space-between" alignItems="center">
-                    <Text style={{ fontWeight: "bold", color: "#333" }}>Tiền phạt</Text>
+                <Box flex alignItems="center" justifyContent="space-between">
+                  <Text style={{ fontSize: 13, color: "#666" }}>
+                    Sử dụng: <Text style={{ fontWeight: "bold", color: "#333" }}>{waterUsage} khối</Text>
+                  </Text>
+                  <Box flex style={{ gap: 8 }}>
                     <Button
-                      onClick={() => handleOpenPenaltyModal()}
-                      style={{ background: "transparent", border: "none", boxShadow: "none", padding: 0, minWidth: "auto", height: "auto" }}
+                      onClick={() => {
+                        import("zmp-sdk/apis").then(({ chooseImage }) => {
+                          chooseImage({
+                            sourceType: ["camera", "album"],
+                            count: 1,
+                            success: (res) => {
+                              if (res.filePaths && res.filePaths.length > 0) {
+                                setWaterImage(res.filePaths[0]);
+                                processMeterImage(res.filePaths[0], 'water');
+                              }
+                            },
+                            fail: (err) => console.error(err)
+                          });
+                        });
+                      }}
+                      style={{ background: "transparent", border: "none", boxShadow: "none", padding: 0 }}
+                      icon={(
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                          <circle cx="12" cy="13" r="4"></circle>
+                        </svg>
+                      )}
+                    />
+                  </Box>
+                </Box>
+                {waterImage && (
+                  <Box mt={1} style={{ position: "relative", width: 80, height: 80 }}>
+                    <img src={waterImage} style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: 4 }} />
+                    <Button
                       size="small"
+                      type="danger"
+                      style={{ position: "absolute", top: -5, right: -5, padding: 0, width: 20, height: 20, minWidth: 20 }}
+                      onClick={() => setWaterImage("")}
                     >
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: "block" }}>
-                        <rect x="3" y="3" width="18" height="18" rx="4" ry="4"></rect>
-                        <line x1="12" y1="8" x2="12" y2="16"></line>
-                        <line x1="8" y1="12" x2="16" y2="12"></line>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: "block", margin: "0 auto" }}>
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
                       </svg>
                     </Button>
                   </Box>
-                  {penaltyDetails.length > 0 && (
-                    <Box mt={2} style={{ border: "1px solid #eee", borderRadius: 8, overflow: 'hidden' }}>
-                      <Box flex style={{ padding: 8, backgroundColor: '#f5f5f5', borderBottom: '1px solid #eee' }}>
-                        <Text style={{ flex: 1, fontSize: 13, fontWeight: 'bold' }}>Nguyên nhân</Text>
-                        <Text style={{ width: 100, fontSize: 13, fontWeight: 'bold', textAlign: 'right' }}>Số tiền (VNĐ)</Text>
-                      </Box>
-                      {penaltyDetails.map((p, idx) => (
-                        <Box
-                          key={idx}
-                          flex
-                          onClick={() => handleOpenPenaltyModal(idx)}
-                          style={{ padding: 8, borderBottom: idx < penaltyDetails.length - 1 ? '1px solid #eee' : 'none', cursor: 'pointer', backgroundColor: '#fff' }}
-                        >
-                          <Text style={{ flex: 1, fontSize: 13, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-                            {p.reason}
-                          </Text>
-                          <Text style={{ width: 100, fontSize: 13, textAlign: 'right', fontWeight: 'bold' }}>
-                            {formatPrice(p.amount)}
-                          </Text>
-                        </Box>
-                      ))}
-                      <Box flex style={{ padding: 8, backgroundColor: '#fff0f0', borderTop: '1px solid #eee' }}>
-                        <Text style={{ flex: 1, fontSize: 13, fontWeight: 'bold', color: '#d10000' }}>Tổng cộng:</Text>
-                        <Text style={{ width: 100, fontSize: 13, fontWeight: 'bold', color: '#d10000', textAlign: 'right' }}>
-                          {formatPrice(penaltyDetails.reduce((sum, item) => sum + (Number(item.amount) || 0), 0))}
-                        </Text>
-                      </Box>
-                    </Box>
-                  )}
-                </Box>
+                )}
+              </Box>
 
-                <Box
-                  flex
-                  justifyContent="space-between"
-                  alignItems="center"
-                  style={{
-                    padding: 12,
-                    border: "1px solid #e0e0e0",
-                    borderRadius: 8,
-                    backgroundColor: "#f9f9f9",
-                  }}
-                >
-                  <Text style={{ fontSize: 14, color: "#666" }}>Tổng tiền dự kiến:</Text>
-                  <Text style={{ fontSize: 16, fontWeight: "bold", color: "#d10000" }}>
-                    {formatPrice(totalPreview)} VNĐ
-                  </Text>
+              {/* Điện */}
+              <Box flex flexDirection="column" style={{ gap: 8, padding: 12, border: "1px solid #eee", borderRadius: 8 }}>
+                <Text style={{ fontWeight: "bold", color: "#333" }}>Điện</Text>
+                <Box flex justifyContent="space-between" style={{ gap: 8 }}>
+                  <Input
+                    type="number"
+                    value={prevElectricIndex}
+                    onChange={(e) => setPrevElectricIndex(e.target.value.toString())}
+                    placeholder="Chỉ số cũ"
+                    style={{ flex: 1 }}
+                    label="Chỉ số cũ"
+                  />
+                  <Input
+                    type="number"
+                    value={currentElectricIndex}
+                    onChange={(e) => setCurrentElectricIndex(e.target.value.toString())}
+                    placeholder="Chỉ số mới *"
+                    style={{ flex: 1 }}
+                    label="Chỉ số mới"
+                  />
                 </Box>
-                {billingStatus && (
-                  <Box
-                    flex
-                    justifyContent="center"
-                    alignItems="center"
-                    style={{
-                      padding: 10,
-                      borderRadius: 8,
-                      backgroundColor: billingStatus === "confirmed" ? "#e8f5e9" : "#fff3e0",
-                      border: `1px solid ${billingStatus === "confirmed" ? "#4caf50" : "#ff9800"}`,
-                    }}
-                  >
-                    <Text style={{
-                      fontSize: 14,
-                      fontWeight: "bold",
-                      color: billingStatus === "confirmed" ? "#2e7d32" : "#e65100",
-                    }}>
-                      {billingStatus === "unpaid" ? "Chưa thanh toán" : "Đã xác nhận thanh toán"}
-                    </Text>
+                <Box flex alignItems="center" justifyContent="space-between">
+                  <Text style={{ fontSize: 13, color: "#666" }}>
+                    Sử dụng: <Text style={{ fontWeight: "bold", color: "#333" }}>{electricUsage} số</Text>
+                  </Text>
+                  <Box flex style={{ gap: 8 }}>
+                    <Button
+                      onClick={() => {
+                        import("zmp-sdk/apis").then(({ chooseImage }) => {
+                          chooseImage({
+                            sourceType: ["camera", "album"],
+                            count: 1,
+                            success: (res) => {
+                              if (res.filePaths && res.filePaths.length > 0) {
+                                setElectricImage(res.filePaths[0]);
+                                processMeterImage(res.filePaths[0], 'electric');
+                              }
+                            },
+                            fail: (err) => console.error(err)
+                          });
+                        });
+                      }}
+                      style={{ background: "transparent", border: "none", boxShadow: "none", padding: 0 }}
+                      icon={(
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                          <circle cx="12" cy="13" r="4"></circle>
+                        </svg>
+                      )}
+                    />
+                  </Box>
+                </Box>
+                {electricImage && (
+                  <Box mt={1} style={{ position: "relative", width: 80, height: 80 }}>
+                    <img src={electricImage} style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: 4 }} />
+                    <Button
+                      size="small"
+                      type="danger"
+                      style={{ position: "absolute", top: -5, right: -5, padding: 0, width: 20, height: 20, minWidth: 20 }}
+                      onClick={() => setElectricImage("")}
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: "block", margin: "0 auto" }}>
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                      </svg>
+                    </Button>
                   </Box>
                 )}
+              </Box>
 
-                <Button
-                  onClick={handleCreateBill}
-                  type="highlight"
-                  disabled={!canSubmitBill}
-                >
-                  Xác nhận
-                </Button>
-
-                {billingStatus === "unpaid" && (
+              {/* Phạt */}
+              <Box flex flexDirection="column" style={{ gap: 8, padding: 12, border: "1px solid #eee", borderRadius: 8 }}>
+                <Box flex justifyContent="space-between" alignItems="center">
+                  <Text style={{ fontWeight: "bold", color: "#333" }}>Tiền phạt</Text>
                   <Button
-                    onClick={() => {
-                      setBillingStatus("confirmed");
-                      alert("Đã xác nhận thanh toán!");
-                    }}
-                    type="neutral"
-                    style={{
-                      border: "1px solid #4caf50",
-                      color: "#2e7d32",
-                    }}
+                    onClick={() => handleOpenPenaltyModal()}
+                    style={{ background: "transparent", border: "none", boxShadow: "none", padding: 0, minWidth: "auto", height: "auto" }}
+                    size="small"
                   >
-                    Xác nhận thanh toán
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: "block" }}>
+                      <rect x="3" y="3" width="18" height="18" rx="4" ry="4"></rect>
+                      <line x1="12" y1="8" x2="12" y2="16"></line>
+                      <line x1="8" y1="12" x2="16" y2="12"></line>
+                    </svg>
                   </Button>
+                </Box>
+                {penaltyDetails.length > 0 && (
+                  <Box mt={2} style={{ border: "1px solid #eee", borderRadius: 8, overflow: 'hidden' }}>
+                    <Box flex style={{ padding: 8, backgroundColor: '#f5f5f5', borderBottom: '1px solid #eee' }}>
+                      <Text style={{ flex: 1, fontSize: 13, fontWeight: 'bold' }}>Nguyên nhân</Text>
+                      <Text style={{ width: 100, fontSize: 13, fontWeight: 'bold', textAlign: 'right' }}>Số tiền (VNĐ)</Text>
+                    </Box>
+                    {penaltyDetails.map((p, idx) => (
+                      <Box
+                        key={idx}
+                        flex
+                        onClick={() => handleOpenPenaltyModal(idx)}
+                        style={{ padding: 8, borderBottom: idx < penaltyDetails.length - 1 ? '1px solid #eee' : 'none', cursor: 'pointer', backgroundColor: '#fff' }}
+                      >
+                        <Text style={{ flex: 1, fontSize: 13, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                          {p.reason}
+                        </Text>
+                        <Text style={{ width: 100, fontSize: 13, textAlign: 'right', fontWeight: 'bold' }}>
+                          {formatPrice(p.amount)}
+                        </Text>
+                      </Box>
+                    ))}
+                    <Box flex style={{ padding: 8, backgroundColor: '#fff0f0', borderTop: '1px solid #eee' }}>
+                      <Text style={{ flex: 1, fontSize: 13, fontWeight: 'bold', color: '#d10000' }}>Tổng cộng:</Text>
+                      <Text style={{ width: 100, fontSize: 13, fontWeight: 'bold', color: '#d10000', textAlign: 'right' }}>
+                        {formatPrice(penaltyDetails.reduce((sum, item) => sum + (Number(item.amount) || 0), 0))}
+                      </Text>
+                    </Box>
+                  </Box>
                 )}
               </Box>
 
               <Box
-                p={3}
+                flex
+                justifyContent="space-between"
+                alignItems="center"
                 style={{
+                  padding: 12,
                   border: "1px solid #e0e0e0",
                   borderRadius: 8,
-                  backgroundColor: "#fff",
-                  marginTop: 8
+                  backgroundColor: "#f9f9f9",
                 }}
               >
-                <Box flex justifyContent="space-between" alignItems="center" style={{ marginBottom: 12 }}>
-                  <Text style={{ fontSize: 16, fontWeight: "bold" }}>
+                <Text style={{ fontSize: 14, color: "#666" }}>Tổng tiền dự kiến:</Text>
+                <Text style={{ fontSize: 16, fontWeight: "bold", color: "#d10000" }}>
+                  {formatPrice(totalPreview)} VNĐ
+                </Text>
+              </Box>
+              {billingStatus && (
+                <Box
+                  flex
+                  justifyContent="center"
+                  alignItems="center"
+                  style={{
+                    padding: 10,
+                    borderRadius: 8,
+                    backgroundColor: billingStatus === "confirmed" ? "#e8f5e9" : "#fff3e0",
+                    border: `1px solid ${billingStatus === "confirmed" ? "#4caf50" : "#ff9800"}`,
+                  }}
+                >
+                  <Text style={{
+                    fontSize: 14,
+                    fontWeight: "bold",
+                    color: billingStatus === "confirmed" ? "#2e7d32" : "#e65100",
+                  }}>
+                    {billingStatus === "unpaid" ? "Chưa thanh toán" : "Đã xác nhận thanh toán"}
+                  </Text>
+                </Box>
+              )}
+
+              <Button
+                onClick={handleCreateBill}
+                type="highlight"
+                disabled={!canSubmitBill}
+              >
+                Xác nhận
+              </Button>
+
+              {billingStatus === "unpaid" && (
+                <Button
+                  onClick={() => {
+                    setBillingStatus("confirmed");
+                    alert("Đã xác nhận thanh toán!");
+                  }}
+                  type="neutral"
+                  style={{
+                    border: "1px solid #4caf50",
+                    color: "#2e7d32",
+                  }}
+                >
+                  Xác nhận thanh toán
+                </Button>
+              )}
+            </Box>
+
+            <Box
+              p={3}
+              style={{
+                border: "1px solid #e0e0e0",
+                borderRadius: 8,
+                backgroundColor: "#fff",
+                marginTop: 8
+              }}
+            >
+              <Box flex justifyContent="space-between" alignItems="center" style={{ marginBottom: 12 }}>
+                <Text style={{ fontSize: 16, fontWeight: "bold" }}>
                   Danh sách người thuê trọ
                 </Text>
                 {!editSection && (
@@ -1205,7 +1187,7 @@ const RoomDetailPage: React.FC = () => {
         }
       </Box >
 
-      {/* Dialog Thêm/Sửa Tiền Phạt */}
+      {/* Dialog Tiền Phạt */}
       {
         showPenaltyModal && (
           <Box
